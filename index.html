@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9 High Studios | Poker Software Development</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span {
+            color: var(--charcoal);
+            font-weight: 300;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--red);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            background: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 150%;
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-light) 100%);
+            opacity: 0.03;
+            border-radius: 50%;
+            transform: rotate(-15deg);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            background: var(--red);
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            color: var(--white);
+            margin-bottom: 2rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            color: var(--charcoal);
+        }
+
+        .hero h1 strong {
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--dark-gray);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--charcoal);
+            border: 1px solid var(--mid-gray);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--charcoal);
+            background: var(--light-gray);
+        }
+
+        /* Product Section */
+        .product {
+            padding: 8rem 5%;
+            background: var(--light-gray);
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-content h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            color: var(--charcoal);
+        }
+
+        .product-content h2 strong {
+            font-weight: 700;
+            display: block;
+            color: var(--red);
+        }
+
+        .product-content p {
+            color: var(--dark-gray);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-list li {
+            padding: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+            border-bottom: 1px solid var(--mid-gray);
+            color: var(--dark-gray);
+        }
+
+        .feature-list li::before {
+            content: "♠";
+            position: absolute;
+            left: 0;
+            color: var(--red);
+        }
+
+        .product-visual {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 4/3;
+            border: 1px solid var(--mid-gray);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-visual::before {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(196, 30, 58, 0.02) 10px,
+                rgba(196, 30, 58, 0.02) 20px
+            );
+        }
+
+        .card-display {
+            display: flex;
+            gap: 0.5rem;
+            transform: rotate(-5deg);
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            width: 80px;
+            height: 112px;
+            background: var(--white);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 0.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+            border: 1px solid var(--mid-gray);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card-suit {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .card-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .card.red .card-suit,
+        .card.red .card-value {
+            color: var(--red);
+        }
+
+        .card.black .card-suit,
+        .card.black .card-value {
+            color: var(--charcoal);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 5%;
+            background: var(--white);
+        }
+
+        .features-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 5rem;
+        }
+
+        .features-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            padding: 2.5rem;
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--mid-gray);
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--red);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(196, 30, 58, 0.1);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-light) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .feature-card p {
+            color: var(--dark-gray);
+            font-size: 0.95rem;
+        }
+
+        /* About Section */
+        .about {
+            padding: 8rem 5%;
+            background: var(--charcoal);
+            color: var(--white);
+        }
+
+        .about .section-label {
+            color: var(--red-light);
+        }
+
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-content h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 2rem;
+            color: var(--white);
+        }
+
+        .about-content p {
+            font-size: 1.15rem;
+            opacity: 0.85;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--red-light);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 8rem 5%;
+            background: var(--light-gray);
+            text-align: center;
+        }
+
+        .contact h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .contact p {
+            color: var(--dark-gray);
+            margin-bottom: 3rem;
+        }
+
+        .contact-email {
+            font-size: 1.5rem;
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s;
+            font-weight: 500;
+        }
+
+        .contact-email:hover {
+            border-color: var(--red);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span {
+            color: var(--charcoal);
+            font-weight: 300;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--red);
+        }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .product-visual {
+                order: -1;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stat-row {
+                gap: 2rem;
+            }
+
+            .card {
+                width: 60px;
+                height: 84px;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="#" class="logo">9 HIGH <span>STUDIOS</span></a>
+        <ul class="nav-links">
+            <li><a href="#product">Product</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <span class="hero-badge">Poker Software Development</span>
+        <h1>We build the future of <strong>digital poker</strong></h1>
+        <p class="hero-subtitle">Premium poker applications engineered for performance, fairness, and exceptional player experience.</p>
+        <div class="cta-group">
+            <a href="#product" class="btn btn-primary">Discover Block 52</a>
+            <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+        </div>
+    </section>
+
+    <section id="product" class="product">
+        <div class="product-grid">
+            <div class="product-content">
+                <span class="section-label">Flagship Product</span>
+                <h2>Introducing <strong>Block 52</strong></h2>
+                <p>A next-generation poker platform built from the ground up with modern architecture, provably fair mechanics, and seamless multiplayer experiences.</p>
+                <ul class="feature-list">
+                    <li>Real-time multiplayer with sub-second latency</li>
+                    <li>Provably fair card shuffling algorithms</li>
+                    <li>Tournament and cash game support</li>
+                    <li>Cross-platform compatibility</li>
+                    <li>Advanced hand history and analytics</li>
+                </ul>
+                <a href="#contact" class="btn btn-primary">Request Demo</a>
+            </div>
+            <div class="product-visual">
+                <div class="card-display">
+                    <div class="card black">
+                        <span class="card-value">A</span>
+                        <span class="card-suit">♠</span>
+                    </div>
+                    <div class="card red">
+                        <span class="card-value">K</span>
+                        <span class="card-suit">♥</span>
+                    </div>
+                    <div class="card red">
+                        <span class="card-value">Q</span>
+                        <span class="card-suit">♦</span>
+                    </div>
+                    <div class="card black">
+                        <span class="card-value">J</span>
+                        <span class="card-suit">♣</span>
+                    </div>
+                    <div class="card black">
+                        <span class="card-value">10</span>
+                        <span class="card-suit">♠</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="features-header">
+            <span class="section-label">Why Choose Us</span>
+            <h2>Built by poker players, for poker players</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning Fast</h3>
+                <p>Optimized networking stack delivers real-time gameplay with minimal latency, even on mobile connections.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Provably Fair</h3>
+                <p>Cryptographic verification ensures every shuffle and deal can be independently audited for fairness.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Deep Analytics</h3>
+                <p>Comprehensive hand histories, statistics tracking, and performance insights for serious players.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Tournament Ready</h3>
+                <p>Full tournament management with customizable structures, late registration, and prize distribution.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Cross Platform</h3>
+                <p>Native experiences across web, iOS, Android, and desktop with synchronized player accounts.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🛠️</div>
+                <h3>White Label Ready</h3>
+                <p>Fully customizable branding and configuration for operators looking to launch their own poker room.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="about-content">
+            <span class="section-label">About Us</span>
+            <h2>Crafting exceptional poker experiences</h2>
+            <p>9 High Studios is a specialized software development company focused exclusively on poker applications. We combine deep understanding of poker mechanics with cutting-edge technology to create products that players love.</p>
+            <p>Our team brings together experienced poker players, game theorists, and software engineers united by a passion for building the best poker software in the industry.</p>
+            <div class="stat-row">
+                <div class="stat">
+                    <span class="stat-value">52</span>
+                    <span class="stat-label">Cards in the Deck</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">9</span>
+                    <span class="stat-label">High Card Rank</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">∞</span>
+                    <span class="stat-label">Possibilities</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <span class="section-label">Get in Touch</span>
+        <h2>Ready to deal?</h2>
+        <p>Whether you're an operator looking for a platform or a partner interested in collaboration, we'd love to hear from you.</p>
+        <a href="mailto:hello@9highstudios.com" class="contact-email">hello@9highstudios.com</a>
+    </section>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span></div>
+        <ul class="footer-links">
+            <li><a href="#product">Product</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">© 2025 9 High Studios. All rights reserved.</span>
+    </footer>
+</body>
+</html>
