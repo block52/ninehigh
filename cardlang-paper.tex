@@ -1,0 +1,2436 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\geometry{margin=1in}
+
+% Code listing styles
+\definecolor{codebg}{rgb}{0.95,0.95,0.95}
+\definecolor{codegreen}{rgb}{0,0.5,0}
+\definecolor{codepurple}{rgb}{0.5,0,0.5}
+
+\lstdefinestyle{haskell}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codepurple}\bfseries,
+    commentstyle=\color{codegreen},
+    stringstyle=\color{blue},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywords={data, type, deriving, where, let, in, if, then, else, case, of, class, instance}
+}
+
+\lstdefinestyle{yaml}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+% Theorem environments
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{property}{Property}[section]
+
+\title{\textbf{CardLang}: A Domain-Specific Language for\\Formally Specified Card Games}
+
+\author{
+    Lucas Cullen\\
+    \texttt{lucas@lucascullen.com}
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present \textsc{CardLang}, a domain-specific language (DSL) for the formal specification of card games. By treating fundamental card game concepts---\texttt{Card}, \texttt{Rank}, \texttt{Suit}, and \texttt{Deck}---as language primitives, we enable game definitions that are both human-readable and mathematically precise. Our functional approach, inspired by Haskell, allows deck definitions to be expressed as composable expressions over primitive types. The compiler generates verified implementations of core operations, including deterministic shuffling via Fisher-Yates with cryptographic seeding, enabling applications in provably fair gaming systems and blockchain-based card games. We demonstrate the expressiveness of \textsc{CardLang} through the specification of games ranging from simple cut-for-high-card to complex variants, and discuss integration with commitment schemes for trustless multiplayer execution.
+\end{abstract}
+
+\section{Introduction}
+
+Card games represent one of humanity's oldest forms of structured entertainment, with a rich history spanning cultures and centuries. Despite this ubiquity, no standard formalism exists for precisely specifying the rules, mechanics, and valid states of card games. Existing implementations are typically ad-hoc, mixing game logic with presentation concerns and lacking verifiable correctness properties.
+
+The emergence of online gaming platforms and blockchain-based casinos has created new demands for card game specifications that are deterministic, verifiable, and auditable. When real value is at stake, players require guarantees that the deck was fairly shuffled, that game rules are applied consistently, and that outcomes can be independently verified.
+
+We present \textsc{CardLang}, a domain-specific language designed to address these challenges. Our key contributions are:
+
+\begin{enumerate}
+    \item \textbf{Primitive Types}: A minimal set of primitive types (\texttt{Rank}, \texttt{Suit}, \texttt{Card}, \texttt{Deck}) that capture the essential structure of card games.
+    
+    \item \textbf{Functional Deck Definitions}: A compositional approach to deck construction using higher-order combinators, allowing complex deck types to be derived from simple expressions.
+    
+    \item \textbf{Deterministic Operations}: Formally specified algorithms for shuffling and other operations, parameterized by cryptographic seeds for reproducibility.
+    
+    \item \textbf{Game Specification Grammar}: A declarative syntax for specifying game rules, phases, and victory conditions.
+    
+    \item \textbf{Verified Compilation}: A compiler that generates correct-by-construction implementations of specified games.
+\end{enumerate}
+
+\section{Related Work}
+
+Game description languages have been explored in several contexts. We survey the most relevant prior work and position \textsc{CardLang} within this landscape.
+
+\subsection{General Game Playing Languages}
+
+The Game Description Language (GDL) \cite{love2008general} provides a logic-based formalism for general game playing, enabling AI agents to play any game whose rules can be expressed in the language. GDL uses first-order logic predicates to describe game states and legal moves. While powerful and general, GDL lacks domain-specific primitives for card games, requiring verbose encodings of concepts like decks, shuffling, and card comparison. The extended GDL-II \cite{thielscher2010general} adds support for incomplete information and stochasticity, essential for card games, but still treats cards as generic game tokens without semantic structure.
+
+The Video Game Description Language (VGDL) \cite{schaul2013extensible} targets arcade-style games rather than turn-based card games. Ludii \cite{piette2020ludii} provides a comprehensive game description system focused primarily on board games, with some support for card games through general mechanisms.
+
+\subsection{The Joker Programming Language}
+
+Joker \cite{eng2003joker} is a domain-specific language for turn-based card games developed at Columbia University. It introduced several concepts that influenced subsequent card game DSLs:
+
+\begin{itemize}
+    \item \textbf{Pack as primitive type}: Joker treats the deck (called ``pack'') as a first-class data structure with built-in operations for push, pop, enqueue, and shuffle.
+    
+    \item \textbf{Hierarchy declaration}: Cards are created via a hierarchy declaration specifying ranks and suits with associated values:
+    \begin{lstlisting}[style=haskell]
+hierarchy : { A(14), K(13), Q(12), J(11) }
+         by { spades(2), hearts(1) } into theDeck;
+    \end{lstlisting}
+    
+    \item \textbf{Card attributes}: Cards expose \texttt{.rank}, \texttt{.suit}, and \texttt{.value} attributes for comparison and display.
+    
+    \item \textbf{Compilation to JVM}: Joker compiles to Java bytecode via ANTLR-generated lexer/parser and tree walker.
+\end{itemize}
+
+\textsc{CardLang} differs from Joker in several key respects:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Aspect} & \textbf{Joker} & \textbf{CardLang} \\
+\midrule
+Paradigm & Imperative & Functional/Declarative \\
+Deck definition & Hierarchy declaration & Composable expressions \\
+Shuffle & Non-deterministic (\texttt{@}) & Deterministic (seeded) \\
+Verification & None & Cryptographic proofs \\
+State model & Mutable & Pure functions on state \\
+Target & JVM bytecode & Multiple backends \\
+Visibility & Implicit & Explicit primitive \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of Joker and \textsc{CardLang}.}
+\label{tab:joker-comparison}
+\end{table}
+
+The fundamental distinction is that Joker's shuffle operator \texttt{@} produces non-deterministic results, making game replay and verification impossible. \textsc{CardLang}'s deterministic shuffle with explicit seeds enables provably fair gaming---a requirement Joker predates by design, as blockchain gaming did not exist in 2003.
+
+Joker's imperative style also means game state is implicitly mutated:
+\begin{lstlisting}[style=haskell]
+-- Joker: mutation is implicit
+pack myHand = (theDeck >> 1);  // theDeck is modified
+
+-- CardLang: state transformation is explicit  
+(state', card) <- draw 1 deckZone handZone state
+\end{lstlisting}
+
+This explicit state threading in \textsc{CardLang} enables formal verification of game properties and simplifies reasoning about game correctness.
+
+\subsection{Card Game Description Language (CGDL)}
+
+Font et al. \cite{font2013card} present a context-free grammar $\mathcal{G}_{cardgame}$ for expressing card game rules, with the goal of procedurally generating novel card games. Their grammar covers:
+
+\begin{itemize}
+    \item Game setup (deck composition, deal count)
+    \item Turn structure and player actions
+    \item Win conditions and scoring
+\end{itemize}
+
+CGDL focuses on \emph{generative} applications---using the grammar to evolve new games via genetic programming. Kowalski \cite{kowalski2014embedding} later demonstrated a translation from CGDL to GDL-II, proving the languages are expressively equivalent for the class of games CGDL can describe.
+
+\textsc{CardLang} differs from CGDL in its focus on \emph{implementation correctness} rather than game generation:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Aspect} & \textbf{CGDL} & \textbf{CardLang} \\
+\midrule
+Primary goal & Game generation & Verified implementation \\
+Formalism & Context-free grammar & Typed functional DSL \\
+Semantics & Simulation-based & Denotational \\
+Deck model & Fixed structure & Composable expressions \\
+Cryptography & None & First-class primitives \\
+Betting & Not addressed & Formal specification \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of CGDL and \textsc{CardLang}.}
+\label{tab:cgdl-comparison}
+\end{table}
+
+CGDL's context-free grammar approach means it cannot enforce type safety or semantic constraints at the language level. \textsc{CardLang}'s type system ensures, for example, that one cannot shuffle a non-deck zone or compare cards using an incompatible ranking.
+
+\subsection{ReCyCLE and CARDSTOCK}
+
+Recent work by van Rozen \cite{vanrozen2020languages} surveys languages for games and play, identifying key design dimensions. The ReCyCLE language and its implementation CARDSTOCK \cite{recycle2023} provide automated playtesting of card games with intelligent agents. While ReCyCLE focuses on AI evaluation, \textsc{CardLang} prioritizes cryptographic verification and blockchain deployment.
+
+\subsection{Trading Card Game DSLs}
+
+Domain-specific languages for trading card games (TCGs) like Magic: The Gathering face additional complexity due to card-specific abilities and complex interactions. RAS (Rule Automation System) \cite{ras2018} addresses this domain but targets runtime interpretation rather than verified compilation.
+
+\subsection{Mental Poker Protocols}
+
+The cryptographic foundations for fair card games were established by Shamir, Rivest, and Adleman \cite{shamir1981mental} in their seminal work on mental poker. Subsequent work \cite{castellà2005secure, barnett2003mental} refined these protocols for practical implementation. \textsc{CardLang} integrates these cryptographic primitives directly into the language, whereas prior card game DSLs treat randomness as an opaque operation.
+
+\subsection{Summary of Contributions}
+
+\textsc{CardLang} synthesizes ideas from multiple traditions:
+
+\begin{enumerate}
+    \item \textbf{From Joker}: Domain-specific primitives (Card, Deck, Pack operations)
+    \item \textbf{From CGDL}: Declarative game specification
+    \item \textbf{From GDL}: Formal semantics and state representation
+    \item \textbf{From functional programming}: Pure functions, composable expressions
+    \item \textbf{From mental poker}: Cryptographic commitment and verification
+\end{enumerate}
+
+The novel contribution is the integration of these elements into a cohesive system where game specifications are simultaneously human-readable, formally verifiable, and suitable for trustless execution on blockchain platforms.
+
+\section{Primitive Types}
+
+The foundation of \textsc{CardLang} consists of four primitive types that capture the essential structure of playing cards.
+
+\begin{definition}[Rank]
+A \texttt{Rank} is an enumerated type representing the face value of a card:
+\begin{lstlisting}[style=haskell]
+data Rank = R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 
+          | RT | RJ | RQ | RK | RA
+    deriving (Eq, Enum, Bounded)
+\end{lstlisting}
+The set of ranks is denoted $\mathcal{R} = \{2, 3, 4, 5, 6, 7, 8, 9, T, J, Q, K, A\}$ with $|\mathcal{R}| = 13$.
+\end{definition}
+
+\begin{definition}[Suit]
+A \texttt{Suit} is an enumerated type representing the suit of a card:
+\begin{lstlisting}[style=haskell]
+data Suit = Clubs | Diamonds | Hearts | Spades
+    deriving (Eq, Enum, Bounded)
+\end{lstlisting}
+The set of suits is denoted $\mathcal{S} = \{\clubsuit, \diamondsuit, \heartsuit, \spadesuit\}$ with $|\mathcal{S}| = 4$.
+\end{definition}
+
+\begin{definition}[Card]
+A \texttt{Card} is a product type of \texttt{Rank} and \texttt{Suit}:
+\begin{lstlisting}[style=haskell]
+data Card = Card Rank Suit
+    deriving (Eq)
+\end{lstlisting}
+The set of standard cards is $\mathcal{C} = \mathcal{R} \times \mathcal{S}$ with $|\mathcal{C}| = 52$.
+\end{definition}
+
+\begin{definition}[Deck]
+A \texttt{Deck} is an ordered sequence of cards:
+\begin{lstlisting}[style=haskell]
+type Deck = [Card]
+\end{lstlisting}
+A deck $D$ is a sequence $(c_0, c_1, \ldots, c_{n-1})$ where each $c_i \in \mathcal{C}$.
+\end{definition}
+
+\subsection{Byte Encoding}
+
+For efficient runtime representation and cryptographic operations, cards are encoded as single bytes.
+
+\begin{definition}[Card Encoding]
+Given a canonical deck definition $D = (c_0, c_1, \ldots, c_{n-1})$, the encoding function $\texttt{encode}_D : \mathcal{C} \to \mathbb{B}$ maps each card to its index:
+\[
+\texttt{encode}_D(c) = i \text{ where } c = c_i
+\]
+For the standard 52-card deck with the canonical ordering (clubs, diamonds, hearts, spades) $\times$ (2 through A):
+\[
+\texttt{encode}(\texttt{Card } r\ s) = \texttt{fromEnum}(r) + \texttt{fromEnum}(s) \times 13
+\]
+\end{definition}
+
+This yields the mapping: $2\clubsuit \mapsto 0$, $3\clubsuit \mapsto 1$, \ldots, $A\clubsuit \mapsto 12$, $2\diamondsuit \mapsto 13$, \ldots, $A\spadesuit \mapsto 51$.
+
+\section{Deck Definitions as Expressions}
+
+A key insight of \textsc{CardLang} is that deck definitions can be expressed as pure functions over the primitive types. This enables composition, verification, and reuse.
+
+\subsection{The Standard 52-Card Deck}
+
+\begin{lstlisting}[style=haskell]
+standard52 :: Deck
+standard52 = [Card r s | s <- [Clubs ..], r <- [R2 ..]]
+\end{lstlisting}
+
+The list comprehension generates the Cartesian product $\mathcal{R} \times \mathcal{S}$ in canonical order.
+
+\subsection{Deck Combinators}
+
+We define higher-order functions for constructing decks:
+
+\begin{lstlisting}[style=haskell]
+-- Build deck from predicates
+deckWhere :: (Rank -> Bool) -> (Suit -> Bool) -> Deck
+deckWhere rankP suitP = 
+    [Card r s | s <- filter suitP [Clubs ..]
+              , r <- filter rankP [R2 ..]]
+
+-- Add jokers to any deck
+withJokers :: Int -> Deck -> Deck
+withJokers n deck = deck ++ replicate n Joker
+
+-- Duplicate cards (for Pinochle, etc.)
+duplicated :: Int -> Deck -> Deck
+duplicated n = concatMap (replicate n)
+
+-- Filter a deck
+restricted :: (Card -> Bool) -> Deck -> Deck
+restricted = filter
+\end{lstlisting}
+
+\subsection{Example Deck Definitions}
+
+Using these combinators, common deck variants become concise expressions:
+
+\begin{lstlisting}[style=haskell]
+-- Euchre: 9 through A (24 cards)
+euchre :: Deck
+euchre = deckWhere (>= R9) (const True)
+
+-- Pinochle: 9 through A, doubled (48 cards)
+pinochle :: Deck
+pinochle = duplicated 2 $ deckWhere (>= R9) (const True)
+
+-- 500 deck: complex filtering plus joker
+fiveHundred :: Deck
+fiveHundred = redCards ++ blackCards ++ [Card R4 Hearts, Card R4 Diamonds, Joker]
+  where
+    redCards   = deckWhere (>= R7) (`elem` [Hearts, Diamonds])
+    blackCards = deckWhere (>= R5) (`elem` [Spades, Clubs])
+\end{lstlisting}
+
+\begin{property}[Deck Cardinality]
+For any deck definition $D$ constructed via combinators, $|D|$ is statically computable at compile time.
+\end{property}
+
+\section{Deterministic Shuffling}
+
+For applications requiring verifiability, shuffling must be deterministic given a seed. We specify the Fisher-Yates shuffle with cryptographic random number generation.
+
+\subsection{Fisher-Yates Algorithm}
+
+\begin{algorithm}
+\caption{Fisher-Yates Shuffle}
+\begin{algorithmic}[1]
+\Require Deck $D = [c_0, c_1, \ldots, c_{n-1}]$, seed $s \in \{0,1\}^{256}$
+\Ensure Permuted deck $D'$
+\State Initialize RNG with seed $s$
+\For{$i = n-1$ downto $1$}
+    \State $j \leftarrow \texttt{random}(0, i)$ \Comment{Uniform in $[0, i]$}
+    \State Swap $D[i]$ and $D[j]$
+\EndFor
+\State \Return $D$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{definition}[Shuffle Primitive]
+\begin{lstlisting}[style=haskell]
+shuffle :: Seed -> Deck -> Deck
+shuffle seed deck = fisherYates (initRng seed) deck
+  where
+    initRng :: Seed -> ChaCha20
+    fisherYates :: ChaCha20 -> Deck -> Deck
+\end{lstlisting}
+\end{definition}
+
+\subsection{Seed Generation for Multiplayer}
+
+In adversarial multiplayer settings, the seed must be generated via a commitment scheme to prevent manipulation.
+
+\begin{definition}[Commitment-Based Seed]
+For $n$ players, the combined seed is generated as:
+\begin{enumerate}
+    \item Each player $i$ generates random $s_i \in \{0,1\}^{256}$
+    \item Each player broadcasts commitment $h_i = H(s_i)$
+    \item After all commitments received, players reveal $s_i$
+    \item Verify $H(s_i) = h_i$ for all $i$
+    \item Combined seed: $s = H(s_1 \| s_2 \| \cdots \| s_n)$
+\end{enumerate}
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+type Seed = ByteString  -- 32 bytes
+type Commitment = ByteString  -- SHA256 hash
+
+data SeedProtocol = SeedProtocol
+    { commit :: Seed -> Commitment
+    , reveal :: Seed -> Commitment -> Bool  
+    , combine :: [Seed] -> Seed
+    }
+
+defaultProtocol :: SeedProtocol
+defaultProtocol = SeedProtocol
+    { commit  = sha256
+    , reveal  = \s c -> sha256 s == c
+    , combine = sha256 . mconcat
+    }
+\end{lstlisting}
+
+\begin{theorem}[Shuffle Fairness]
+Given the commitment-based seed generation protocol, no coalition of fewer than $n$ players can predict or influence the shuffle outcome, assuming the hash function $H$ is a random oracle.
+\end{theorem}
+
+\section{The Draw Primitive}
+
+The \texttt{draw} operation is the fundamental state transition in card games, moving cards from one zone to another. We formalize it as a pure function with explicit preconditions and postconditions.
+
+\subsection{Zones and Game State}
+
+Cards exist in \emph{zones}---distinct regions with different visibility and ownership properties.
+
+\begin{definition}[Zone]
+A \texttt{Zone} is a named, ordered collection of cards:
+\begin{lstlisting}[style=haskell]
+data ZoneType = DeckZone      -- face down, no owner
+              | HandZone      -- hidden, owned by player
+              | CommunityZone -- face up, shared
+              | DiscardZone   -- face up, no owner
+              | BurnZone      -- face down, out of play
+    deriving (Eq, Show)
+
+data Zone = Zone
+    { zoneId    :: ZoneId
+    , zoneType  :: ZoneType
+    , zoneCards :: [Card]
+    , zoneOwner :: Maybe PlayerId
+    }
+\end{lstlisting}
+\end{definition}
+
+\begin{definition}[Game State]
+The game state $\Gamma$ is a mapping from zone identifiers to zones:
+\begin{lstlisting}[style=haskell]
+type GameState = Map ZoneId Zone
+\end{lstlisting}
+We write $\Gamma(z)$ for the cards in zone $z$, and $|\Gamma(z)|$ for the count.
+\end{definition}
+
+\subsection{Draw as a Pure Function}
+
+\begin{definition}[Draw]
+The \texttt{draw} function transfers $n$ cards from a source zone to a destination zone:
+\begin{lstlisting}[style=haskell]
+draw :: Int -> ZoneId -> ZoneId -> GameState -> Either DrawError GameState
+draw n src dst state
+    | n <= 0              = Left (InvalidCount n)
+    | n > length srcCards = Left (InsufficientCards src n (length srcCards))
+    | otherwise           = Right state'
+  where
+    srcCards      = zoneCards (state ! src)
+    (drawn, rest) = splitAt n srcCards
+    state'        = state 
+                  & ix src . zoneCards .~ rest
+                  & ix dst . zoneCards %~ (++ drawn)
+\end{lstlisting}
+\end{definition}
+
+The type signature makes explicit that \texttt{draw} may fail, returning a \texttt{DrawError} in the \texttt{Left} case.
+
+\begin{lstlisting}[style=haskell]
+data DrawError 
+    = InvalidCount Int
+    | InsufficientCards ZoneId Int Int  -- zone, requested, available
+    | ZoneNotFound ZoneId
+    | CardNotInZone Card ZoneId
+    deriving (Eq, Show)
+\end{lstlisting}
+
+\subsection{Formal Specification}
+
+We specify \texttt{draw} via preconditions, postconditions, and invariants.
+
+\begin{definition}[Draw Preconditions]
+For $\texttt{draw}(n, src, dst, \Gamma)$ to succeed:
+\begin{align}
+    n &> 0 \tag{P1: positive count} \\
+    n &\leq |\Gamma(src)| \tag{P2: sufficient cards} \\
+    src &\in \text{dom}(\Gamma) \tag{P3: source exists} \\
+    dst &\in \text{dom}(\Gamma) \tag{P4: destination exists}
+\end{align}
+\end{definition}
+
+\begin{definition}[Draw Postconditions]
+If $\Gamma' = \texttt{draw}(n, src, dst, \Gamma)$ succeeds, then:
+\begin{align}
+    |\Gamma'(src)| &= |\Gamma(src)| - n \tag{Q1: source shrinks} \\
+    |\Gamma'(dst)| &= |\Gamma(dst)| + n \tag{Q2: destination grows} \\
+    \Gamma'(src) &= \texttt{drop } n\ \Gamma(src) \tag{Q3: first $n$ removed} \\
+    \texttt{take } n\ \Gamma(src) &\subseteq \Gamma'(dst) \tag{Q4: cards transferred}
+\end{align}
+\end{definition}
+
+\begin{theorem}[Card Conservation]
+The \texttt{draw} operation preserves the total card count:
+\[
+\sum_{z \in \text{dom}(\Gamma)} |\Gamma(z)| = \sum_{z \in \text{dom}(\Gamma')} |\Gamma'(z)|
+\]
+\end{theorem}
+
+\begin{proof}
+By Q1 and Q2, the source loses exactly $n$ cards and the destination gains exactly $n$ cards. All other zones are unchanged. Thus the total is preserved.
+\end{proof}
+
+\begin{theorem}[Card Identity Preservation]
+The multiset of all cards across all zones is invariant under \texttt{draw}:
+\[
+\biguplus_{z \in \text{dom}(\Gamma)} \Gamma(z) = \biguplus_{z \in \text{dom}(\Gamma')} \Gamma'(z)
+\]
+\end{theorem}
+
+\begin{proof}
+The cards removed from $src$ are exactly the cards added to $dst$; no cards are created or destroyed.
+\end{proof}
+
+\subsection{Draw Variants}
+
+Several common operations are defined in terms of the base \texttt{draw}:
+
+\begin{lstlisting}[style=haskell]
+-- Draw a single card
+draw1 :: ZoneId -> ZoneId -> GameState -> Either DrawError (Card, GameState)
+draw1 src dst state = do
+    state' <- draw 1 src dst state
+    let card = head $ zoneCards (state ! src)  -- safe: draw succeeded
+    return (card, state')
+
+-- Draw from bottom of deck
+drawBottom :: Int -> ZoneId -> ZoneId -> GameState -> Either DrawError GameState
+drawBottom n src dst state
+    | n > length srcCards = Left (InsufficientCards src n (length srcCards))
+    | otherwise           = Right state'
+  where
+    srcCards        = zoneCards (state ! src)
+    (rest, drawn)   = splitAt (length srcCards - n) srcCards
+    state'          = state
+                    & ix src . zoneCards .~ rest
+                    & ix dst . zoneCards %~ (++ drawn)
+
+-- Draw specific card (for games with choice)
+drawCard :: Card -> ZoneId -> ZoneId -> GameState -> Either DrawError GameState
+drawCard card src dst state
+    | card `notElem` srcCards = Left (CardNotInZone card src)
+    | otherwise               = Right state'
+  where
+    srcCards = zoneCards (state ! src)
+    state'   = state
+             & ix src . zoneCards %~ delete card
+             & ix dst . zoneCards %~ (++ [card])
+
+-- Draw all cards
+drawAll :: ZoneId -> ZoneId -> GameState -> GameState
+drawAll src dst state = state
+    & ix dst . zoneCards %~ (++ srcCards)
+    & ix src . zoneCards .~ []
+  where
+    srcCards = zoneCards (state ! src)
+\end{lstlisting}
+
+\subsection{Indexed Draw for Verifiability}
+
+For cryptographic verification, we track not just the resulting state but also the exact operation performed:
+
+\begin{lstlisting}[style=haskell]
+data DrawRecord = DrawRecord
+    { drCount   :: Int
+    , drSource  :: ZoneId
+    , drDest    :: ZoneId
+    , drCards   :: [Card]      -- which cards moved
+    , drIndices :: [Int]       -- their positions in source
+    } deriving (Eq, Show)
+
+drawWithRecord :: Int -> ZoneId -> ZoneId -> GameState 
+               -> Either DrawError (GameState, DrawRecord)
+drawWithRecord n src dst state = do
+    state' <- draw n src dst state
+    let srcCards = zoneCards (state ! src)
+        drawn    = take n srcCards
+        record   = DrawRecord n src dst drawn [0..n-1]
+    return (state', record)
+\end{lstlisting}
+
+The \texttt{DrawRecord} provides an audit trail: given the prior state and the record, anyone can verify the transition and reconstruct the new state.
+
+\subsection{Composition: The Deal Operation}
+
+The \texttt{deal} operation is repeated \texttt{draw} to multiple destinations:
+
+\begin{lstlisting}[style=haskell]
+-- Deal n cards to each player in order
+deal :: Int -> ZoneId -> [ZoneId] -> GameState -> Either DrawError GameState
+deal n src dsts = foldM dealOne
+  where
+    dealOne state dst = draw n src dst state
+
+-- Deal one card at a time, rotating through players (standard dealing)
+dealRound :: Int -> ZoneId -> [ZoneId] -> GameState -> Either DrawError GameState
+dealRound rounds src dsts state = foldM dealOne state (concat $ replicate rounds dsts)
+  where
+    dealOne st dst = draw 1 src dst st
+\end{lstlisting}
+
+\begin{lstlisting}[style=yaml]
+# In game specification syntax:
+setup:
+  - deal: 2 to each_player from deck    # dealRound 2 deck players
+  - deal: 5 to community from deck      # draw 5 deck community
+\end{lstlisting}
+
+\begin{property}[Deal Determinism]
+Given the same initial deck state (post-shuffle) and player order, \texttt{deal} produces identical hands regardless of implementation, as it is defined purely in terms of \texttt{draw}.
+\end{property}
+
+\section{Deck Manipulation Primitives}
+
+Beyond \texttt{draw}, several operations manipulate deck structure without transferring cards between zones. We formalize these as pure functions with verifiable properties.
+
+\subsection{Cut}
+
+The \texttt{cut} operation splits a deck at position $k$ and transposes the two halves. This is a standard anti-cheating measure in physical card games.
+
+\begin{definition}[Cut]
+For a deck $D = (c_0, c_1, \ldots, c_{n-1})$ and cut position $k \in [0, n]$:
+\[
+\texttt{cut}(k, D) = (c_k, c_{k+1}, \ldots, c_{n-1}, c_0, c_1, \ldots, c_{k-1})
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+cut :: Int -> ZoneId -> GameState -> Either CutError GameState
+cut k zone state
+    | k < 0           = Left (InvalidCutPosition k)
+    | k > length cards = Left (InvalidCutPosition k)
+    | otherwise       = Right $ state & ix zone . zoneCards .~ cut'
+  where
+    cards        = zoneCards (state ! zone)
+    (top, bottom) = splitAt k cards
+    cut'         = bottom ++ top
+
+data CutError = InvalidCutPosition Int
+              | ZoneNotFound ZoneId
+    deriving (Eq, Show)
+\end{lstlisting}
+
+\begin{property}[Cut is a Rotation]
+The cut operation is equivalent to a left rotation by $k$ positions:
+\[
+\texttt{cut}(k, D) = \texttt{rotate}_L(k, D)
+\]
+\end{property}
+
+\begin{theorem}[Cut Preserves Cards]
+For any valid cut position $k$:
+\[
+\texttt{multiset}(\texttt{cut}(k, D)) = \texttt{multiset}(D)
+\]
+The cut operation is a permutation; no cards are created, destroyed, or duplicated.
+\end{theorem}
+
+\begin{theorem}[Cut Inverse]
+Cutting is self-inverse with complementary position:
+\[
+\texttt{cut}(n - k, \texttt{cut}(k, D)) = D
+\]
+\end{theorem}
+
+\subsubsection{Deterministic Cut Selection}
+
+In a verifiable system, the cut position itself must be determined fairly. We define a seeded cut:
+
+\begin{lstlisting}[style=haskell]
+cutWithSeed :: Seed -> ZoneId -> GameState -> GameState
+cutWithSeed seed zone state = 
+    let cards = zoneCards (state ! zone)
+        n     = length cards
+        k     = bytesToInt seed `mod` n  -- uniform in [0, n-1]
+    in fromRight state $ cut k zone state
+
+-- For player-selected cuts with commitment
+data CutCommitment = CutCommitment
+    { cutPlayer   :: PlayerId
+    , cutHash     :: Hash        -- H(position || salt)
+    , cutPosition :: Maybe Int   -- revealed after commitment
+    , cutSalt     :: Maybe Salt
+    }
+\end{lstlisting}
+
+\subsection{Burn}
+
+The \texttt{burn} operation discards cards face-down, removing them from play without revealing their values. This prevents exploitation of marked cards or deck tracking.
+
+\begin{definition}[Burn]
+Burning $n$ cards transfers them from the source zone to the burn zone:
+\[
+\texttt{burn}(n, src, \Gamma) = \texttt{draw}(n, src, \texttt{burnZone}, \Gamma)
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+burn :: Int -> ZoneId -> GameState -> Either DrawError GameState
+burn n src = draw n src burnZone
+  where
+    burnZone = ZoneId "burn"
+
+-- Burn with record for verification
+burnWithRecord :: Int -> ZoneId -> GameState 
+               -> Either DrawError (GameState, BurnRecord)
+burnWithRecord n src state = do
+    (state', drawRec) <- drawWithRecord n src burnZone state
+    let burnRec = BurnRecord
+            { brCount  = n
+            , brSource = src
+            , brCards  = drCards drawRec  -- hidden in practice, revealed for verification
+            }
+    return (state', burnRec)
+
+data BurnRecord = BurnRecord
+    { brCount  :: Int
+    , brSource :: ZoneId
+    , brCards  :: [Card]  -- for post-hoc verification only
+    } deriving (Eq, Show)
+\end{lstlisting}
+
+\begin{property}[Burn Semantics]
+Burned cards are:
+\begin{enumerate}
+    \item Removed from the source zone
+    \item Not revealed to any player during normal play
+    \item Verifiable post-game via the burn record
+    \item Not recyclable (unlike discard)
+\end{enumerate}
+\end{property}
+
+\subsection{Discard}
+
+The \texttt{discard} operation moves cards to a discard pile, which unlike the burn pile may be recycled back into the deck. Discards may be either face-up (visible to all) or face-down (hidden).
+
+\begin{definition}[Visibility]
+Card visibility is a property of the zone and the discard action:
+\begin{lstlisting}[style=haskell]
+data Visibility = FaceUp | FaceDown
+    deriving (Eq, Show)
+
+data DiscardZone = DiscardZone
+    { dzId         :: ZoneId
+    , dzCards      :: [Card]
+    , dzVisibility :: [(Card, Visibility)]  -- per-card visibility
+    }
+\end{lstlisting}
+\end{definition}
+
+\begin{definition}[Discard]
+Discarding $n$ cards transfers them from source to the discard zone with specified visibility:
+\[
+\texttt{discard}(n, v, src, \Gamma) = (\Gamma', R)
+\]
+where $\Gamma'$ is the updated game state and $R$ is the discard record.
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+discard :: Int -> Visibility -> ZoneId -> GameState 
+        -> Either DiscardError GameState
+discard n vis src state
+    | n <= 0              = Left (InvalidDiscardCount n)
+    | n > length srcCards = Left (InsufficientCards src n (length srcCards))
+    | otherwise           = Right state'
+  where
+    srcCards          = zoneCards (state ! src)
+    (discarded, rest) = splitAt n srcCards
+    discardZone       = state ! discardZoneId
+    newVisibility     = dzVisibility discardZone ++ map (, vis) discarded
+    state'            = state
+                      & ix src . zoneCards .~ rest
+                      & ix discardZoneId . dzCards %~ (++ discarded)
+                      & ix discardZoneId . dzVisibility .~ newVisibility
+
+data DiscardError
+    = InvalidDiscardCount Int
+    | InsufficientCards ZoneId Int Int
+    | DiscardZoneNotFound
+    deriving (Eq, Show)
+\end{lstlisting}
+
+\subsubsection{Face-Up Discard}
+
+Face-up discards are visible to all players. This is common in games like Rummy, where players may draw from the discard pile.
+
+\begin{lstlisting}[style=haskell]
+discardFaceUp :: Int -> ZoneId -> GameState -> Either DiscardError GameState
+discardFaceUp n = discard n FaceUp
+
+-- Discard specific cards face-up (player choice)
+discardCards :: [Card] -> Visibility -> ZoneId -> GameState 
+             -> Either DiscardError GameState
+discardCards cards vis src state
+    | not (all (`elem` srcCards) cards) = Left CardNotInZone
+    | otherwise = Right state'
+  where
+    srcCards    = zoneCards (state ! src)
+    state'      = state
+                & ix src . zoneCards %~ (\\ cards)
+                & ix discardZoneId . dzCards %~ (++ cards)
+                & ix discardZoneId . dzVisibility %~ (++ map (, vis) cards)
+\end{lstlisting}
+
+\begin{definition}[Face-Up Discard Postconditions]
+After $\texttt{discardFaceUp}(n, src, \Gamma) = \Gamma'$:
+\begin{align}
+    \forall c \in \texttt{discarded} : \texttt{visible}(c, \Gamma') &= \texttt{AllPlayers} \tag{D1} \\
+    \texttt{topCard}(\Gamma'(\texttt{discard})) &= \texttt{last}(\texttt{discarded}) \tag{D2}
+\end{align}
+\end{definition}
+
+\subsubsection{Face-Down Discard}
+
+Face-down discards hide the card values. This is used when a player mucks (folds) in poker without revealing.
+
+\begin{lstlisting}[style=haskell]
+discardFaceDown :: Int -> ZoneId -> GameState -> Either DiscardError GameState
+discardFaceDown n = discard n FaceDown
+
+-- Muck: discard entire hand face-down (poker fold)
+muck :: ZoneId -> GameState -> GameState
+muck hand state = fromRight state $ discard n FaceDown hand state
+  where
+    n = length $ zoneCards (state ! hand)
+\end{lstlisting}
+
+\begin{definition}[Face-Down Discard Postconditions]
+After $\texttt{discardFaceDown}(n, src, \Gamma) = \Gamma'$:
+\begin{align}
+    \forall c \in \texttt{discarded} : \texttt{visible}(c, \Gamma') &= \emptyset \tag{D3} \\
+    \texttt{identity}(c) \text{ recoverable only from } &\texttt{DiscardRecord} \tag{D4}
+\end{align}
+\end{definition}
+
+\subsubsection{Discard with Record}
+
+For verifiable games, we track full discard history:
+
+\begin{lstlisting}[style=haskell]
+data DiscardRecord = DiscardRecord
+    { drTimestamp  :: Int              -- action sequence number
+    , drPlayer     :: Maybe PlayerId   -- who discarded (if applicable)
+    , drSource     :: ZoneId
+    , drCards      :: [Card]
+    , drVisibility :: Visibility
+    , drIndices    :: [Int]            -- original positions in source
+    } deriving (Eq, Show)
+
+discardWithRecord :: Int -> Visibility -> ZoneId -> GameState
+                  -> Either DiscardError (GameState, DiscardRecord)
+discardWithRecord n vis src state = do
+    state' <- discard n vis src state
+    let srcCards = zoneCards (state ! src)
+        record   = DiscardRecord
+            { drTimestamp  = actionCount state
+            , drPlayer     = zoneOwner (state ! src)
+            , drSource     = src
+            , drCards      = take n srcCards
+            , drVisibility = vis
+            , drIndices    = [0..n-1]
+            }
+    return (state', record)
+\end{lstlisting}
+
+\subsubsection{Discard vs Burn}
+
+The key distinction between discard and burn:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Property} & \textbf{Discard} & \textbf{Burn} \\
+\midrule
+Visibility options & Face-up or face-down & Always face-down \\
+Recyclable & Yes (reshuffle) & No \\
+Drawable & Yes (some games) & Never \\
+Destination zone & Discard pile & Burn pile \\
+Typical use & Played/folded cards & Anti-cheat mechanism \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of discard and burn operations.}
+\label{tab:discard-burn}
+\end{table}
+
+\subsection{Recycle}
+
+The \texttt{recycle} operation returns discarded cards to the deck, typically followed by a shuffle:
+
+\begin{lstlisting}[style=haskell]
+recycle :: ZoneId -> GameState -> GameState
+recycle discardZone state = state
+    & ix deckZone . zoneCards %~ (++ discardedCards)
+    & ix discardZone . dzCards .~ []
+    & ix discardZone . dzVisibility .~ []
+  where
+    discardedCards = dzCards (state ! discardZone)
+
+-- Full recycle with shuffle
+recycleAndShuffle :: Seed -> ZoneId -> GameState -> GameState
+recycleAndShuffle seed discardZone state = 
+    state & recycle discardZone & shuffle seed deckZone
+\end{lstlisting}
+
+\begin{lstlisting}[style=yaml]
+# In CardLang DSL:
+on_deck_empty:
+  - recycle: discard_pile into deck
+  - shuffle: deck with new_seed
+  - burn: 1 from deck
+\end{lstlisting}
+
+\begin{theorem}[Recycle Preserves Cards]
+The recycle operation preserves the card multiset:
+\[
+\texttt{multiset}(\Gamma(\texttt{deck})) \uplus \texttt{multiset}(\Gamma(\texttt{discard})) = \texttt{multiset}(\Gamma'(\texttt{deck}))
+\]
+where $\Gamma' = \texttt{recycle}(\texttt{discard}, \Gamma)$.
+\end{theorem}
+
+\section{Visibility Primitives}
+
+Card games fundamentally rely on information asymmetry---some cards are known to all players, some to a subset, and some to none. We formalize visibility as a first-class concept with explicit state transitions.
+
+\subsection{Visibility Model}
+
+\begin{definition}[Visibility Set]
+The visibility of a card $c$ in state $\Gamma$ is the set of players who can see its value:
+\[
+\texttt{vis}(c, \Gamma) \subseteq \mathcal{P} \cup \{\bot\}
+\]
+where $\mathcal{P}$ is the set of players and $\bot$ represents the dealer/house.
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+type PlayerId = Int
+type VisibilitySet = Set PlayerId
+
+data CardVisibility = CardVisibility
+    { cvCard    :: Card
+    , cvSeenBy  :: VisibilitySet
+    } deriving (Eq, Show)
+
+-- Common visibility patterns
+nobody :: VisibilitySet
+nobody = Set.empty
+
+everyone :: [PlayerId] -> VisibilitySet
+everyone = Set.fromList
+
+only :: PlayerId -> VisibilitySet
+only = Set.singleton
+
+allBut :: [PlayerId] -> PlayerId -> VisibilitySet
+allBut players p = Set.fromList players `Set.difference` Set.singleton p
+\end{lstlisting}
+
+\begin{definition}[Visibility State]
+The visibility state $\mathcal{V}$ is a mapping from cards to their visibility sets:
+\[
+\mathcal{V} : \mathcal{C} \to 2^{\mathcal{P}}
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+type VisibilityState = Map Card VisibilitySet
+
+data GameState = GameState
+    { gsZones      :: Map ZoneId Zone
+    , gsVisibility :: VisibilityState
+    , gsPlayers    :: [PlayerId]
+    , gsActionLog  :: [Action]
+    }
+\end{lstlisting}
+
+\subsection{Reveal}
+
+The \texttt{reveal} operation makes cards visible to specified players.
+
+\begin{definition}[Reveal]
+For cards $C$, target players $T$, and visibility state $\mathcal{V}$:
+\[
+\texttt{reveal}(C, T, \mathcal{V}) = \mathcal{V}' \text{ where } \mathcal{V}'(c) = 
+\begin{cases}
+\mathcal{V}(c) \cup T & \text{if } c \in C \\
+\mathcal{V}(c) & \text{otherwise}
+\end{cases}
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+reveal :: [Card] -> VisibilitySet -> GameState -> GameState
+reveal cards targets state = state
+    { gsVisibility = foldr addVisibility (gsVisibility state) cards }
+  where
+    addVisibility card vis = Map.adjust (`Set.union` targets) card vis
+
+-- Reveal to all players
+revealToAll :: [Card] -> GameState -> GameState
+revealToAll cards state = reveal cards (everyone $ gsPlayers state) state
+
+-- Reveal zone (e.g., flip community cards)
+revealZone :: ZoneId -> GameState -> GameState
+revealZone zone state = revealToAll (zoneCards $ gsZones state ! zone) state
+
+-- Reveal hand to all (showdown)
+showdown :: PlayerId -> GameState -> GameState
+showdown player state = revealToAll hand state
+  where
+    hand = zoneCards $ gsZones state ! handZone player
+\end{lstlisting}
+
+\begin{property}[Reveal Monotonicity]
+Reveal only adds visibility; it never removes:
+\[
+\mathcal{V}(c) \subseteq \texttt{reveal}(C, T, \mathcal{V})(c) \quad \forall c \in \mathcal{C}
+\]
+\end{property}
+
+\begin{lstlisting}[style=haskell]
+data RevealRecord = RevealRecord
+    { rrTimestamp :: Int
+    , rrCards     :: [Card]
+    , rrTargets   :: VisibilitySet
+    , rrPriorVis  :: [(Card, VisibilitySet)]  -- for verification
+    } deriving (Eq, Show)
+
+revealWithRecord :: [Card] -> VisibilitySet -> GameState 
+                 -> (GameState, RevealRecord)
+revealWithRecord cards targets state = (state', record)
+  where
+    state' = reveal cards targets state
+    record = RevealRecord
+        { rrTimestamp = length $ gsActionLog state
+        , rrCards     = cards
+        , rrTargets   = targets
+        , rrPriorVis  = [(c, gsVisibility state ! c) | c <- cards]
+        }
+\end{lstlisting}
+
+\subsection{Hide}
+
+The \texttt{hide} operation removes visibility, used when cards return to a hidden state (e.g., reshuffling revealed cards).
+
+\begin{definition}[Hide]
+For cards $C$, excluded players $E$, and visibility state $\mathcal{V}$:
+\[
+\texttt{hide}(C, E, \mathcal{V}) = \mathcal{V}' \text{ where } \mathcal{V}'(c) = 
+\begin{cases}
+\mathcal{V}(c) \setminus E & \text{if } c \in C \\
+\mathcal{V}(c) & \text{otherwise}
+\end{cases}
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+hide :: [Card] -> VisibilitySet -> GameState -> GameState
+hide cards excludeFrom state = state
+    { gsVisibility = foldr removeVisibility (gsVisibility state) cards }
+  where
+    removeVisibility card vis = 
+        Map.adjust (`Set.difference` excludeFrom) card vis
+
+-- Hide from all players
+hideFromAll :: [Card] -> GameState -> GameState
+hideFromAll cards state = hide cards (everyone $ gsPlayers state) state
+
+-- Reset visibility (e.g., before reshuffle)
+resetVisibility :: [Card] -> GameState -> GameState
+resetVisibility cards state = state
+    { gsVisibility = foldr (\c v -> Map.insert c Set.empty v) 
+                          (gsVisibility state) cards }
+\end{lstlisting}
+
+\begin{property}[Hide is Reveal Inverse]
+For disjoint reveal and hide targets:
+\[
+\texttt{hide}(C, T, \texttt{reveal}(C, T, \mathcal{V})) = \mathcal{V}
+\]
+\end{property}
+
+\subsubsection{Information-Theoretic Considerations}
+
+\begin{definition}[Information Leakage]
+Once a card is revealed to a player, that player retains the \emph{knowledge} even if the card is subsequently hidden. We distinguish:
+\begin{itemize}
+    \item \textbf{Current visibility}: $\texttt{vis}(c, \Gamma)$ --- who can see the card now
+    \item \textbf{Historical knowledge}: $\texttt{known}(c, \Gamma)$ --- who has ever seen the card
+\end{itemize}
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+data CardKnowledge = CardKnowledge
+    { ckCurrentVis  :: VisibilitySet  -- can see now
+    , ckHistoricVis :: VisibilitySet  -- has ever seen
+    } deriving (Eq, Show)
+
+-- Knowledge only grows
+revealWithKnowledge :: [Card] -> VisibilitySet -> GameStateK -> GameStateK
+revealWithKnowledge cards targets state = state
+    { gsKnowledge = foldr updateKnowledge (gsKnowledge state) cards }
+  where
+    updateKnowledge card k = Map.adjust addKnowledge card k
+    addKnowledge ck = ck
+        { ckCurrentVis  = ckCurrentVis ck `Set.union` targets
+        , ckHistoricVis = ckHistoricVis ck `Set.union` targets
+        }
+\end{lstlisting}
+
+\subsection{Peek}
+
+The \texttt{peek} operation allows a player to privately view cards without revealing them to others.
+
+\begin{definition}[Peek]
+A peek by player $p$ on cards $C$ updates visibility for $p$ only:
+\[
+\texttt{peek}(p, C, \mathcal{V}) = \texttt{reveal}(C, \{p\}, \mathcal{V})
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+peek :: PlayerId -> [Card] -> GameState -> GameState
+peek player cards = reveal cards (only player)
+
+-- Peek at own hand (standard operation when cards are dealt face-down)
+peekHand :: PlayerId -> GameState -> GameState
+peekHand player state = peek player hand state
+  where
+    hand = zoneCards $ gsZones state ! handZone player
+
+-- Peek at top N cards of deck (some games allow this)
+peekDeck :: PlayerId -> Int -> GameState -> GameState
+peekDeck player n state = peek player (take n deckCards) state
+  where
+    deckCards = zoneCards $ gsZones state ! deckZone
+
+-- Peek at opponent's card (special abilities in some games)
+peekOpponent :: PlayerId -> PlayerId -> Int -> GameState -> GameState
+peekOpponent viewer target n state = peek viewer (take n hand) state
+  where
+    hand = zoneCards $ gsZones state ! handZone target
+\end{lstlisting}
+
+\begin{lstlisting}[style=haskell]
+data PeekRecord = PeekRecord
+    { prTimestamp :: Int
+    , prPlayer    :: PlayerId
+    , prCards     :: [Card]
+    , prSource    :: ZoneId
+    } deriving (Eq, Show)
+
+peekWithRecord :: PlayerId -> [Card] -> ZoneId -> GameState 
+               -> (GameState, PeekRecord)
+peekWithRecord player cards source state = (state', record)
+  where
+    state' = peek player cards state
+    record = PeekRecord
+        { prTimestamp = length $ gsActionLog state
+        , prPlayer    = player
+        , prCards     = cards
+        , prSource    = source
+        }
+\end{lstlisting}
+
+\subsubsection{Peek in Cryptographic Context}
+
+In a trustless multiplayer setting, peek operations require careful handling:
+
+\begin{lstlisting}[style=haskell]
+-- Encrypted peek: player receives encrypted card, 
+-- can decrypt only their own cards
+data EncryptedCard = EncryptedCard
+    { ecCiphertext :: ByteString
+    , ecPlayerKeys :: Map PlayerId PublicKey
+    }
+
+-- Player decrypts their peeked cards locally
+decryptPeek :: PrivateKey -> EncryptedCard -> Card
+decryptPeek privKey ec = decrypt privKey (ecCiphertext ec)
+
+-- Server/blockchain never sees plaintext
+peekEncrypted :: PlayerId -> [EncryptedCard] -> PeekProof
+peekEncrypted player cards = PeekProof
+    { ppPlayer = player
+    , ppCommitment = hash (player, map ecCiphertext cards)
+    }
+\end{lstlisting}
+
+\subsection{Visibility in Game Specification}
+
+The DSL exposes visibility operations declaratively:
+
+\begin{lstlisting}[style=yaml]
+# Texas Hold'em dealing with visibility
+setup:
+  - shuffle: deck with seed
+  - burn: 1 from deck
+  
+  # Deal hole cards (visible only to owner)
+  - each_player:
+      - draw: 2 from deck -> hand
+      - peek: self at hand        # player sees own cards
+  
+rounds:
+  - name: flop
+    actions:
+      - burn: 1 from deck
+      - draw: 3 from deck -> community
+      - reveal: community to all   # flip cards face-up
+      
+  - name: showdown
+    actions:
+      - each_player in active:
+          - reveal: hand to all    # show hole cards
+\end{lstlisting}
+
+\subsection{Summary of Visibility Operations}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Operation} & \textbf{Visibility Change} & \textbf{Typical Use} \\
+\midrule
+\texttt{reveal} & $\mathcal{V}(c) \cup T$ & Showdown, community cards \\
+\texttt{hide} & $\mathcal{V}(c) \setminus E$ & Before reshuffle \\
+\texttt{peek} & $\mathcal{V}(c) \cup \{p\}$ & View own hole cards \\
+\texttt{resetVisibility} & $\emptyset$ & New round setup \\
+\bottomrule
+\end{tabular}
+\caption{Visibility primitives and their effects.}
+\label{tab:visibility-ops}
+\end{table}
+
+\begin{theorem}[Visibility Consistency]
+For any sequence of visibility operations, the visibility state remains consistent:
+\[
+\forall c \in \mathcal{C} : \mathcal{V}(c) \subseteq \mathcal{P}
+\]
+No card is ever visible to a non-existent player.
+\end{theorem}
+
+\subsection{Riffle and Wash}
+
+For completeness, we define additional physical shuffling operations that may appear in game specifications.
+
+\begin{definition}[Riffle Shuffle]
+A riffle shuffle interleaves two halves of the deck. Given deck $D$ split at midpoint into $L$ and $R$:
+\[
+\texttt{riffle}(D) = \texttt{interleave}(L, R)
+\]
+where \texttt{interleave} alternates cards from each half.
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+riffle :: ZoneId -> GameState -> GameState
+riffle zone state = state & ix zone . zoneCards .~ riffled
+  where
+    cards         = zoneCards (state ! zone)
+    (left, right) = splitAt (length cards `div` 2) cards
+    riffled       = interleave left right
+    
+interleave :: [a] -> [a] -> [a]
+interleave []     ys = ys
+interleave xs     [] = xs
+interleave (x:xs) (y:ys) = x : y : interleave xs ys
+
+-- Seeded riffle with realistic imperfection
+riffleWithSeed :: Seed -> ZoneId -> GameState -> GameState
+riffleWithSeed seed zone state = state & ix zone . zoneCards .~ riffled
+  where
+    cards  = zoneCards (state ! zone)
+    rng    = initRng seed
+    riffled = simulateRiffle rng cards
+    
+    -- Models imperfect human riffle: variable packet sizes
+    simulateRiffle :: RNG -> [Card] -> [Card]
+\end{lstlisting}
+
+\begin{definition}[Wash / Scramble]
+A wash (or scramble) spreads cards face-down and mixes them randomly. This is modeled as a Fisher-Yates shuffle:
+\[
+\texttt{wash}(seed, D) = \texttt{shuffle}(seed, D)
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+wash :: Seed -> ZoneId -> GameState -> GameState
+wash seed zone state = state & ix zone . zoneCards .~ washed
+  where
+    cards  = zoneCards (state ! zone)
+    washed = fisherYates (initRng seed) cards
+\end{lstlisting}
+
+\subsection{Strip Cut}
+
+A strip cut removes packets from the top and reassembles them in a different order.
+
+\begin{definition}[Strip Cut]
+Given packet sizes $(p_1, p_2, \ldots, p_m)$ summing to $n$, and a permutation $\sigma$ of $[1..m]$:
+\[
+\texttt{stripCut}((p_1, \ldots, p_m), \sigma, D) = P_{\sigma(1)} \mathbin{+\!\!\!+} P_{\sigma(2)} \mathbin{+\!\!\!+} \cdots \mathbin{+\!\!\!+} P_{\sigma(m)}
+\]
+where $P_i$ is the $i$-th packet of size $p_i$.
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+stripCut :: [Int] -> [Int] -> ZoneId -> GameState -> Either StripError GameState
+stripCut packetSizes ordering zone state
+    | sum packetSizes /= length cards = Left InvalidPacketSizes
+    | sort ordering /= [0..length packetSizes - 1] = Left InvalidOrdering
+    | otherwise = Right $ state & ix zone . zoneCards .~ stripped
+  where
+    cards    = zoneCards (state ! zone)
+    packets  = splitIntoPackets packetSizes cards
+    stripped = concatMap (packets !!) ordering
+
+splitIntoPackets :: [Int] -> [a] -> [[a]]
+splitIntoPackets [] _ = []
+splitIntoPackets (p:ps) xs = 
+    let (packet, rest) = splitAt p xs
+    in packet : splitIntoPackets ps rest
+
+data StripError = InvalidPacketSizes | InvalidOrdering
+    deriving (Eq, Show)
+\end{lstlisting}
+
+\subsection{Combine and Split}
+
+Operations for merging and dividing card collections.
+
+\begin{lstlisting}[style=haskell]
+-- Combine multiple zones into one (e.g., collecting cards for reshuffle)
+combine :: [ZoneId] -> ZoneId -> GameState -> GameState
+combine srcs dst state = foldr collectFrom state srcs
+  where
+    collectFrom src st = fromRight st $ drawAll src dst st
+
+-- Split a zone into multiple zones (e.g., dealing to separate hands)
+split :: ZoneId -> [(ZoneId, Int)] -> GameState -> Either DrawError GameState
+split src distributions = foldM distribute
+  where
+    distribute state (dst, n) = draw n src dst state
+\end{lstlisting}
+
+\subsection{Operation Composition}
+
+Complex dealing procedures are compositions of primitives:
+
+\begin{lstlisting}[style=haskell]
+-- Standard casino poker dealing procedure
+casinoDeal :: Seed -> [PlayerId] -> GameState -> GameState
+casinoDeal seed players state = state
+    & execState (do
+        -- Wash and riffle
+        modify $ wash seed1 deckZone
+        modify $ riffle deckZone
+        modify $ riffle deckZone
+        modify $ riffle deckZone
+        
+        -- Player cut
+        modify $ cutWithSeed seed2 deckZone
+        
+        -- Burn and deal
+        modify $ fromRight id . burn 1 deckZone
+        forM_ [1..2] $ \_ ->
+            forM_ players $ \p ->
+                modify $ fromRight id . draw 1 deckZone (handZone p)
+      )
+  where
+    (seed1, seed2) = splitSeed seed
+\end{lstlisting}
+
+\begin{lstlisting}[style=yaml]
+# Equivalent in CardLang DSL:
+dealing_procedure: casino_standard
+  
+setup:
+  - wash: deck with seed
+  - riffle: deck times 3
+  - cut: deck by player
+  - burn: 1 from deck
+  - deal: 2 to each_player from deck
+\end{lstlisting}
+
+\subsection{Summary of Deck Operations}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Operation} & \textbf{Signature} & \textbf{Effect} \\
+\midrule
+\texttt{shuffle} & $Seed \to Zone \to \Gamma \to \Gamma$ & Random permutation \\
+\texttt{cut} & $Int \to Zone \to \Gamma \to \Gamma$ & Rotate at position \\
+\texttt{burn} & $Int \to Zone \to \Gamma \to \Gamma$ & Discard face-down \\
+\texttt{riffle} & $Zone \to \Gamma \to \Gamma$ & Interleave halves \\
+\texttt{wash} & $Seed \to Zone \to \Gamma \to \Gamma$ & Spread and scramble \\
+\texttt{stripCut} & $[Int] \to [Int] \to Zone \to \Gamma \to \Gamma$ & Packet reorder \\
+\texttt{combine} & $[Zone] \to Zone \to \Gamma \to \Gamma$ & Merge zones \\
+\texttt{draw} & $Int \to Zone \to Zone \to \Gamma \to \Gamma$ & Transfer cards \\
+\bottomrule
+\end{tabular}
+\caption{Deck manipulation primitives and their type signatures.}
+\label{tab:deck-ops}
+\end{table}
+
+\begin{theorem}[Composition Closure]
+All deck manipulation primitives preserve card conservation: the multiset of cards across all zones is invariant under any sequence of operations.
+\end{theorem}
+
+\section{Ranking Systems}
+
+Different games impose different orderings on cards and card combinations. We formalize rankings as composable evaluation functions.
+
+\subsection{Single Card Ranking}
+
+The simplest ranking compares individual cards.
+
+\begin{definition}[Card Ordering]
+A card ordering is a total order on cards:
+\[
+\leq_R : \mathcal{C} \times \mathcal{C} \to \texttt{Bool}
+\]
+parameterized by ranking rules $R$.
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+class Ranking a where
+    compareCards :: a -> Card -> Card -> Ordering
+    
+data HighCardRanking = HighCardRanking
+    { aceHigh       :: Bool
+    , suitBreaksTie :: Bool
+    , suitOrder     :: [Suit]  -- if suits break ties
+    } deriving (Eq, Show)
+
+instance Ranking HighCardRanking where
+    compareCards cfg c1 c2 = 
+        case compare (rankValue cfg $ rank c1) (rankValue cfg $ rank c2) of
+            EQ | suitBreaksTie cfg -> compareSuits cfg (suit c1) (suit c2)
+            EQ -> EQ
+            x  -> x
+      where
+        rankValue cfg r = case r of
+            RA | not (aceHigh cfg) -> 0  -- ace low
+            _  -> fromEnum r + 1
+        compareSuits cfg s1 s2 = 
+            compare (elemIndex s1 $ suitOrder cfg) 
+                    (elemIndex s2 $ suitOrder cfg)
+
+-- Standard configurations
+aceHighNoSuits :: HighCardRanking
+aceHighNoSuits = HighCardRanking True False []
+
+aceHighWithSuits :: HighCardRanking  
+aceHighWithSuits = HighCardRanking True True [Spades, Hearts, Diamonds, Clubs]
+
+aceLow :: HighCardRanking
+aceLow = HighCardRanking False False []
+\end{lstlisting}
+
+\subsection{Poker Hand Rankings}
+
+Poker hand evaluation is more complex, requiring pattern recognition over sets of cards.
+
+\begin{definition}[Poker Hand Category]
+The standard poker hand categories, in ascending order:
+\begin{lstlisting}[style=haskell]
+data HandCategory
+    = HighCard
+    | OnePair
+    | TwoPair
+    | ThreeOfAKind
+    | Straight
+    | Flush
+    | FullHouse
+    | FourOfAKind
+    | StraightFlush
+    | RoyalFlush
+    deriving (Eq, Ord, Enum, Bounded, Show)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition}[Hand Value]
+A hand value consists of a category and tiebreaker ranks:
+\begin{lstlisting}[style=haskell]
+data HandValue = HandValue
+    { hvCategory    :: HandCategory
+    , hvTiebreakers :: [Rank]  -- ordered by significance
+    } deriving (Eq, Show)
+
+instance Ord HandValue where
+    compare h1 h2 = 
+        case compare (hvCategory h1) (hvCategory h2) of
+            EQ -> compare (hvTiebreakers h1) (hvTiebreakers h2)
+            x  -> x
+\end{lstlisting}
+\end{definition}
+
+\subsubsection{Hand Evaluation}
+
+\begin{lstlisting}[style=haskell]
+evaluateHand :: [Card] -> HandValue
+evaluateHand cards
+    | isRoyalFlush    = HandValue RoyalFlush []
+    | isStraightFlush = HandValue StraightFlush [highCard straightCards]
+    | isFourOfAKind   = HandValue FourOfAKind [quadRank, kicker]
+    | isFullHouse     = HandValue FullHouse [tripRank, pairRank]
+    | isFlush         = HandValue Flush (sortDesc $ map rank flushCards)
+    | isStraight      = HandValue Straight [highCard straightCards]
+    | isThreeOfAKind  = HandValue ThreeOfAKind (tripRank : kickers)
+    | isTwoPair       = HandValue TwoPair [highPair, lowPair, kicker]
+    | isOnePair       = HandValue OnePair (pairRank : kickers)
+    | otherwise       = HandValue HighCard (sortDesc $ map rank cards)
+  where
+    ranks      = map rank cards
+    suits      = map suit cards
+    rankCounts = frequency ranks
+    suitCounts = frequency suits
+    
+    -- Pattern detection
+    isFlush         = any (>= 5) $ Map.elems suitCounts
+    isStraight      = hasConsecutive 5 ranks
+    isStraightFlush = isFlush && isStraight && flushIsStraight
+    isRoyalFlush    = isStraightFlush && RA `elem` straightCards
+    
+    isFourOfAKind  = 4 `elem` Map.elems rankCounts
+    isFullHouse    = 3 `elem` Map.elems rankCounts && 
+                     2 `elem` Map.elems rankCounts
+    isThreeOfAKind = 3 `elem` Map.elems rankCounts
+    isTwoPair      = length (filter (== 2) $ Map.elems rankCounts) >= 2
+    isOnePair      = 2 `elem` Map.elems rankCounts
+    
+    -- Extract relevant ranks for tiebreakers
+    quadRank  = findRankWithCount 4 rankCounts
+    tripRank  = findRankWithCount 3 rankCounts
+    pairRank  = findRankWithCount 2 rankCounts
+    -- ... additional helper functions
+\end{lstlisting}
+
+\subsubsection{Best Hand Selection}
+
+In Texas Hold'em, players choose the best 5 cards from 7:
+
+\begin{lstlisting}[style=haskell]
+bestHand :: Int -> [Card] -> ([Card], HandValue)
+bestHand n cards = maximumBy (comparing snd) evaluated
+  where
+    combinations = choose n cards  -- all n-card subsets
+    evaluated    = [(combo, evaluateHand combo) | combo <- combinations]
+
+-- Choose k elements from list
+choose :: Int -> [a] -> [[a]]
+choose 0 _      = [[]]
+choose _ []     = []
+choose k (x:xs) = map (x:) (choose (k-1) xs) ++ choose k xs
+
+-- Texas Hold'em: best 5 of 7
+texasHoldemBest :: [Card] -> [Card] -> ([Card], HandValue)
+texasHoldemBest hole community = bestHand 5 (hole ++ community)
+
+-- Omaha: must use exactly 2 from hole, 3 from community
+omahaBest :: [Card] -> [Card] -> ([Card], HandValue)
+omahaBest hole community = maximumBy (comparing snd)
+    [(h ++ c, evaluateHand (h ++ c)) 
+    | h <- choose 2 hole
+    , c <- choose 3 community]
+\end{lstlisting}
+
+\subsection{Alternative Ranking Systems}
+
+Different games use different rankings:
+
+\begin{lstlisting}[style=haskell]
+-- Lowball: lowest hand wins (ace is low)
+data LowballRanking = AceToFive | DeuceToSeven
+
+evaluateLowball :: LowballRanking -> [Card] -> HandValue
+evaluateLowball AceToFive cards = 
+    -- A-2-3-4-5 is best, straights/flushes don't count
+    HandValue HighCard (sortAsc $ map (lowRank AceToFive) $ map rank cards)
+evaluateLowball DeuceToSeven cards =
+    -- 2-3-4-5-7 is best, straights/flushes count against
+    let hv = evaluateHand cards
+    in hv { hvTiebreakers = reverse $ hvTiebreakers hv }
+
+-- Badugi: 4-card lowball, suits must be different
+evaluateBadugi :: [Card] -> BadugiValue
+evaluateBadugi cards = BadugiValue
+    { bvCardCount = length validCards
+    , bvRanks     = sortAsc $ map rank validCards
+    }
+  where
+    validCards = maximalDistinctSuits cards
+
+-- Short deck (6+): flush beats full house
+data ShortDeckRanking = ShortDeckRanking
+
+evaluateShortDeck :: [Card] -> HandValue
+evaluateShortDeck cards = 
+    let hv = evaluateHand cards
+    in adjustShortDeck hv
+  where
+    adjustShortDeck hv
+        | hvCategory hv == FullHouse = hv { hvCategory = Flush }
+        | hvCategory hv == Flush     = hv { hvCategory = FullHouse }
+        | otherwise                  = hv
+\end{lstlisting}
+
+\subsection{Ranking in DSL}
+
+\begin{lstlisting}[style=yaml]
+game: texas_holdem
+
+ranking:
+  type: poker_standard
+  ace: high_and_low   # high normally, low in A-2-3-4-5 straight
+  hand_size: 5
+  selection: best_of_7
+  
+---
+
+game: razz
+
+ranking:
+  type: lowball
+  variant: ace_to_five
+  hand_size: 5
+  straights_count: false
+  flushes_count: false
+
+---
+
+game: short_deck_holdem
+
+ranking:
+  type: poker_modified
+  base: poker_standard
+  modifications:
+    - flush_beats: full_house    # flush > full house
+    - three_of_kind_beats: straight  # trips > straight
+  deck: six_plus  # 6-A only
+\end{lstlisting}
+
+\section{Betting Primitives}
+
+Many card games involve wagering. We formalize betting as state transitions on player stacks and a shared pot.
+
+\subsection{Betting State}
+
+\begin{definition}[Betting State]
+The betting state $\mathcal{B}$ tracks player stacks and the pot:
+\begin{lstlisting}[style=haskell]
+type Chips = Int
+
+data BettingState = BettingState
+    { bsStacks      :: Map PlayerId Chips    -- player chip counts
+    , bsPot         :: Chips                 -- main pot
+    , bsSidePots    :: [SidePot]             -- for all-in scenarios
+    , bsCurrentBet  :: Chips                 -- amount to call
+    , bsBettor      :: Maybe PlayerId        -- who made current bet
+    , bsMinRaise    :: Chips                 -- minimum raise amount
+    , bsActed       :: Set PlayerId          -- who has acted this round
+    , bsFolded      :: Set PlayerId          -- who has folded
+    , bsAllIn       :: Set PlayerId          -- who is all-in
+    } deriving (Eq, Show)
+
+data SidePot = SidePot
+    { spAmount   :: Chips
+    , spEligible :: Set PlayerId  -- players eligible for this pot
+    } deriving (Eq, Show)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition}[Player Status]
+A player's status in a betting round:
+\begin{lstlisting}[style=haskell]
+data PlayerStatus = Active | Folded | AllIn | SittingOut
+    deriving (Eq, Show)
+
+playerStatus :: PlayerId -> BettingState -> PlayerStatus
+playerStatus p bs
+    | p `Set.member` bsFolded bs = Folded
+    | p `Set.member` bsAllIn bs  = AllIn
+    | bsStacks bs ! p == 0       = SittingOut
+    | otherwise                  = Active
+\end{lstlisting}
+\end{definition}
+
+\subsection{Betting Actions}
+
+\begin{definition}[Bet]
+A bet places chips into the pot when no current bet exists:
+\[
+\texttt{bet}(p, n, \mathcal{B}) = \mathcal{B}' \text{ where } 
+\begin{cases}
+\mathcal{B}'(\texttt{stack}_p) = \mathcal{B}(\texttt{stack}_p) - n \\
+\mathcal{B}'(\texttt{pot}) = \mathcal{B}(\texttt{pot}) + n \\
+\mathcal{B}'(\texttt{currentBet}) = n
+\end{cases}
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+data BetError
+    = InsufficientChips PlayerId Chips Chips  -- player, requested, available
+    | BetAlreadyExists Chips
+    | InvalidBetAmount Chips Chips  -- amount, minimum
+    | NotPlayersTurn PlayerId
+    | PlayerAlreadyFolded PlayerId
+    | PlayerAlreadyAllIn PlayerId
+    deriving (Eq, Show)
+
+bet :: PlayerId -> Chips -> BettingState -> Either BetError BettingState
+bet player amount bs
+    | bsCurrentBet bs > 0     = Left $ BetAlreadyExists (bsCurrentBet bs)
+    | amount > stack          = Left $ InsufficientChips player amount stack
+    | amount < bsMinRaise bs  = Left $ InvalidBetAmount amount (bsMinRaise bs)
+    | otherwise               = Right bs'
+  where
+    stack = bsStacks bs ! player
+    bs' = bs
+        { bsStacks     = Map.adjust (subtract amount) player (bsStacks bs)
+        , bsPot        = bsPot bs + amount
+        , bsCurrentBet = amount
+        , bsBettor     = Just player
+        , bsMinRaise   = amount  -- min raise is now the bet size
+        , bsActed      = Set.insert player (bsActed bs)
+        }
+\end{lstlisting}
+
+\begin{definition}[Raise]
+A raise increases the current bet:
+\[
+\texttt{raise}(p, n, \mathcal{B}) = \texttt{bet}(p, \mathcal{B}(\texttt{currentBet}) + n, \mathcal{B})
+\]
+where $n \geq \mathcal{B}(\texttt{minRaise})$.
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+raise :: PlayerId -> Chips -> BettingState -> Either BetError BettingState
+raise player raiseAmount bs
+    | raiseAmount < bsMinRaise bs = Left $ InvalidBetAmount raiseAmount (bsMinRaise bs)
+    | totalAmount > stack         = Left $ InsufficientChips player totalAmount stack
+    | otherwise                   = Right bs'
+  where
+    stack       = bsStacks bs ! player
+    callAmount  = bsCurrentBet bs  -- amount needed to call
+    totalAmount = callAmount + raiseAmount
+    bs' = bs
+        { bsStacks     = Map.adjust (subtract totalAmount) player (bsStacks bs)
+        , bsPot        = bsPot bs + totalAmount
+        , bsCurrentBet = bsCurrentBet bs + raiseAmount
+        , bsBettor     = Just player
+        , bsMinRaise   = raiseAmount  -- min raise is now the raise size
+        , bsActed      = Set.singleton player  -- resets action to this player
+        }
+\end{lstlisting}
+
+\begin{definition}[Call]
+A call matches the current bet:
+\[
+\texttt{call}(p, \mathcal{B}) = \mathcal{B}' \text{ where }
+\begin{cases}
+\mathcal{B}'(\texttt{stack}_p) = \mathcal{B}(\texttt{stack}_p) - \mathcal{B}(\texttt{currentBet}) \\
+\mathcal{B}'(\texttt{pot}) = \mathcal{B}(\texttt{pot}) + \mathcal{B}(\texttt{currentBet})
+\end{cases}
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+call :: PlayerId -> BettingState -> Either BetError BettingState
+call player bs
+    | callAmount > stack = allIn player bs  -- forced all-in
+    | callAmount == 0    = check player bs  -- nothing to call
+    | otherwise          = Right bs'
+  where
+    stack      = bsStacks bs ! player
+    callAmount = bsCurrentBet bs
+    bs' = bs
+        { bsStacks = Map.adjust (subtract callAmount) player (bsStacks bs)
+        , bsPot    = bsPot bs + callAmount
+        , bsActed  = Set.insert player (bsActed bs)
+        }
+\end{lstlisting}
+
+\begin{definition}[Check]
+A check passes action when no bet is required:
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+check :: PlayerId -> BettingState -> Either BetError BettingState
+check player bs
+    | bsCurrentBet bs > 0 = Left $ BetAlreadyExists (bsCurrentBet bs)
+    | otherwise           = Right $ bs { bsActed = Set.insert player (bsActed bs) }
+\end{lstlisting}
+
+\begin{definition}[Fold]
+A fold surrenders the hand:
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+fold :: PlayerId -> BettingState -> BettingState
+fold player bs = bs
+    { bsFolded = Set.insert player (bsFolded bs)
+    , bsActed  = Set.insert player (bsActed bs)
+    }
+\end{lstlisting}
+
+\begin{definition}[All-In]
+An all-in commits a player's entire stack:
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+allIn :: PlayerId -> BettingState -> Either BetError BettingState
+allIn player bs = Right bs'
+  where
+    stack = bsStacks bs ! player
+    bs' = bs
+        { bsStacks   = Map.insert player 0 (bsStacks bs)
+        , bsPot      = bsPot bs + stack
+        , bsAllIn    = Set.insert player (bsAllIn bs)
+        , bsActed    = Set.insert player (bsActed bs)
+        -- Side pot creation handled separately
+        }
+\end{lstlisting}
+
+\subsection{Side Pots}
+
+When a player goes all-in for less than the current bet, a side pot is created.
+
+\begin{lstlisting}[style=haskell]
+createSidePots :: BettingState -> BettingState
+createSidePots bs = bs { bsSidePots = calculateSidePots contributions }
+  where
+    contributions = calculateContributions bs  -- per-player total bets
+    
+calculateSidePots :: Map PlayerId Chips -> [SidePot]
+calculateSidePots contribs = 
+    let sorted = sortBy (comparing snd) $ Map.toList contribs
+    in buildSidePots sorted 0
+  where
+    buildSidePots [] _ = []
+    buildSidePots ((p, amt):rest) prevAmt =
+        let eligible    = Set.fromList $ p : map fst rest
+            potSize     = (amt - prevAmt) * (1 + length rest)
+            sidePot     = SidePot potSize eligible
+        in if potSize > 0 
+           then sidePot : buildSidePots rest amt
+           else buildSidePots rest amt
+\end{lstlisting}
+
+\begin{theorem}[Side Pot Conservation]
+The sum of all side pots equals the main pot:
+\[
+\sum_{s \in \texttt{sidePots}} \texttt{amount}(s) = \texttt{pot}
+\]
+\end{theorem}
+
+\subsection{Pot Award}
+
+\begin{lstlisting}[style=haskell]
+data PotResult = PotResult
+    { prWinners    :: Map PlayerId Chips  -- winnings per player
+    , prHandShown  :: Map PlayerId HandValue
+    , prSidePots   :: [(SidePot, [PlayerId])]  -- pot and its winners
+    } deriving (Eq, Show)
+
+awardPot :: Ranking r => r -> GameState -> BettingState -> PotResult
+awardPot ranking gs bs = PotResult
+    { prWinners   = totalWinnings
+    , prHandShown = handValues
+    , prSidePots  = sidePotResults
+    }
+  where
+    activePlayers = Set.toList $ 
+        Set.fromList (Map.keys $ bsStacks bs) 
+        `Set.difference` bsFolded bs
+    
+    handValues = Map.fromList
+        [(p, evaluateHand $ getHand p gs) | p <- activePlayers]
+    
+    sidePotResults = map (awardSidePot handValues) (bsSidePots bs)
+    
+    totalWinnings = Map.unionsWith (+) $ map sidePotToWinnings sidePotResults
+
+awardSidePot :: Map PlayerId HandValue -> SidePot -> (SidePot, [PlayerId])
+awardSidePot hands sp = (sp, winners)
+  where
+    eligible = Set.toList $ spEligible sp
+    eligibleHands = [(p, hands ! p) | p <- eligible, p `Map.member` hands]
+    bestHand = maximum $ map snd eligibleHands
+    winners = [p | (p, h) <- eligibleHands, h == bestHand]
+
+-- Split pot evenly among winners, remainder to first position
+splitPot :: Chips -> [PlayerId] -> Map PlayerId Chips
+splitPot amount winners = Map.fromListWith (+) $
+    zip winners (share : repeat share) ++ [(head winners, remainder)]
+  where
+    share     = amount `div` length winners
+    remainder = amount `mod` length winners
+\end{lstlisting}
+
+\subsection{Betting Round Structure}
+
+A betting round defines the rules and constraints governing a sequence of betting actions.
+
+\begin{definition}[Betting Round]
+A betting round $\mathcal{R}$ is a tuple:
+\[
+\mathcal{R} = (\tau, \pi, b_{min}, b_{max}, r_{max})
+\]
+where:
+\begin{itemize}
+    \item $\tau \in \{\texttt{NoLimit}, \texttt{PotLimit}, \texttt{FixedLimit}\}$ is the betting type
+    \item $\pi = (p_1, p_2, \ldots, p_n)$ is the action order (sequence of players)
+    \item $b_{min} \in \mathbb{N}$ is the minimum bet/raise amount
+    \item $b_{max} \in \mathbb{N} \cup \{\infty\}$ is the maximum bet (where $\infty$ denotes no limit)
+    \item $r_{max} \in \mathbb{N} \cup \{\infty\}$ is the maximum number of raises per round
+\end{itemize}
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+data BettingRound = BettingRound
+    { brType      :: BettingType
+    , brOrder     :: [PlayerId]      -- action order
+    , brMinBet    :: Chips
+    , brMaxBet    :: Maybe Chips     -- Nothing = no limit
+    , brMaxRaises :: Maybe Int       -- cap on raises
+    }
+
+data BettingType = NoLimit | PotLimit | FixedLimit Chips Chips
+    deriving (Eq, Show)
+\end{lstlisting}
+
+\begin{definition}[Bet Validity]
+A bet of amount $a$ is \emph{valid} in round $\mathcal{R}$ with state $\mathcal{B}$ if and only if:
+\begin{align}
+    a &\geq b_{min} \tag{V1: minimum bet} \\
+    a &\leq b_{max} \tag{V2: maximum bet} \\
+    a &\leq \begin{cases}
+        \infty & \text{if } \tau = \texttt{NoLimit} \\
+        \texttt{pot}(\mathcal{B}) + \texttt{currentBet}(\mathcal{B}) & \text{if } \tau = \texttt{PotLimit} \\
+        b_{small} \text{ or } b_{big} & \text{if } \tau = \texttt{FixedLimit}(b_{small}, b_{big})
+    \end{cases} \tag{V3: type constraint}
+\end{align}
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+-- Validate bet/raise against game rules
+validateBet :: BettingRound -> BettingState -> Chips -> Either BetError ()
+validateBet br bs amount = do
+    when (amount < brMinBet br) $
+        Left $ InvalidBetAmount amount (brMinBet br)
+    case brMaxBet br of
+        Just maxB -> when (amount > maxB) $
+            Left $ InvalidBetAmount amount maxB
+        Nothing -> pure ()
+    case brType br of
+        PotLimit -> when (amount > bsPot bs + bsCurrentBet bs) $
+            Left $ InvalidBetAmount amount (bsPot bs)
+        FixedLimit small big -> when (amount /= small && amount /= big) $
+            Left $ InvalidBetAmount amount small
+        NoLimit -> pure ()
+\end{lstlisting}
+
+\begin{definition}[Betting Round Completion]
+A betting round is \emph{complete} in state $\mathcal{B}$ when:
+\[
+\texttt{complete}(\mathcal{R}, \mathcal{B}) \iff \texttt{active}(\mathcal{B}) \subseteq \texttt{acted}(\mathcal{B}) \lor |\texttt{active}(\mathcal{B})| \leq 1
+\]
+where the active players are those who have neither folded nor gone all-in:
+\[
+\texttt{active}(\mathcal{B}) = \mathcal{P} \setminus \texttt{folded}(\mathcal{B}) \setminus \texttt{allIn}(\mathcal{B})
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+-- Is betting round complete?
+bettingComplete :: BettingRound -> BettingState -> Bool
+bettingComplete br bs = 
+    let active = Map.keysSet (bsStacks bs) 
+               `Set.difference` bsFolded bs 
+               `Set.difference` bsAllIn bs
+    in active `Set.isSubsetOf` bsActed bs
+       || Set.size active <= 1  -- all but one folded
+\end{lstlisting}
+
+\begin{definition}[Action Sequence]
+An action sequence $\sigma = (a_1, a_2, \ldots, a_k)$ is \emph{valid} for round $\mathcal{R}$ starting from state $\mathcal{B}_0$ if:
+\begin{enumerate}
+    \item Each $a_i$ is performed by the correct player according to $\pi$
+    \item Each $a_i$ satisfies the validity constraints for state $\mathcal{B}_{i-1}$
+    \item The sequence terminates when $\texttt{complete}(\mathcal{R}, \mathcal{B}_k)$
+\end{enumerate}
+\end{definition}
+
+\subsection{Betting Records for Verification}
+
+For cryptographic verification and audit trails, we formalize the recording and replay of betting actions.
+
+\begin{definition}[Betting Action]
+A betting action $a$ is an element of the action space:
+\[
+a \in \mathcal{A} = \{\texttt{bet}, \texttt{raise}, \texttt{call}, \texttt{check}, \texttt{fold}, \texttt{allIn}\}
+\]
+Each action is parameterized by player $p$ and (for some actions) an amount $n$:
+\begin{align*}
+\texttt{bet}(p, n) &: \text{player } p \text{ bets } n \text{ chips} \\
+\texttt{raise}(p, r, t) &: \text{player } p \text{ raises by } r \text{ (total } t \text{)} \\
+\texttt{call}(p, n) &: \text{player } p \text{ calls } n \text{ chips} \\
+\texttt{check}(p) &: \text{player } p \text{ checks} \\
+\texttt{fold}(p) &: \text{player } p \text{ folds} \\
+\texttt{allIn}(p, n) &: \text{player } p \text{ goes all-in for } n
+\end{align*}
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+data BetAction
+    = BetAction PlayerId Chips
+    | RaiseAction PlayerId Chips Chips  -- raise amount, total
+    | CallAction PlayerId Chips
+    | CheckAction PlayerId
+    | FoldAction PlayerId
+    | AllInAction PlayerId Chips
+    deriving (Eq, Show)
+\end{lstlisting}
+
+\begin{definition}[Betting Record]
+A betting record $\rho$ is a tuple:
+\[
+\rho = (t, a, \mathcal{B}, \mathcal{B}')
+\]
+where:
+\begin{itemize}
+    \item $t \in \mathbb{N}$ is the timestamp (action sequence number)
+    \item $a \in \mathcal{A}$ is the action performed
+    \item $\mathcal{B}$ is the betting state before the action
+    \item $\mathcal{B}'$ is the betting state after the action
+\end{itemize}
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+data BetRecord = BetRecord
+    { brTimestamp   :: Int
+    , brAction      :: BetAction
+    , brStateBefore :: BettingState
+    , brStateAfter  :: BettingState
+    } deriving (Eq, Show)
+\end{lstlisting}
+
+\begin{definition}[Action Application]
+The application of action $a$ to state $\mathcal{B}$ is defined by the transition function:
+\[
+\delta : \mathcal{A} \times \mathcal{B} \to \mathcal{B}
+\]
+such that $\delta(a, \mathcal{B}) = \mathcal{B}'$ where $\mathcal{B}'$ is the resulting state.
+\end{definition}
+
+\begin{definition}[Betting Replay]
+Given an initial state $\mathcal{B}_0$ and an action sequence $\sigma = (a_1, a_2, \ldots, a_k)$, the replay function computes the final state:
+\[
+\texttt{replay}(\mathcal{B}_0, \sigma) = \delta(a_k, \delta(a_{k-1}, \ldots \delta(a_1, \mathcal{B}_0) \ldots))
+\]
+Equivalently, using fold:
+\[
+\texttt{replay}(\mathcal{B}_0, \sigma) = \texttt{foldl}(\delta, \mathcal{B}_0, \sigma)
+\]
+\end{definition}
+
+\begin{lstlisting}[style=haskell]
+-- Reconstruct final state from initial state + actions
+replayBetting :: BettingState -> [BetAction] -> BettingState
+replayBetting = foldl applyAction
+  where
+    applyAction bs (BetAction p n)     = fromRight bs $ bet p n bs
+    applyAction bs (RaiseAction p r _) = fromRight bs $ raise p r bs
+    applyAction bs (CallAction p _)    = fromRight bs $ call p bs
+    applyAction bs (CheckAction p)     = fromRight bs $ check p bs
+    applyAction bs (FoldAction p)      = fold p bs
+    applyAction bs (AllInAction p _)   = fromRight bs $ allIn p bs
+\end{lstlisting}
+
+\begin{theorem}[Replay Correctness]
+For any valid action sequence $\sigma$ with corresponding records $(\rho_1, \rho_2, \ldots, \rho_k)$:
+\[
+\texttt{replay}(\mathcal{B}_0, \sigma) = \mathcal{B}'_k
+\]
+where $\mathcal{B}'_k$ is the final state recorded in $\rho_k$.
+\end{theorem}
+
+\begin{proof}
+By induction on $k$. Base case: for $k=0$, $\texttt{replay}(\mathcal{B}_0, []) = \mathcal{B}_0$. Inductive step: assume $\texttt{replay}(\mathcal{B}_0, (a_1, \ldots, a_{k-1})) = \mathcal{B}_{k-1}$. Then:
+\[
+\texttt{replay}(\mathcal{B}_0, (a_1, \ldots, a_k)) = \delta(a_k, \mathcal{B}_{k-1}) = \mathcal{B}'_k
+\]
+by definition of $\delta$ and the record $\rho_k$.
+\end{proof}
+
+\begin{definition}[Verifiable Betting Transcript]
+A betting transcript $\mathcal{T}$ is \emph{verifiable} if it contains:
+\begin{enumerate}
+    \item Initial state $\mathcal{B}_0$ with all player stacks
+    \item Complete action sequence $\sigma = (a_1, \ldots, a_k)$
+    \item Cryptographic commitments $h_i = H(\mathcal{B}_i)$ for each intermediate state
+\end{enumerate}
+such that any observer can verify:
+\[
+\forall i \in [1, k] : H(\delta(a_i, \mathcal{B}_{i-1})) = h_i
+\]
+\end{definition}
+
+\begin{theorem}[Transcript Integrity]
+Given a verifiable transcript $\mathcal{T}$, any modification to the action sequence or intermediate states is detectable with probability $1 - 2^{-\lambda}$ where $\lambda$ is the security parameter of $H$.
+\end{theorem}
+
+\subsection{Betting in DSL}
+
+\begin{lstlisting}[style=yaml]
+game: no_limit_holdem
+
+betting:
+  type: no_limit
+  blinds:
+    small: 1
+    big: 2
+  ante: 0
+  min_raise: big_blind
+  
+rounds:
+  - name: preflop
+    betting:
+      order: after_big_blind
+      min_bet: big_blind
+      
+  - name: flop
+    betting:
+      order: after_dealer
+      min_bet: big_blind
+      
+  - name: turn
+    betting:
+      order: after_dealer
+      min_bet: big_blind
+      
+  - name: river
+    betting:
+      order: after_dealer
+      min_bet: big_blind
+
+---
+
+game: limit_holdem
+
+betting:
+  type: fixed_limit
+  small_bet: 2
+  big_bet: 4       # turn and river
+  blinds:
+    small: 1
+    big: 2
+  max_raises: 4    # cap at 4 raises per round
+  
+---
+
+game: pot_limit_omaha
+
+betting:
+  type: pot_limit
+  max_bet: pot     # can bet up to current pot size
+  blinds:
+    small: 1
+    big: 2
+\end{lstlisting}
+
+\begin{theorem}[Betting Conservation]
+For any betting round, the sum of player stacks plus the pot is constant:
+\[
+\sum_{p \in \mathcal{P}} \texttt{stack}(p) + \texttt{pot} = \text{const}
+\]
+No chips are created or destroyed through betting actions.
+\end{theorem}
+
+\section{Game Specification}
+
+Games are specified declaratively, describing components, setup, rounds, and victory conditions.
+
+\subsection{Cut for High Card}
+
+We present the complete specification for the simplest non-trivial card game:
+
+\begin{lstlisting}[style=yaml]
+game: cut_for_high_card
+version: 1.0
+
+components:
+  deck: standard_52
+  
+ranking:
+  type: high_card
+  ace: high
+  suits_break_ties: false
+
+players:
+  count: 2..8
+
+setup:
+  - shuffle: deck
+
+round:
+  name: cut
+  
+  actions:
+    - each_player:
+        - draw: 1 from deck -> hand
+        - reveal: hand
+  
+  resolve:
+    compare: players.hand using ranking
+    winner: highest
+    
+  on_tie:
+    - reshuffle: revealed cards into deck
+    - repeat: round
+
+victory:
+  condition: win_round
+  award: pot
+\end{lstlisting}
+
+\subsection{Compilation Target}
+
+The \textsc{CardLang} compiler transforms this specification into executable code with the following properties:
+
+\begin{enumerate}
+    \item \textbf{State Machine}: The game becomes a finite state machine with well-defined transitions.
+    \item \textbf{Verified Operations}: \texttt{shuffle} compiles to Fisher-Yates; \texttt{compare} uses the specified ranking.
+    \item \textbf{Determinism}: Given initial state and seed, all outcomes are reproducible.
+    \item \textbf{Audit Trail}: Every state transition is logged for verification.
+\end{enumerate}
+
+\section{Extended Example: Texas Hold'em}
+
+To demonstrate the expressiveness of \textsc{CardLang}, we sketch the specification for Texas Hold'em poker:
+
+\begin{lstlisting}[style=yaml]
+game: texas_holdem
+version: 1.0
+
+components:
+  deck: standard_52
+  
+ranking:
+  type: poker_hand
+  ace: high_and_low  # for straights
+  
+players:
+  count: 2..10
+  
+positions:
+  - dealer: rotates
+  - small_blind: dealer + 1
+  - big_blind: dealer + 2
+
+setup:
+  - shuffle: deck
+  - post: small_blind -> pot
+  - post: big_blind -> pot
+  - deal: 2 to each_player -> hand (hidden)
+
+rounds:
+  - name: preflop
+    betting: standard
+    
+  - name: flop
+    actions:
+      - burn: 1 from deck
+      - deal: 3 from deck -> community (revealed)
+    betting: standard
+    
+  - name: turn
+    actions:
+      - burn: 1 from deck  
+      - deal: 1 from deck -> community (revealed)
+    betting: standard
+    
+  - name: river
+    actions:
+      - burn: 1 from deck
+      - deal: 1 from deck -> community (revealed)
+    betting: standard
+
+showdown:
+  evaluate: best_5_of_7(hand + community) using ranking
+  winner: highest
+  award: pot
+  
+  on_tie:
+    split: pot among tied_players
+\end{lstlisting}
+
+\section{Implementation Considerations}
+
+\subsection{Blockchain Integration}
+
+\textsc{CardLang} specifications are suitable for smart contract deployment:
+
+\begin{itemize}
+    \item Deterministic shuffling enables on-chain verification
+    \item State machine representation maps naturally to contract storage
+    \item Commitment schemes integrate with blockchain transaction ordering
+\end{itemize}
+
+\subsection{Byte-Level Efficiency}
+
+The byte encoding of cards enables efficient operations:
+
+\begin{lstlisting}[style=haskell]
+-- Deck as byte array
+type DeckBytes = ByteString  -- length = deck cardinality
+
+-- Shuffle operates on bytes directly
+shuffleBytes :: Seed -> DeckBytes -> DeckBytes
+\end{lstlisting}
+
+\section{Future Work}
+
+Several extensions are planned for \textsc{CardLang}:
+
+\begin{enumerate}
+    \item \textbf{Formal Verification}: Integration with proof assistants (Coq, Agda) to verify game properties.
+    
+    \item \textbf{Multi-Deck Games}: Support for games requiring multiple decks (Canasta, Blackjack shoes).
+    
+    \item \textbf{Hidden Information}: Formal treatment of information asymmetry and player knowledge.
+    
+    \item \textbf{Betting Primitives}: First-class support for pot management, betting rounds, and side pots.
+    
+    \item \textbf{Tournament Structures}: Specifications for multi-table tournaments and elimination formats.
+\end{enumerate}
+
+\section{Conclusion}
+
+We have presented \textsc{CardLang}, a domain-specific language for formally specifying card games. By elevating card game concepts to language primitives and adopting a functional approach to deck construction, we enable specifications that are simultaneously human-readable, mathematically precise, and suitable for verified implementation.
+
+The deterministic shuffling primitive, combined with cryptographic commitment schemes, addresses the requirements of provably fair gaming systems. The compilation to efficient byte-level representations enables deployment in resource-constrained environments including blockchain smart contracts.
+
+\textsc{CardLang} demonstrates that domain-specific languages can capture the semantics of traditional games while enabling new applications in verifiable computing.
+
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+
+\bibitem{love2008general}
+Love, N., Hinrichs, T., Haley, D., Schkufza, E., \& Genesereth, M. (2008).
+General Game Playing: Game Description Language Specification.
+\textit{Stanford Logic Group Technical Report LG-2006-01}.
+
+\bibitem{billings2002challenge}
+Billings, D., Davidson, A., Schaeffer, J., \& Szafron, D. (2002).
+The challenge of poker.
+\textit{Artificial Intelligence}, 134(1-2), 201-240.
+
+\bibitem{hudak1996building}
+Hudak, P. (1996).
+Building domain-specific embedded languages.
+\textit{ACM Computing Surveys}, 28(4es), 196-es.
+
+\bibitem{shamir1981mental}
+Shamir, A., Rivest, R. L., \& Adleman, L. M. (1981).
+Mental Poker.
+\textit{The Mathematical Gardner}, 37-43.
+
+\bibitem{knuth1997art}
+Knuth, D. E. (1997).
+\textit{The Art of Computer Programming, Volume 2: Seminumerical Algorithms}.
+Addison-Wesley, 3rd edition.
+
+\bibitem{goldreich2001foundations}
+Goldreich, O. (2001).
+\textit{Foundations of Cryptography: Basic Tools}.
+Cambridge University Press.
+
+\bibitem{eng2003joker}
+Eng, J., Tse, J., Chu, H., \& SooHoo, T. (2003).
+Joker: A Card Game Programming Language.
+\textit{Columbia University COMS W4115 Final Report}.
+
+\bibitem{font2013card}
+Font, J. M., Mahlmann, T., Manrique, D., \& Togelius, J. (2013).
+A Card Game Description Language.
+In \textit{Applications of Evolutionary Computation (EvoApplications 2013)},
+LNCS 7835, pp. 254-263. Springer.
+
+\bibitem{kowalski2014embedding}
+Kowalski, J. (2014).
+Embedding a Card Game Language into a General Game Playing Language.
+In \textit{Proceedings of the 7th European Starting AI Researcher Symposium},
+pp. 161-170.
+
+\bibitem{thielscher2010general}
+Thielscher, M. (2010).
+A General Game Description Language for Incomplete Information Games.
+In \textit{Proceedings of the 24th AAAI Conference on Artificial Intelligence},
+pp. 994-999.
+
+\bibitem{schaul2013extensible}
+Schaul, T. (2014).
+An Extensible Description Language for Video Games.
+\textit{IEEE Transactions on Computational Intelligence and AI in Games},
+6(4), 325-331.
+
+\bibitem{piette2020ludii}
+Piette, E., Soemers, D. J., Stephenson, M., Sironi, C. F., Winands, M. H., \& Browne, C. (2020).
+Ludii -- The Ludemic General Game System.
+In \textit{Proceedings of the 24th European Conference on Artificial Intelligence (ECAI 2020)}.
+
+\bibitem{vanrozen2020languages}
+van Rozen, R. (2020).
+Languages of Games and Play: A Systematic Mapping Study.
+\textit{ACM Computing Surveys}, 53(6), Article 123.
+
+\bibitem{recycle2023}
+Buitink, M. (2020).
+Card Game Toolkit.
+Bachelor's Thesis, Amsterdam University of Applied Sciences.
+
+\bibitem{ras2018}
+Domain Specific Language for Trading Card Games.
+\textit{University of Twente Technical Report}, 2018.
+
+\bibitem{castellà2005secure}
+Castell\`{a}-Roca, J., Domingo-Ferrer, J., Riera, A., \& Borrell, J. (2005).
+Practical mental poker without a TTP based on homomorphic encryption.
+In \textit{Proceedings of the 4th International ITG Conference on Source and Channel Coding}.
+
+\bibitem{barnett2003mental}
+Barnett, A., \& Smart, N. P. (2003).
+Mental Poker Revisited.
+In \textit{Cryptography and Coding}, LNCS 2898, pp. 370-383. Springer.
+
+\end{thebibliography}
+
+\end{document}

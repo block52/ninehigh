@@ -375,6 +375,249 @@
             font-size: 0.95rem;
         }
 
+        /* Philosophy Section */
+        .philosophy {
+            padding: 8rem 5%;
+            background: var(--off-white);
+        }
+
+        .philosophy-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .philosophy-content h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 3rem;
+            color: var(--charcoal);
+        }
+
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .philosophy-main p {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .philosophy-lead {
+            font-size: 1.35rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+        }
+
+        .philosophy-points {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .philosophy-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+            padding: 1.25rem;
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--mid-gray);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .philosophy-point:hover {
+            border-color: var(--red);
+            transform: translateX(4px);
+        }
+
+        .point-icon {
+            font-size: 1.5rem;
+            color: var(--red);
+            line-height: 1;
+        }
+
+        .philosophy-point strong {
+            display: block;
+            color: var(--charcoal);
+            margin-bottom: 0.25rem;
+        }
+
+        .philosophy-point p {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        @media (max-width: 900px) {
+            .philosophy-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+
+        /* Research Section */
+        .research {
+            padding: 8rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .research-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+        }
+
+        .research-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .research-intro {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+        }
+
+        .research-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .algorithm-card {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            color: var(--white);
+        }
+
+        .algorithm-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--white);
+        }
+
+        .algorithm-desc {
+            opacity: 0.85;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment {
+            color: #6a9955;
+        }
+
+        .code-keyword {
+            color: var(--red-light);
+        }
+
+        .algorithm-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .algo-feature {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .algo-icon {
+            font-size: 1.25rem;
+            width: 2rem;
+            text-align: center;
+        }
+
+        .algo-feature strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .algo-feature p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin: 0;
+        }
+
+        .cardlang-info {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 2.5rem;
+            border: 1px solid var(--mid-gray);
+        }
+
+        .cardlang-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .cardlang-info > p {
+            color: var(--dark-gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .cardlang-features {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cardlang-features li {
+            padding: 0.75rem 0;
+            padding-left: 1.75rem;
+            position: relative;
+            border-bottom: 1px solid var(--mid-gray);
+            color: var(--dark-gray);
+        }
+
+        .cardlang-features li:last-child {
+            border-bottom: none;
+        }
+
+        .cardlang-features li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--red);
+            font-weight: bold;
+        }
+
+        @media (max-width: 900px) {
+            .research-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* About Section */
         .about {
             padding: 8rem 5%;
@@ -429,6 +672,93 @@
             opacity: 0.7;
             text-transform: uppercase;
             letter-spacing: 0.1em;
+        }
+
+        /* Team Section */
+        .team {
+            padding: 8rem 5%;
+            background: var(--light-gray);
+        }
+
+        .team-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .team-content h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 4rem;
+            color: var(--charcoal);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .team-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            border: 1px solid var(--mid-gray);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .team-card:hover {
+            border-color: var(--red);
+            transform: translateY(-4px);
+        }
+
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .team-card h3 {
+            font-size: 1.25rem;
+            color: var(--charcoal);
+            margin-bottom: 0.25rem;
+        }
+
+        .team-role {
+            color: var(--red);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .team-bio {
+            color: var(--dark-gray);
+            margin: 1.25rem 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .team-stats {
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .favorite-hand {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+        }
+
+        .favorite-hand strong {
+            color: var(--charcoal);
         }
 
         /* Contact Section */
@@ -548,7 +878,8 @@
         <ul class="nav-links">
             <li><a href="#product">Product</a></li>
             <li><a href="#features">Features</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="#research">Research</a></li>
+            <li><a href="#team">Team</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
     </nav>
@@ -644,6 +975,105 @@
         </div>
     </section>
 
+    <section id="philosophy" class="philosophy">
+        <div class="philosophy-content">
+            <span class="section-label">Player First</span>
+            <h2>Built at the felt, not in a boardroom</h2>
+            <div class="philosophy-grid">
+                <div class="philosophy-main">
+                    <p class="philosophy-lead">Every feature we ship gets tested at our own home games first. If it doesn't feel right at 2am with real money on the line, it doesn't ship.</p>
+                    <p>We're not a team of developers who read about poker. We're players who learned to code. That difference shows in every decision we make - from the snap-responsive fold button to the shuffle algorithm we spent months perfecting.</p>
+                    <p>When you're deep in a tournament and the software disappears, letting you focus purely on the game - that's what we're building toward. Because we've been in that seat, and we know what matters.</p>
+                </div>
+                <div class="philosophy-points">
+                    <div class="philosophy-point">
+                        <span class="point-icon">♠</span>
+                        <div>
+                            <strong>We play what we build</strong>
+                            <p>Weekly home games are our first QA environment</p>
+                        </div>
+                    </div>
+                    <div class="philosophy-point">
+                        <span class="point-icon">♥</span>
+                        <div>
+                            <strong>Details matter</strong>
+                            <p>Milliseconds, animations, chip sounds - we sweat it all</p>
+                        </div>
+                    </div>
+                    <div class="philosophy-point">
+                        <span class="point-icon">♦</span>
+                        <div>
+                            <strong>Trust is everything</strong>
+                            <p>Provably fair isn't a feature, it's a requirement</p>
+                        </div>
+                    </div>
+                    <div class="philosophy-point">
+                        <span class="point-icon">♣</span>
+                        <div>
+                            <strong>No shortcuts</strong>
+                            <p>We'd rather delay than ship something we wouldn't play</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="research" class="research">
+        <div class="research-header">
+            <span class="section-label">Open Research</span>
+            <h2>CardLang: Formally Specified Card Games</h2>
+            <p class="research-intro">We develop open-source tools and research for provably fair gaming systems.</p>
+        </div>
+        <div class="research-content">
+            <div class="algorithm-card">
+                <h3>Fisher-Yates Shuffle Algorithm</h3>
+                <p class="algorithm-desc">Our deterministic shuffle implementation uses the Fisher-Yates algorithm with a 256-bit cryptographic seed, ensuring every shuffle can be independently verified.</p>
+                <pre class="code-block"><code><span class="code-comment">// Input: Deck D, seed s ∈ {0,1}²⁵⁶</span>
+<span class="code-keyword">function</span> shuffle(deck, seed) {
+    rng = initRng(seed)
+    <span class="code-keyword">for</span> i = n-1 <span class="code-keyword">downto</span> 1:
+        j = rng.random(0, i)
+        swap(deck[i], deck[j])
+    <span class="code-keyword">return</span> deck
+}</code></pre>
+                <div class="algorithm-features">
+                    <div class="algo-feature">
+                        <span class="algo-icon">🔐</span>
+                        <div>
+                            <strong>Commitment Scheme</strong>
+                            <p>Multi-party seed generation prevents manipulation</p>
+                        </div>
+                    </div>
+                    <div class="algo-feature">
+                        <span class="algo-icon">✓</span>
+                        <div>
+                            <strong>Verifiable</strong>
+                            <p>Any player can audit shuffle outcomes</p>
+                        </div>
+                    </div>
+                    <div class="algo-feature">
+                        <span class="algo-icon">∞</span>
+                        <div>
+                            <strong>Deterministic</strong>
+                            <p>Same seed always produces same result</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="cardlang-info">
+                <h3>What is CardLang?</h3>
+                <p>A domain-specific language treating Card, Rank, Suit, and Deck as language primitives. Game definitions are both human-readable and mathematically precise.</p>
+                <ul class="cardlang-features">
+                    <li>Functional approach inspired by Haskell</li>
+                    <li>Composable deck expressions</li>
+                    <li>Verified compilation to multiple backends</li>
+                    <li>Integration with commitment schemes for trustless execution</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
     <section id="about" class="about">
         <div class="about-content">
             <span class="section-label">About Us</span>
@@ -667,6 +1097,42 @@
         </div>
     </section>
 
+    <section id="team" class="team">
+        <div class="team-content">
+            <span class="section-label">The Table</span>
+            <h2>Meet the players behind the code</h2>
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">LC</div>
+                    <h3>Lucas Cullen</h3>
+                    <span class="team-role">Founder</span>
+                    <p class="team-bio">Bio coming soon.</p>
+                    <div class="team-stats">
+                        <span class="favorite-hand">Favorite hand: <strong>TBD</strong></span>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">??</div>
+                    <h3>Team Member</h3>
+                    <span class="team-role">Role</span>
+                    <p class="team-bio">Bio coming soon.</p>
+                    <div class="team-stats">
+                        <span class="favorite-hand">Favorite hand: <strong>TBD</strong></span>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">??</div>
+                    <h3>Team Member</h3>
+                    <span class="team-role">Role</span>
+                    <p class="team-bio">Bio coming soon.</p>
+                    <div class="team-stats">
+                        <span class="favorite-hand">Favorite hand: <strong>TBD</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="contact" class="contact">
         <span class="section-label">Get in Touch</span>
         <h2>Ready to deal?</h2>
@@ -679,7 +1145,8 @@
         <ul class="footer-links">
             <li><a href="#product">Product</a></li>
             <li><a href="#features">Features</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="#research">Research</a></li>
+            <li><a href="#team">Team</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
         <span class="copyright">© 2025 9 High Studios. All rights reserved.</span>
