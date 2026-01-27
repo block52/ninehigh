@@ -618,6 +618,172 @@
             }
         }
 
+        /* ZKP Section */
+        .zkp-section {
+            max-width: 1200px;
+            margin: 5rem auto 0;
+            padding-top: 4rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .zkp-section > h3 {
+            font-size: 1.75rem;
+            font-weight: 400;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .zkp-intro {
+            text-align: center;
+            color: var(--dark-gray);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+        }
+
+        .zkp-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .zkp-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 10px;
+            padding: 1.75rem;
+            transition: border-color 0.3s;
+        }
+
+        .zkp-card:hover {
+            border-color: var(--red);
+        }
+
+        .zkp-card h4 {
+            font-size: 1.1rem;
+            color: var(--charcoal);
+            margin-bottom: 0.75rem;
+        }
+
+        .zkp-card > p {
+            color: var(--dark-gray);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .math-block {
+            background: var(--charcoal);
+            border-radius: 6px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+        }
+
+        .math {
+            font-family: 'Times New Roman', 'Georgia', serif;
+            font-size: 1.15rem;
+            color: var(--white);
+            font-style: italic;
+            letter-spacing: 0.02em;
+        }
+
+        .math sup, .math sub {
+            font-size: 0.7em;
+        }
+
+        .math-desc {
+            font-size: 0.85rem !important;
+            color: #666 !important;
+            margin: 0 !important;
+        }
+
+        .math-desc em {
+            font-family: 'Times New Roman', 'Georgia', serif;
+            color: var(--charcoal);
+        }
+
+        .math-inline {
+            font-family: 'Times New Roman', 'Georgia', serif;
+            font-style: italic;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.95rem;
+        }
+
+        .zkp-protocol {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+        }
+
+        .zkp-protocol h4 {
+            color: var(--white);
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .protocol-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        .protocol-step {
+            text-align: center;
+        }
+
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            background: var(--red);
+            color: var(--white);
+            border-radius: 50%;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .protocol-step strong {
+            display: block;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+
+        .protocol-step p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .protocol-step .math-inline {
+            background: rgba(255,255,255,0.1);
+            color: var(--white);
+        }
+
+        @media (max-width: 900px) {
+            .zkp-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .protocol-steps {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .protocol-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* About Section */
         .about {
             padding: 8rem 5%;
@@ -874,7 +1040,7 @@
 </head>
 <body>
     <nav>
-        <a href="#" class="logo">9 HIGH <span>STUDIOS</span></a>
+        <a href="#" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
         <ul class="nav-links">
             <li><a href="#product">Product</a></li>
             <li><a href="#features">Features</a></li>
@@ -1072,6 +1238,83 @@
                 </ul>
             </div>
         </div>
+
+        <div class="zkp-section">
+            <h3>Zero-Knowledge Proofs for Card Games</h3>
+            <p class="zkp-intro">We use zero-knowledge proofs to enable players to prove properties about their hands without revealing the cards themselves - essential for trustless poker.</p>
+
+            <div class="zkp-grid">
+                <div class="zkp-card">
+                    <h4>Commitment Scheme</h4>
+                    <p>Each card is committed using a Pedersen commitment:</p>
+                    <div class="math-block">
+                        <span class="math">C = g<sup>m</sup> · h<sup>r</sup> mod p</span>
+                    </div>
+                    <p class="math-desc">Where <em>m</em> is the card value, <em>r</em> is a random blinding factor, and <em>g</em>, <em>h</em> are generator points.</p>
+                </div>
+
+                <div class="zkp-card">
+                    <h4>Range Proofs</h4>
+                    <p>Prove a committed card is valid without revealing it:</p>
+                    <div class="math-block">
+                        <span class="math">∃ m : C = Commit(m) ∧ m ∈ [0, 51]</span>
+                    </div>
+                    <p class="math-desc">The prover demonstrates knowledge of a valid card index without disclosure.</p>
+                </div>
+
+                <div class="zkp-card">
+                    <h4>Hand Evaluation</h4>
+                    <p>Prove hand ranking without revealing hole cards:</p>
+                    <div class="math-block">
+                        <span class="math">π = ZK.Prove{ (h₁, h₂, b) : Eval(h₁, h₂, b) = R }</span>
+                    </div>
+                    <p class="math-desc">Players prove their hand evaluates to rank <em>R</em> given community cards <em>b</em>.</p>
+                </div>
+
+                <div class="zkp-card">
+                    <h4>Shuffle Verification</h4>
+                    <p>Prove shuffle correctness via permutation network:</p>
+                    <div class="math-block">
+                        <span class="math">∀i : C'<sub>π(i)</sub> = ReRand(C<sub>i</sub>, r<sub>i</sub>)</span>
+                    </div>
+                    <p class="math-desc">Each output is a re-randomization of some input, proving no cards added or removed.</p>
+                </div>
+            </div>
+
+            <div class="zkp-protocol">
+                <h4>Mental Poker Protocol</h4>
+                <div class="protocol-steps">
+                    <div class="protocol-step">
+                        <span class="step-num">1</span>
+                        <div>
+                            <strong>Setup</strong>
+                            <p>Players jointly generate encryption keys: <span class="math-inline">pk = ∏ pk<sub>i</sub></span></p>
+                        </div>
+                    </div>
+                    <div class="protocol-step">
+                        <span class="step-num">2</span>
+                        <div>
+                            <strong>Encrypt Deck</strong>
+                            <p>Each card encrypted: <span class="math-inline">E(m) = (g<sup>r</sup>, pk<sup>r</sup> · g<sup>m</sup>)</span></p>
+                        </div>
+                    </div>
+                    <div class="protocol-step">
+                        <span class="step-num">3</span>
+                        <div>
+                            <strong>Joint Shuffle</strong>
+                            <p>Players sequentially shuffle and re-encrypt with ZK proof of correctness</p>
+                        </div>
+                    </div>
+                    <div class="protocol-step">
+                        <span class="step-num">4</span>
+                        <div>
+                            <strong>Threshold Decrypt</strong>
+                            <p>Card revealed only when all players provide decryption shares: <span class="math-inline">m = D<sub>sk₁</sub>(D<sub>sk₂</sub>(...(c)))</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section id="about" class="about">
@@ -1141,7 +1384,7 @@
     </section>
 
     <footer>
-        <div class="footer-logo">9 HIGH <span>STUDIOS</span></div>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> ♦</div>
         <ul class="footer-links">
             <li><a href="#product">Product</a></li>
             <li><a href="#features">Features</a></li>
