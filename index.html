@@ -463,6 +463,129 @@
             }
         }
 
+        /* Open Source Section */
+        .opensource {
+            padding: 8rem 5%;
+            background: var(--charcoal);
+        }
+
+        .opensource-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+        }
+
+        .opensource-header .section-label {
+            color: var(--red-light);
+        }
+
+        .opensource-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: var(--white);
+        }
+
+        .opensource-intro {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+        }
+
+        .opensource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .package-card {
+            background: #252525;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid #333;
+            transition: border-color 0.3s;
+        }
+
+        .package-card:hover {
+            border-color: var(--red);
+        }
+
+        .package-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .package-icon {
+            font-size: 2rem;
+        }
+
+        .package-header h3 {
+            color: var(--white);
+            font-size: 1.25rem;
+            margin: 0;
+            font-family: 'SF Mono', 'Consolas', monospace;
+        }
+
+        .package-lang {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .package-link {
+            margin-left: auto;
+            color: var(--red-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .package-link:hover {
+            color: var(--white);
+        }
+
+        .package-desc {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .package-card .code-block {
+            margin-bottom: 1.5rem;
+            font-size: 0.8rem;
+        }
+
+        .code-string {
+            color: #98c379;
+        }
+
+        .code-number {
+            color: #d19a66;
+        }
+
+        .package-stats {
+            padding-top: 1rem;
+            border-top: 1px solid #333;
+        }
+
+        .package-stats span {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.5);
+            background: #1a1a1a;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 900px) {
+            .opensource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Research Section */
         .research {
             padding: 8rem 5%;
@@ -1180,6 +1303,76 @@
                             <p>We'd rather delay than ship something we wouldn't play</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="opensource" class="opensource">
+        <div class="opensource-header">
+            <span class="section-label">Give Back</span>
+            <h2>Open source tools for the community</h2>
+            <p class="opensource-intro">We believe in building in public. These packages power our products and are free for everyone to use.</p>
+        </div>
+        <div class="opensource-grid">
+            <div class="package-card">
+                <div class="package-header">
+                    <span class="package-icon">📦</span>
+                    <div>
+                        <h3>@block52/deck</h3>
+                        <span class="package-lang">TypeScript / NPM</span>
+                    </div>
+                    <a href="https://github.com/block52/typescript-deck" class="package-link" target="_blank">GitHub →</a>
+                </div>
+                <p class="package-desc">A 52-card deck implementation with cryptographic shuffling. Fisher-Yates algorithm, deterministic seeding, SHA256 verification.</p>
+                <pre class="code-block"><code><span class="code-keyword">import</span> { Deck } <span class="code-keyword">from</span> <span class="code-string">"@block52/deck"</span>;
+
+<span class="code-comment">// Create and shuffle</span>
+<span class="code-keyword">const</span> deck = <span class="code-keyword">new</span> Deck();
+deck.shuffle();
+
+<span class="code-comment">// Deal a hand</span>
+<span class="code-keyword">const</span> hand = deck.deal(<span class="code-number">2</span>);
+console.log(hand[<span class="code-number">0</span>].mnemonic); <span class="code-comment">// "AS"</span>
+
+<span class="code-comment">// Deterministic shuffle with seed</span>
+deck.shuffle(seed);
+<span class="code-keyword">const</span> hash = deck.hash(); <span class="code-comment">// SHA256</span></code></pre>
+                <div class="package-stats">
+                    <span>npm install @block52/deck</span>
+                </div>
+            </div>
+
+            <div class="package-card">
+                <div class="package-header">
+                    <span class="package-icon">🎯</span>
+                    <div>
+                        <h3>equity</h3>
+                        <span class="package-lang">Go / Pokerchain</span>
+                    </div>
+                    <a href="https://github.com/block52/pokerchain" class="package-link" target="_blank">GitHub →</a>
+                </div>
+                <p class="package-desc">Monte Carlo equity calculator for Texas Hold'em. Parallel simulation, configurable iterations, stage-aware calculations.</p>
+                <pre class="code-block"><code><span class="code-keyword">package</span> main
+
+<span class="code-keyword">import</span> <span class="code-string">"github.com/block52/pokerchain/x/poker/equity"</span>
+
+<span class="code-keyword">func</span> main() {
+    calc := equity.NewCalculator(
+        equity.WithSimulations(<span class="code-number">10000</span>),
+        equity.WithWorkers(<span class="code-number">8</span>),
+    )
+
+    <span class="code-comment">// Calculate preflop equity</span>
+    hands := [][]<span class="code-keyword">string</span>{
+        {<span class="code-string">"AS"</span>, <span class="code-string">"KS"</span>},  <span class="code-comment">// Player 1</span>
+        {<span class="code-string">"QH"</span>, <span class="code-string">"QD"</span>},  <span class="code-comment">// Player 2</span>
+    }
+    result := calc.Calculate(hands, nil)
+    <span class="code-comment">// result.Results[0].Equity = 0.434</span>
+}</code></pre>
+                <div class="package-stats">
+                    <span>go get github.com/block52/pokerchain</span>
                 </div>
             </div>
         </div>
