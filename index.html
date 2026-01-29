@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>9 High Studios | Poker Software Development</title>
+    <meta name="description" content="Premium poker applications engineered for performance, fairness, and exceptional player experience. Home of Block 52.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="9 High Studios | Poker Software Development">
+    <meta property="og:description" content="Premium poker applications engineered for performance, fairness, and exceptional player experience.">
+    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+
     <style>
         * {
             margin: 0;
@@ -21,6 +33,10 @@
             --red: #c41e3a;
             --red-dark: #a01830;
             --red-light: #e63950;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -1015,10 +1031,29 @@
             color: var(--white);
         }
 
+        .team-avatar-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1.5rem;
+            display: block;
+        }
+
         .team-card h3 {
             font-size: 1.25rem;
             color: var(--charcoal);
             margin-bottom: 0.25rem;
+        }
+
+        .team-link {
+            color: var(--charcoal);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .team-link:hover {
+            color: var(--red);
         }
 
         .team-role {
@@ -1128,6 +1163,82 @@
             font-size: 0.85rem;
         }
 
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            background: var(--red);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 99;
+            box-shadow: 0 4px 15px rgba(196, 30, 58, 0.3);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--red-dark);
+            transform: translateY(-3px);
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* Responsive */
         @media (max-width: 900px) {
             .product-grid {
@@ -1139,8 +1250,37 @@
                 order: -1;
             }
 
+            .menu-toggle {
+                display: flex;
+            }
+
             .nav-links {
-                display: none;
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
             }
         }
 
@@ -1164,7 +1304,7 @@
 <body>
     <nav>
         <a href="#" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
-        <ul class="nav-links">
+        <ul class="nav-links" id="navLinks">
             <li><a href="#product">Product</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#research">Research</a></li>
@@ -1172,7 +1312,14 @@
             <li><a href="article-1.html">Blog</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </nav>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
     <section class="hero">
         <span class="hero-badge">Poker Software Development</span>
@@ -1185,7 +1332,7 @@
     </section>
 
     <section id="product" class="product">
-        <div class="product-grid">
+        <div class="product-grid fade-in">
             <div class="product-content">
                 <span class="section-label">Flagship Product</span>
                 <h2>Introducing <strong>Block 52</strong></h2>
@@ -1227,11 +1374,11 @@
     </section>
 
     <section id="features" class="features">
-        <div class="features-header">
+        <div class="features-header fade-in">
             <span class="section-label">Why Choose Us</span>
             <h2>Built by poker players, for poker players</h2>
         </div>
-        <div class="features-grid">
+        <div class="features-grid fade-in">
             <div class="feature-card">
                 <div class="feature-icon">⚡</div>
                 <h3>Lightning Fast</h3>
@@ -1266,7 +1413,7 @@
     </section>
 
     <section id="philosophy" class="philosophy">
-        <div class="philosophy-content">
+        <div class="philosophy-content fade-in">
             <span class="section-label">Player First</span>
             <h2>Built at the felt, not in a boardroom</h2>
             <div class="philosophy-grid">
@@ -1310,12 +1457,12 @@
     </section>
 
     <section id="opensource" class="opensource">
-        <div class="opensource-header">
+        <div class="opensource-header fade-in">
             <span class="section-label">Give Back</span>
             <h2>Open source tools for the community</h2>
             <p class="opensource-intro">We believe in building in public. These packages power our products and are free for everyone to use.</p>
         </div>
-        <div class="opensource-grid">
+        <div class="opensource-grid fade-in">
             <div class="package-card">
                 <div class="package-header">
                     <span class="package-icon">📦</span>
@@ -1380,12 +1527,12 @@ deck.shuffle(seed);
     </section>
 
     <section id="research" class="research">
-        <div class="research-header">
+        <div class="research-header fade-in">
             <span class="section-label">Open Research</span>
             <h2>CardLang: Formally Specified Card Games</h2>
             <p class="research-intro">We develop open-source tools and research for provably fair gaming systems.</p>
         </div>
-        <div class="research-content">
+        <div class="research-content fade-in">
             <div class="algorithm-card">
                 <h3>Fisher-Yates Shuffle Algorithm</h3>
                 <p class="algorithm-desc">Our deterministic shuffle implementation uses the Fisher-Yates algorithm with a 256-bit cryptographic seed, ensuring every shuffle can be independently verified.</p>
@@ -1433,7 +1580,7 @@ deck.shuffle(seed);
             </div>
         </div>
 
-        <div class="zkp-section">
+        <div class="zkp-section fade-in">
             <h3>Zero-Knowledge Proofs for Card Games</h3>
             <p class="zkp-intro">We use zero-knowledge proofs to enable players to prove properties about their hands without revealing the cards themselves - essential for trustless poker.</p>
 
@@ -1512,7 +1659,7 @@ deck.shuffle(seed);
     </section>
 
     <section id="about" class="about">
-        <div class="about-content">
+        <div class="about-content fade-in">
             <span class="section-label">About Us</span>
             <h2>Crafting exceptional poker experiences</h2>
             <p>9 High Studios is a specialized software development company focused exclusively on poker applications. We combine deep understanding of poker mechanics with cutting-edge technology to create products that players love.</p>
@@ -1535,35 +1682,26 @@ deck.shuffle(seed);
     </section>
 
     <section id="team" class="team">
-        <div class="team-content">
+        <div class="team-content fade-in">
             <span class="section-label">The Table</span>
             <h2>Meet the players behind the code</h2>
             <div class="team-grid">
                 <div class="team-card">
-                    <div class="team-avatar">LC</div>
-                    <h3>Lucas Cullen</h3>
+                    <img src="lucas.jpeg" alt="Lucas Cullen" class="team-avatar-img">
+                    <h3><a href="https://www.linkedin.com/in/lucascullen/" target="_blank" class="team-link">Lucas Cullen</a></h3>
                     <span class="team-role">Founder</span>
-                    <p class="team-bio">Bio coming soon.</p>
+                    <p class="team-bio">Full-stack developer with 12+ years in Bitcoin and blockchain. Former board member of Blockchain Australia, Deloitte/Consensus hackathon winner. Writes provable code using discrete mathematics and builds chains in Go and Haskell.</p>
                     <div class="team-stats">
                         <span class="favorite-hand">Favorite hand: <strong>TBD</strong></span>
                     </div>
                 </div>
                 <div class="team-card">
-                    <div class="team-avatar">??</div>
-                    <h3>Team Member</h3>
-                    <span class="team-role">Role</span>
-                    <p class="team-bio">Bio coming soon.</p>
+                    <img src="tom.jpeg" alt="Dr Thomas Miller" class="team-avatar-img">
+                    <h3><a href="https://www.linkedin.com/in/drthomasmiller/" target="_blank" class="team-link">Dr Thomas Miller</a></h3>
+                    <span class="team-role">Cryptography Research</span>
+                    <p class="team-bio">PhD researcher at QUT specializing in applied cryptography, blockchain security, and zero-knowledge proofs. His work on information symmetry and common knowledge theory directly informs the provably fair systems at the heart of Block 52.</p>
                     <div class="team-stats">
-                        <span class="favorite-hand">Favorite hand: <strong>TBD</strong></span>
-                    </div>
-                </div>
-                <div class="team-card">
-                    <div class="team-avatar">??</div>
-                    <h3>Team Member</h3>
-                    <span class="team-role">Role</span>
-                    <p class="team-bio">Bio coming soon.</p>
-                    <div class="team-stats">
-                        <span class="favorite-hand">Favorite hand: <strong>TBD</strong></span>
+                        <span class="favorite-hand">Favorite hand: <strong>7-2 offsuit</strong></span>
                     </div>
                 </div>
             </div>
@@ -1586,7 +1724,56 @@ deck.shuffle(seed);
             <li><a href="#team">Team</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
-        <span class="copyright">© 2025 9 High Studios. All rights reserved.</span>
+        <span class="copyright">© <span id="year"></span> 9 High Studios. All rights reserved.</span>
     </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Back to top button
+        const backToTop = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Scroll fade-in animations
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        fadeElements.forEach(el => observer.observe(el));
+    </script>
 </body>
 </html>
