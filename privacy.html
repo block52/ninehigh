@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | 9 High Studios</title>
+    <meta name="description" content="Privacy Policy for 9 High Studios (9highstudios.com). How we collect, use, and protect your personal information.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Page Header */
+        .page-header {
+            padding: 8rem 5% 3rem;
+            text-align: center;
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--mid-gray);
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .page-header h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 300;
+            color: var(--charcoal);
+            margin-bottom: 0.75rem;
+        }
+
+        .page-header h1 strong {
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .page-header p {
+            color: var(--dark-gray);
+            font-size: 1rem;
+        }
+
+        /* Legal Content */
+        .legal-content {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem;
+        }
+
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--mid-gray);
+        }
+
+        .legal-content h2 .section-num {
+            color: var(--red);
+            margin-right: 0.4rem;
+        }
+
+        .legal-content p {
+            color: var(--dark-gray);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.75;
+        }
+
+        .legal-content ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .legal-content ul li {
+            padding: 0.4rem 0 0.4rem 1.5rem;
+            position: relative;
+            color: var(--dark-gray);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .legal-content ul li::before {
+            content: "♦";
+            position: absolute;
+            left: 0;
+            color: var(--red);
+            font-size: 0.7rem;
+            top: 0.65rem;
+        }
+
+        .legal-content a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .legal-content a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .legal-content strong {
+            color: var(--charcoal);
+        }
+
+        .effective-date {
+            display: inline-block;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-box {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 8px;
+            padding: 1.5rem 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .contact-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-links { display: none; }
+
+            .legal-content {
+                padding: 2rem 1rem 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
+        <ul class="nav-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <span class="section-label">Legal</span>
+        <h1>Privacy <strong>Policy</strong></h1>
+        <p>How Nine High Studios collects, uses, and protects your personal information.</p>
+    </div>
+
+    <div class="legal-content">
+        <span class="effective-date">Last updated: 7 February 2026</span>
+
+        <p>Nine High Studios ABN (trading as 9 High Studios, "we", "us", "our") operates the website <a href="https://9highstudios.com">9highstudios.com</a>. We are committed to protecting your privacy and handling your personal information in accordance with the Australian Privacy Principles (APPs) under the <em>Privacy Act 1988</em> (Cth).</p>
+
+        <p>This Privacy Policy explains what information we collect, how we use it, and your rights in relation to that information.</p>
+
+        <h2><span class="section-num">1.</span> Information We Collect</h2>
+        <p>When you submit our contact form, we may collect the following personal information:</p>
+        <ul>
+            <li><strong>Email address</strong></li>
+            <li><strong>Telegram handle</strong> (username or number)</li>
+            <li><strong>WhatsApp number</strong></li>
+            <li><strong>Project description</strong> (free-text message you provide)</li>
+        </ul>
+        <p>You are not required to provide all of these fields. We ask that you provide at least one contact method so we can respond to your enquiry.</p>
+        <p>In addition, the form handling service we use (Formsubmit.co) may automatically collect technical data such as your <strong>IP address</strong> and <strong>submission timestamp</strong> as part of the form delivery process.</p>
+
+        <h2><span class="section-num">2.</span> How We Use Your Information</h2>
+        <p>We use the information you provide solely for the following purposes:</p>
+        <ul>
+            <li>To respond to your enquiry or request for information</li>
+            <li>To provide project quotes, proposals, or consultations</li>
+            <li>To follow up on your expressed interest in our services</li>
+            <li>To communicate with you via your preferred contact method</li>
+        </ul>
+        <p>We do not use your information for marketing purposes unless you have explicitly opted in to receive marketing communications from us.</p>
+
+        <h2><span class="section-num">3.</span> Third-Party Services</h2>
+        <p>We use the following third-party service to process form submissions:</p>
+        <ul>
+            <li><strong>Formsubmit.co</strong> &mdash; a form-to-email service that forwards your form submission to our inbox at <a href="mailto:hello@9highstudios.com">hello@9highstudios.com</a>. Formsubmit.co processes your data only for the purpose of delivering the form submission. You can review their privacy practices at <a href="https://formsubmit.co" target="_blank" rel="noopener">formsubmit.co</a>.</li>
+        </ul>
+        <p>We do not sell, rent, or share your personal information with any other third parties.</p>
+
+        <h2><span class="section-num">4.</span> Data Storage</h2>
+        <p>Your form submissions are delivered directly to our email inbox (<a href="mailto:hello@9highstudios.com">hello@9highstudios.com</a>). We do not store your information in a database, CRM, or any other structured data system beyond our email provider.</p>
+        <p>Our email is hosted with standard email security measures including encryption in transit (TLS).</p>
+
+        <h2><span class="section-num">5.</span> Data Retention</h2>
+        <p>We retain your contact form submissions in our email inbox for as long as is necessary to fulfil the purpose for which it was collected &mdash; typically for the duration of any active enquiry or project discussion.</p>
+        <p>If you request deletion of your data, we will remove all associated emails and records within 30 days of your request.</p>
+
+        <h2><span class="section-num">6.</span> Cookies and Tracking</h2>
+        <p>Our website does not currently use cookies, tracking pixels, or analytics services. We do not track your browsing behaviour on our site.</p>
+        <p>If we add analytics or other cookie-based services in the future, this Privacy Policy will be updated accordingly, and you will be informed before any tracking is enabled.</p>
+
+        <h2><span class="section-num">7.</span> Your Rights</h2>
+        <p>Under the Australian Privacy Principles and applicable privacy legislation, you have the right to:</p>
+        <ul>
+            <li><strong>Access</strong> &mdash; request a copy of the personal information we hold about you</li>
+            <li><strong>Correction</strong> &mdash; request that we correct any inaccurate or incomplete information</li>
+            <li><strong>Deletion</strong> &mdash; request that we delete your personal information from our records</li>
+            <li><strong>Complaint</strong> &mdash; lodge a complaint if you believe your privacy has been breached</li>
+        </ul>
+        <p>To exercise any of these rights, please contact us at <a href="mailto:hello@9highstudios.com">hello@9highstudios.com</a>. We will respond to your request within 30 days.</p>
+        <p>If you are not satisfied with our response, you may lodge a complaint with the <strong>Office of the Australian Information Commissioner (OAIC)</strong> at <a href="https://www.oaic.gov.au" target="_blank" rel="noopener">oaic.gov.au</a>.</p>
+
+        <h2><span class="section-num">8.</span> Australian Privacy Principles Compliance</h2>
+        <p>We are committed to complying with the Australian Privacy Principles (APPs) as set out in the <em>Privacy Act 1988</em> (Cth). These principles regulate how organisations collect, use, disclose, store, and provide access to personal information.</p>
+        <p>In particular, we ensure that:</p>
+        <ul>
+            <li>We only collect personal information that is reasonably necessary for our functions (APP 3)</li>
+            <li>We collect personal information directly from you, with your knowledge and consent (APP 5)</li>
+            <li>We use and disclose personal information only for the purpose for which it was collected (APP 6)</li>
+            <li>We take reasonable steps to protect personal information from misuse, interference, and loss (APP 11)</li>
+            <li>We provide you with access to your personal information upon request (APP 12)</li>
+            <li>We correct personal information upon request where it is inaccurate, out of date, or incomplete (APP 13)</li>
+        </ul>
+
+        <h2><span class="section-num">9.</span> Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time to reflect changes to our practices or for legal, operational, or regulatory reasons. When we make changes, we will update the "Last updated" date at the top of this page.</p>
+        <p>We encourage you to review this page periodically to stay informed about how we handle your information.</p>
+
+        <h2><span class="section-num">10.</span> Contact Us</h2>
+        <p>If you have any questions about this Privacy Policy or how we handle your personal information, please contact us:</p>
+
+        <div class="contact-box">
+            <p><strong>Nine High Studios</strong></p>
+            <p>Email: <a href="mailto:hello@9highstudios.com">hello@9highstudios.com</a></p>
+            <p>Website: <a href="https://9highstudios.com">9highstudios.com</a></p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> ♦</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

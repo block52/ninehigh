@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Marketing Plan | 9 High Studios (Internal)</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --green: #2d8a4e;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--off-white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Admin Header */
+        .admin-bar {
+            background: var(--charcoal);
+            color: var(--white);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-bar .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+        }
+        .admin-bar .logo span { color: var(--white); font-weight: 300; }
+        .admin-tag {
+            background: var(--red);
+            color: var(--white);
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 5%;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        h1 strong { font-weight: 700; color: var(--red); }
+
+        .subtitle {
+            color: var(--dark-gray);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        /* Sections */
+        .section {
+            background: var(--white);
+            border: 1px solid var(--mid-gray);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--red);
+        }
+
+        .section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin: 1.25rem 0 0.5rem;
+        }
+
+        .section p {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--light-gray);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+        }
+        .checklist li:last-child { border-bottom: none; }
+
+        .check {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--mid-gray);
+            border-radius: 3px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .check.done {
+            background: var(--green);
+            border-color: var(--green);
+        }
+        .check.done + .check-text {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        /* Subreddit tags */
+        .sub-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: #ff4500;
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+
+        /* Template cards */
+        .template-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .template-card .trigger {
+            font-size: 0.8rem;
+            color: var(--red);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .template-card .reply {
+            font-size: 0.88rem;
+            color: var(--charcoal);
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+        .template-card .reply a {
+            color: var(--red);
+            text-decoration: none;
+        }
+        .template-card .link-target {
+            font-size: 0.78rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            font-family: monospace;
+            background: var(--white);
+            padding: 0.3rem 0.5rem;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        /* Link box */
+        .link-box {
+            background: var(--charcoal);
+            border-radius: 6px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .link-box .label {
+            font-size: 0.75rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+        .link-box a {
+            color: var(--white);
+            font-size: 0.9rem;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .link-box a:hover { color: var(--red); }
+
+        /* Stats placeholder */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--charcoal);
+        }
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 1.5rem; }
+            .section { padding: 1.25rem; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-bar">
+    <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
+    <span class="admin-tag">Internal</span>
+</div>
+
+<div class="container">
+
+    <h1>Reddit <strong>Marketing Plan</strong></h1>
+    <p class="subtitle">Content marketing strategy for r/poker and related subreddits. Drop articles, build authority, capture leads.</p>
+
+    <!-- TARGET SUBREDDITS -->
+    <div class="section">
+        <h2>Target Subreddits</h2>
+        <p>Focus on these communities where our target audience hangs out:</p>
+        <div style="margin: 1rem 0;">
+            <span class="sub-tag">r/poker</span>
+            <span class="sub-tag">r/onlinepoker</span>
+            <span class="sub-tag">r/Poker_Theory</span>
+            <span class="sub-tag">r/pokerstrategy</span>
+            <span class="sub-tag">r/cryptocurrency</span>
+            <span class="sub-tag">r/CryptoGaming</span>
+        </div>
+        <p><strong>r/poker</strong> is the primary target (~500K members). Most active, most "is this rigged?" posts, most club operators lurking.</p>
+    </div>
+
+    <!-- CONTENT ARSENAL -->
+    <div class="section">
+        <h2>Content Arsenal (Ready to Deploy)</h2>
+        <p>Articles written and live. Drop these into relevant threads:</p>
+
+        <div class="link-box">
+            <div class="label">For "is this rigged?" threads</div>
+            <a href="article-rigged-games.html">9highstudios.com/article-rigged-games.html</a>
+        </div>
+
+        <div class="link-box">
+            <div class="label">For tech/solver/GTO audience</div>
+            <a href="article-provably-fair.html">9highstudios.com/article-provably-fair.html</a>
+        </div>
+
+        <div class="link-box">
+            <div class="label">For "what app for home games?" / club operators</div>
+            <a href="article-building-platform.html">9highstudios.com/article-building-platform.html</a>
+        </div>
+
+        <div class="link-box">
+            <div class="label">Direct lead capture (share in DMs)</div>
+            <a href="contact.html">9highstudios.com/contact.html</a>
+        </div>
+    </div>
+
+    <!-- TEMPLATE REPLIES -->
+    <div class="section">
+        <h2>Template Replies</h2>
+        <p>Copy-paste these into Reddit threads. Adjust tone to match the conversation. Don't be salesy — be helpful first.</p>
+
+        <div class="template-card">
+            <div class="trigger">When someone posts: "Is this game rigged?" / "Is this normal variance?"</div>
+            <div class="reply">Valid concern. Most online poker platforms use server-side RNG that you just have to trust — there's no way to independently verify the shuffle after the hand.
+
+The technology to fix this exists though. It's called provably fair card dealing — the platform commits to a shuffle hash before dealing, then reveals the seed after. You can verify every hand yourself.
+
+We wrote a deep-dive on how it works and what to look for: <a href="article-rigged-games.html">[link to article]</a>
+
+Not saying your platform is rigged — just that most can't prove they aren't. That's a design problem, not a player problem.</div>
+            <div class="link-target">article-rigged-games.html</div>
+        </div>
+
+        <div class="template-card">
+            <div class="trigger">When someone posts: "Looking for poker software" / "App to play with friends?" / "Home game setup"</div>
+            <div class="reply">We build poker platforms for clubs and operators — white-label, so it's your branding, your players, your rules. Built on blockchain with provably fair shuffles so your players can verify every hand.
+
+If you're interested in something custom, happy to chat about what you're looking for. We work with everything from home game groups to full-scale operations.
+
+Here's a behind-the-scenes look at what goes into building a proper poker platform: <a href="article-building-platform.html">[link to article]</a></div>
+            <div class="link-target">article-building-platform.html</div>
+        </div>
+
+        <div class="template-card">
+            <div class="trigger">When someone posts: Solver/GTO discussion / technical poker analysis</div>
+            <div class="reply">If you're interested in the technical side — we wrote a breakdown of how provably fair card shuffling works. Covers the Fisher-Yates algorithm, commitment schemes, and zero-knowledge proofs for card games.
+
+Pretty relevant for anyone who cares about whether the RNG is actually fair: <a href="article-provably-fair.html">[link to article]</a></div>
+            <div class="link-target">article-provably-fair.html</div>
+        </div>
+
+        <div class="template-card">
+            <div class="trigger">When someone posts: Platform trust issues / withdrawal problems / shady operators</div>
+            <div class="reply">This is exactly why we think blockchain-based poker platforms are the future. On-chain settlement means funds aren't held in operator bank accounts — they're in smart contracts. Payouts execute automatically based on game outcomes.
+
+No more slow-rolled withdrawals, no more "trust us with your deposit." The code is the custodian.
+
+We build this kind of platform. Here's how it works under the hood: <a href="article-building-platform.html">[link to article]</a></div>
+            <div class="link-target">article-building-platform.html</div>
+        </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="section">
+        <h2>Action Checklist</h2>
+
+        <h3>Setup</h3>
+        <ul class="checklist">
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Create Reddit account: u/NineHighStudios (or similar)</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Build karma by engaging genuinely in r/poker for a week before posting links</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Read each subreddit's rules on self-promotion</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Set up Reddit notifications for keywords: "rigged", "poker app", "home game app", "poker software", "provably fair"</span></li>
+        </ul>
+
+        <h3>Weekly Routine</h3>
+        <ul class="checklist">
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Comment on 3-5 relevant threads per week (helpful first, link when relevant)</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Post 1 article directly to r/poker or r/onlinepoker per week</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Respond to any "is this rigged?" posts with template + article link</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">DM anyone who seems like a potential operator/club runner with contact.html link</span></li>
+        </ul>
+
+        <h3>Content Pipeline</h3>
+        <ul class="checklist">
+            <li><span class="check done" onclick="this.classList.toggle('done')"></span><span class="check-text">Article: "Why Your Online Poker Game Might Not Be Fair" (DONE)</span></li>
+            <li><span class="check done" onclick="this.classList.toggle('done')"></span><span class="check-text">Article: "How Provably Fair Card Shuffling Actually Works" (DONE)</span></li>
+            <li><span class="check done" onclick="this.classList.toggle('done')"></span><span class="check-text">Article: "What It Takes to Build a Secure Poker Platform" (DONE)</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Article: "Zero-Knowledge Proofs for Card Games, Explained" (TODO)</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Article: "Running a Poker Club in 2026: What You Need to Know" (TODO)</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Article: "Blockchain vs Traditional Poker Platforms: An Honest Comparison" (TODO)</span></li>
+        </ul>
+
+        <h3>Tracking</h3>
+        <ul class="checklist">
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Set up UTM parameters on all shared links (e.g. ?utm_source=reddit&utm_campaign=rigged)</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Add Google Analytics or Plausible to the site</span></li>
+            <li><span class="check" onclick="this.classList.toggle('done')"></span><span class="check-text">Track: which articles get the most clicks, which threads convert to form submissions</span></li>
+        </ul>
+    </div>
+
+    <!-- METRICS -->
+    <div class="section">
+        <h2>Metrics (Update Weekly)</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">0</div>
+                <div class="label">Reddit Posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">0</div>
+                <div class="label">Comments</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">0</div>
+                <div class="label">Article Clicks</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">0</div>
+                <div class="label">Form Submissions</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">0</div>
+                <div class="label">DMs Sent</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">0</div>
+                <div class="label">Leads Generated</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RULES OF ENGAGEMENT -->
+    <div class="section">
+        <h2>Rules of Engagement</h2>
+        <ul class="checklist">
+            <li><span class="check"></span><span class="check-text"><strong>Be helpful first, always.</strong> If you can't add genuine value to the thread, don't post.</span></li>
+            <li><span class="check"></span><span class="check-text"><strong>10:1 ratio.</strong> For every link you share, make at least 10 helpful comments with no links.</span></li>
+            <li><span class="check"></span><span class="check-text"><strong>Never hard-sell.</strong> "We build this" is fine. "Buy our product" is not.</span></li>
+            <li><span class="check"></span><span class="check-text"><strong>Disclose affiliation.</strong> When sharing Nine High Studios articles, mention you're part of the team.</span></li>
+            <li><span class="check"></span><span class="check-text"><strong>Respect moderators.</strong> If a post gets removed, adjust approach. Don't repost.</span></li>
+            <li><span class="check"></span><span class="check-text"><strong>Wear the hoodie at the casino.</strong> In-person brand awareness feeds online credibility.</span></li>
+        </ul>
+    </div>
+
+</div>
+
+<script>
+    // Persist checkbox states in localStorage
+    document.querySelectorAll('.check').forEach((el, i) => {
+        const key = 'reddit-check-' + i;
+        if (localStorage.getItem(key) === 'done') {
+            el.classList.add('done');
+        }
+        el.addEventListener('click', function() {
+            this.classList.toggle('done');
+            localStorage.setItem(key, this.classList.contains('done') ? 'done' : '');
+        });
+    });
+</script>
+
+</body>
+</html>

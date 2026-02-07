@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms &amp; Conditions | 9 High Studios</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Navigation (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span {
+            color: var(--charcoal);
+            font-weight: 300;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Menu Toggle (mobile) */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Page Header */
+        .page-header {
+            padding: 8rem 5% 3rem;
+            text-align: center;
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--mid-gray);
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .page-header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            color: var(--charcoal);
+            margin-bottom: 0.75rem;
+        }
+
+        .page-header h1 strong {
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .page-header .subtitle {
+            color: var(--dark-gray);
+            font-size: 1rem;
+        }
+
+        /* Legal Disclaimer Banner */
+        .legal-disclaimer {
+            max-width: 720px;
+            margin: 2.5rem auto 0;
+            padding: 1.25rem 1.5rem;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #664d03;
+            line-height: 1.5;
+        }
+
+        .legal-disclaimer strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Legal Content */
+        .legal-content {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 3rem 5% 6rem;
+        }
+
+        .legal-content section {
+            margin-bottom: 2.5rem;
+        }
+
+        .legal-content h2 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--red);
+        }
+
+        .legal-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .legal-content p {
+            color: var(--dark-gray);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            line-height: 1.75;
+        }
+
+        .legal-content ul, .legal-content ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }
+
+        .legal-content li {
+            color: var(--dark-gray);
+            font-size: 0.95rem;
+            line-height: 1.75;
+            margin-bottom: 0.4rem;
+        }
+
+        .legal-content ol > li {
+            padding-left: 0.25rem;
+        }
+
+        .legal-content strong {
+            color: var(--charcoal);
+        }
+
+        /* Footer (matches main site) */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span {
+            color: var(--charcoal);
+            font-weight: 300;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .legal-content {
+                padding: 2rem 1.25rem 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <div class="page-header">
+        <span class="section-label">Legal</span>
+        <h1>Terms &amp; <strong>Conditions</strong></h1>
+        <p class="subtitle">Effective Date: 7 February 2025</p>
+
+        <div class="legal-disclaimer">
+            <strong>Important Notice</strong>
+            This document is provided as a template and should be reviewed by a qualified legal professional before use. Nine High Studios Pty Ltd does not warrant the legal sufficiency of these terms for any specific jurisdiction or use case.
+        </div>
+    </div>
+
+    <div class="legal-content">
+
+        <!-- 1. Definitions -->
+        <section>
+            <h2>1. Definitions</h2>
+            <p>In these Terms and Conditions ("Agreement"), unless the context otherwise requires:</p>
+            <ul>
+                <li><strong>"Nine High Studios"</strong> (also referred to as "we", "us", or "our") means Nine High Studios Pty Ltd (ABN pending), a company registered in Queensland, Australia, operating the website 9highstudios.com.</li>
+                <li><strong>"Client"</strong> (also referred to as "you" or "your") means the individual, company, or entity that engages Nine High Studios for software development services or licenses software from Nine High Studios.</li>
+                <li><strong>"Software"</strong> means any poker platform software, white-label solution, application, tool, codebase, or related deliverable developed or provided by Nine High Studios under a Statement of Work.</li>
+                <li><strong>"Services"</strong> means the software development, consulting, integration, maintenance, and support services provided by Nine High Studios.</li>
+                <li><strong>"Statement of Work" (SOW)</strong> means any written document, proposal, or agreement detailing the scope, deliverables, timeline, and fees for a specific project or engagement.</li>
+                <li><strong>"SaaS"</strong> means Software as a Service, the licensing model under which the Software is provided to the Client.</li>
+            </ul>
+        </section>
+
+        <!-- 2. Scope of Services -->
+        <section>
+            <h2>2. Scope of Services</h2>
+            <p>Nine High Studios is a poker software development company. Our services are strictly limited to:</p>
+            <ul>
+                <li>Custom poker platform development</li>
+                <li>White-label poker software solutions</li>
+                <li>Software integration, configuration, and deployment</li>
+                <li>Ongoing maintenance, updates, and technical support</li>
+                <li>Consulting on poker software architecture and systems design</li>
+            </ul>
+            <p><strong>Nine High Studios provides software development services only.</strong> We do not operate poker rooms, manage gambling operations, process player funds, hold gaming licenses, or provide legal, regulatory, or financial advice of any kind.</p>
+        </section>
+
+        <!-- 3. Gaming Licences and Regulatory Compliance -->
+        <section>
+            <h2>3. Gaming Licences and Regulatory Compliance</h2>
+            <p><strong>The Client is solely and exclusively responsible for obtaining all gaming licences, permits, approvals, and regulatory authorisations</strong> required to operate poker or gambling software in any jurisdiction where the Client intends to deploy or make the Software available.</p>
+            <p>The Client acknowledges and agrees that:</p>
+            <ol>
+                <li>Online gambling and poker operations are regulated activities in most jurisdictions. The Client must independently assess and comply with all applicable laws before deploying the Software.</li>
+                <li>Nine High Studios makes no representation or warranty that the Software is compliant with the laws of any particular jurisdiction. Compliance is the Client's sole responsibility.</li>
+                <li>The Client must engage qualified legal counsel in each relevant jurisdiction to ensure full compliance with local gaming regulations, anti-money laundering (AML) requirements, responsible gambling obligations, age verification laws, data protection regulations, and tax obligations.</li>
+                <li>Nine High Studios shall not be liable for any fines, penalties, sanctions, losses, or damages arising from the Client's failure to obtain required licences or comply with applicable regulations.</li>
+                <li>The Client shall indemnify and hold harmless Nine High Studios against any claims, actions, or proceedings arising from the Client's operation of the Software in any jurisdiction.</li>
+            </ol>
+        </section>
+
+        <!-- 4. Permitted Use and Client Responsibility -->
+        <section>
+            <h2>4. Permitted Use and Client Responsibility</h2>
+            <p><strong>Nine High Studios bears no responsibility for how Clients use the Software.</strong> The Software is a neutral technology tool. How it is deployed, configured, and operated is entirely within the Client's control and at the Client's risk.</p>
+            <p>The Client warrants and represents that it will:</p>
+            <ol>
+                <li>Use the Software only in compliance with all applicable local, state, national, and international laws and regulations.</li>
+                <li>Not use the Software for any unlawful purpose, including operating an unlicensed gambling service.</li>
+                <li>Implement appropriate player protections, responsible gambling measures, and age verification systems as required by applicable law.</li>
+                <li>Maintain adequate records and audit trails as required by relevant regulatory authorities.</li>
+                <li>Not reverse engineer, decompile, or attempt to derive source code from the Software except as permitted by law.</li>
+            </ol>
+        </section>
+
+        <!-- 5. Software Licence (SaaS Model) -->
+        <section>
+            <h2>5. Software Licence (SaaS Model)</h2>
+            <p><strong>The Software is licensed, not sold.</strong> Nine High Studios grants the Client a non-exclusive, non-transferable, revocable licence to access and use the Software during the term of the applicable agreement, subject to these Terms and Conditions and any Statement of Work.</p>
+            <h3>5.1 Licence Grant</h3>
+            <p>Subject to payment of all applicable fees, Nine High Studios grants the Client a limited right to:</p>
+            <ul>
+                <li>Access and use the Software for the Client's own business operations as specified in the SOW.</li>
+                <li>Permit the Client's authorised end-users to access the Software.</li>
+            </ul>
+            <h3>5.2 Licence Restrictions</h3>
+            <p>The Client shall not:</p>
+            <ul>
+                <li>Sublicence, sell, resell, lease, or otherwise commercially distribute the Software to third parties without prior written consent from Nine High Studios.</li>
+                <li>Copy, modify, or create derivative works of the Software or any component thereof.</li>
+                <li>Use the Software to build a competing product or service.</li>
+                <li>Remove or obscure any proprietary notices, branding, or labels on or within the Software.</li>
+            </ul>
+            <h3>5.3 Service Availability</h3>
+            <p>Nine High Studios will use commercially reasonable efforts to maintain the availability and performance of the Software. However, we do not guarantee uninterrupted access. Scheduled maintenance, infrastructure updates, and force majeure events may result in temporary downtime.</p>
+        </section>
+
+        <!-- 6. Intellectual Property -->
+        <section>
+            <h2>6. Intellectual Property</h2>
+            <h3>6.1 Nine High Studios IP</h3>
+            <p><strong>Nine High Studios retains all intellectual property rights</strong> in and to the Software, including but not limited to all source code, object code, algorithms, data structures, architectures, designs, documentation, trade secrets, trademarks, and know-how, whether developed before, during, or after any engagement with the Client.</p>
+            <p>Nothing in this Agreement transfers ownership of any intellectual property from Nine High Studios to the Client.</p>
+            <h3>6.2 Client Licence</h3>
+            <p>The Client receives a licence to use the Software as described in Section 5. This licence does not confer any ownership interest in the underlying technology.</p>
+            <h3>6.3 Client Content</h3>
+            <p>The Client retains ownership of all data, content, branding assets, and materials provided by the Client for integration into the Software ("Client Content"). The Client grants Nine High Studios a limited, non-exclusive licence to use Client Content solely for the purpose of performing the Services.</p>
+            <h3>6.4 Custom Development</h3>
+            <p>Unless explicitly agreed otherwise in a Statement of Work, any custom features, modules, or code developed by Nine High Studios during an engagement remain the intellectual property of Nine High Studios. The Client receives a licence to use such custom development as part of the Software under the terms of this Agreement.</p>
+        </section>
+
+        <!-- 7. Payment Terms -->
+        <section>
+            <h2>7. Payment Terms</h2>
+            <h3>7.1 Fees</h3>
+            <p>Fees for Services will be specified in each Statement of Work or proposal. All fees are quoted in Australian Dollars (AUD) unless otherwise stated.</p>
+            <h3>7.2 Payment Schedule and Milestones</h3>
+            <p>Projects are typically structured with milestone-based payments. Unless otherwise agreed in the SOW:</p>
+            <ul>
+                <li><strong>Deposit:</strong> A non-refundable deposit of 30% of the total project fee is due upon signing the SOW, before work commences.</li>
+                <li><strong>Milestone Payments:</strong> Subsequent payments are due upon completion of agreed milestones as defined in the SOW.</li>
+                <li><strong>Final Payment:</strong> The remaining balance is due upon delivery of the final deliverables or go-live, whichever occurs first.</li>
+            </ul>
+            <h3>7.3 Recurring Fees (SaaS)</h3>
+            <p>For ongoing SaaS access, hosting, and maintenance, recurring fees will be invoiced monthly or annually as specified in the SOW. Recurring fees are due within 14 days of invoice date.</p>
+            <h3>7.4 Late Payments</h3>
+            <p>Invoices not paid within 14 days of the due date will incur a late payment fee of 2% per month on the outstanding balance. Nine High Studios reserves the right to suspend access to the Software and cease all Services until overdue payments are received in full.</p>
+            <h3>7.5 Taxes</h3>
+            <p>All fees are exclusive of GST and any applicable taxes. The Client is responsible for all taxes, levies, and duties applicable to the Services, except for taxes based on Nine High Studios' net income.</p>
+        </section>
+
+        <!-- 8. Confidentiality -->
+        <section>
+            <h2>8. Confidentiality</h2>
+            <p>Both parties agree to maintain the confidentiality of all proprietary or confidential information disclosed by the other party during the course of the engagement. Confidential information includes, but is not limited to, business plans, technical specifications, pricing, client lists, and trade secrets.</p>
+            <p>This obligation of confidentiality survives termination of this Agreement for a period of three (3) years.</p>
+        </section>
+
+        <!-- 9. Data Protection and Privacy -->
+        <section>
+            <h2>9. Data Protection and Privacy</h2>
+            <p>Nine High Studios will handle any personal data provided by the Client in accordance with the Australian Privacy Act 1988 (Cth) and the Australian Privacy Principles (APPs).</p>
+            <p>The Client is responsible for ensuring that its use of the Software complies with all applicable data protection and privacy laws in the jurisdictions where it operates, including obtaining necessary consents from end-users.</p>
+        </section>
+
+        <!-- 10. Warranties and Disclaimers -->
+        <section>
+            <h2>10. Warranties and Disclaimers</h2>
+            <h3>10.1 Nine High Studios Warranties</h3>
+            <p>Nine High Studios warrants that:</p>
+            <ul>
+                <li>The Services will be performed with reasonable skill and care consistent with generally accepted industry standards.</li>
+                <li>The Software will perform substantially in accordance with the specifications set out in the applicable SOW for a period of 90 days following delivery.</li>
+            </ul>
+            <h3>10.2 Disclaimers</h3>
+            <p><strong>Except as expressly stated in Section 10.1, the Software and Services are provided "as is" and "as available".</strong> To the maximum extent permitted by law, Nine High Studios disclaims all other warranties, whether express, implied, or statutory, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+            <p>Nine High Studios does not warrant that the Software will meet the Client's specific regulatory requirements in any jurisdiction, or that operation of the Software will be uninterrupted, error-free, or free of harmful components.</p>
+        </section>
+
+        <!-- 11. Limitation of Liability -->
+        <section>
+            <h2>11. Limitation of Liability</h2>
+            <h3>11.1 Cap on Liability</h3>
+            <p>To the maximum extent permitted by applicable law, Nine High Studios' total aggregate liability to the Client under or in connection with this Agreement, whether arising in contract, tort (including negligence), or otherwise, shall not exceed the total fees paid by the Client to Nine High Studios in the twelve (12) months immediately preceding the event giving rise to the claim.</p>
+            <h3>11.2 Exclusion of Consequential Damages</h3>
+            <p>In no event shall Nine High Studios be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:</p>
+            <ul>
+                <li>Loss of profits, revenue, or anticipated savings</li>
+                <li>Loss of data or data breaches</li>
+                <li>Business interruption or loss of goodwill</li>
+                <li>Regulatory fines, penalties, or sanctions imposed on the Client</li>
+                <li>Losses arising from the Client's failure to obtain required gaming licences</li>
+                <li>Claims by the Client's end-users or third parties</li>
+            </ul>
+            <p>This limitation applies regardless of whether Nine High Studios has been advised of the possibility of such damages.</p>
+            <h3>11.3 Australian Consumer Law</h3>
+            <p>Nothing in this Agreement excludes, restricts, or modifies any rights or remedies that the Client may have under the Australian Consumer Law (Schedule 2 of the Competition and Consumer Act 2010 (Cth)) or any other applicable consumer protection legislation that cannot be excluded by agreement.</p>
+        </section>
+
+        <!-- 12. Indemnification -->
+        <section>
+            <h2>12. Indemnification</h2>
+            <p>The Client agrees to indemnify, defend, and hold harmless Nine High Studios, its directors, officers, employees, and contractors from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable legal fees) arising from or related to:</p>
+            <ol>
+                <li>The Client's use or misuse of the Software.</li>
+                <li>The Client's breach of this Agreement.</li>
+                <li>The Client's operation of a poker or gambling service using the Software, including any failure to hold required licences or comply with applicable laws.</li>
+                <li>Any claim by a third party (including end-users, regulators, or government authorities) arising from the Client's use of the Software.</li>
+            </ol>
+        </section>
+
+        <!-- 13. Term and Termination -->
+        <section>
+            <h2>13. Term and Termination</h2>
+            <h3>13.1 Term</h3>
+            <p>This Agreement commences on the date the Client first engages Nine High Studios (whether by signing a SOW, making a payment, or commencing use of the Software) and continues until terminated in accordance with this section.</p>
+            <h3>13.2 Termination for Convenience</h3>
+            <p>Either party may terminate this Agreement by providing thirty (30) days' written notice to the other party. Termination does not relieve the Client of the obligation to pay for Services already rendered or milestones already completed.</p>
+            <h3>13.3 Termination for Cause</h3>
+            <p>Either party may terminate this Agreement immediately by written notice if:</p>
+            <ul>
+                <li>The other party commits a material breach that is not remedied within fourteen (14) days of receiving written notice of the breach.</li>
+                <li>The other party becomes insolvent, enters administration, or has a receiver appointed.</li>
+            </ul>
+            <p>Nine High Studios may terminate this Agreement immediately if the Client uses the Software in violation of applicable laws, including operating without required gaming licences.</p>
+            <h3>13.4 Effect of Termination</h3>
+            <p>Upon termination:</p>
+            <ul>
+                <li>The Client's licence to use the Software is immediately revoked.</li>
+                <li>The Client must cease all use of the Software and destroy or return any copies in its possession.</li>
+                <li>Nine High Studios will make the Client's data available for export for a period of thirty (30) days, after which it may be permanently deleted.</li>
+                <li>All outstanding fees become immediately due and payable.</li>
+                <li>Sections 3, 6, 8, 11, 12, and 15 survive termination.</li>
+            </ul>
+        </section>
+
+        <!-- 14. Force Majeure -->
+        <section>
+            <h2>14. Force Majeure</h2>
+            <p>Neither party shall be liable for any failure or delay in performing its obligations under this Agreement where such failure or delay results from circumstances beyond the reasonable control of that party, including but not limited to natural disasters, acts of government, internet or telecommunications failures, cyberattacks, pandemics, or industrial action.</p>
+        </section>
+
+        <!-- 15. Governing Law and Dispute Resolution -->
+        <section>
+            <h2>15. Governing Law and Dispute Resolution</h2>
+            <h3>15.1 Governing Law</h3>
+            <p>This Agreement is governed by and construed in accordance with the laws of the State of Queensland, Australia. Each party irrevocably submits to the exclusive jurisdiction of the courts of Queensland and the Federal Court of Australia.</p>
+            <h3>15.2 Dispute Resolution</h3>
+            <p>In the event of a dispute arising out of or in connection with this Agreement, the parties agree to first attempt to resolve the dispute through good-faith negotiation. If the dispute is not resolved within thirty (30) days, either party may refer the matter to mediation before commencing legal proceedings.</p>
+        </section>
+
+        <!-- 16. General Provisions -->
+        <section>
+            <h2>16. General Provisions</h2>
+            <h3>16.1 Entire Agreement</h3>
+            <p>This Agreement, together with any applicable Statement of Work, constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, and agreements relating to its subject matter.</p>
+            <h3>16.2 Amendments</h3>
+            <p>Nine High Studios reserves the right to amend these Terms and Conditions from time to time. Material changes will be communicated to the Client in writing with at least thirty (30) days' notice. Continued use of the Software after such notice constitutes acceptance of the amended terms.</p>
+            <h3>16.3 Severability</h3>
+            <p>If any provision of this Agreement is found to be invalid or unenforceable by a court of competent jurisdiction, the remaining provisions shall continue in full force and effect.</p>
+            <h3>16.4 Waiver</h3>
+            <p>A failure by either party to enforce any provision of this Agreement shall not constitute a waiver of that party's right to enforce that provision or any other provision at a later time.</p>
+            <h3>16.5 Assignment</h3>
+            <p>The Client may not assign or transfer this Agreement or any rights or obligations under it without the prior written consent of Nine High Studios. Nine High Studios may assign this Agreement to a successor in the event of a merger, acquisition, or sale of all or substantially all of its assets.</p>
+            <h3>16.6 Notices</h3>
+            <p>All notices under this Agreement shall be in writing and sent to the addresses specified in the applicable SOW, or by email to hello@9highstudios.com for notices to Nine High Studios.</p>
+        </section>
+
+        <!-- 17. Contact -->
+        <section>
+            <h2>17. Contact</h2>
+            <p>For questions about these Terms and Conditions, please contact us:</p>
+            <p>
+                <strong>Nine High Studios Pty Ltd</strong><br>
+                Email: <a href="mailto:hello@9highstudios.com" style="color: var(--red); text-decoration: none;">hello@9highstudios.com</a><br>
+                Web: <a href="https://9highstudios.com" style="color: var(--red); text-decoration: none;">9highstudios.com</a><br>
+                Queensland, Australia
+            </p>
+        </section>
+
+    </div>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> ♦</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
