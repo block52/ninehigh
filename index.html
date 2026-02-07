@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>9 High Studios | Poker Software Development</title>
-    <meta name="description" content="Premium poker applications engineered for performance, fairness, and exceptional player experience. Home of Block 52.">
+    <meta name="description" content="We build secure, provably fair poker platforms for operators and clubs. White-label ready. Home of Block 52. Built in Australia.">
 
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="9 High Studios | Poker Software Development">
-    <meta property="og:description" content="Premium poker applications engineered for performance, fairness, and exceptional player experience.">
+    <meta property="og:description" content="We build secure, provably fair poker platforms for operators and clubs. White-label ready. Built in Australia.">
     <meta property="og:image" content="https://9highstudios.com/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
 
@@ -254,77 +254,191 @@
         }
 
         .product-visual {
-            background: var(--white);
+            background: #0d0d0d;
             border-radius: 12px;
-            padding: 3rem;
+            padding: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
             aspect-ratio: 4/3;
-            border: 1px solid var(--mid-gray);
+            border: none;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
         }
 
+        /* Subtle grid background */
         .product-visual::before {
             content: "";
             position: absolute;
-            width: 200%;
-            height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                rgba(196, 30, 58, 0.02) 10px,
-                rgba(196, 30, 58, 0.02) 20px
-            );
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(196,30,58,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(196,30,58,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
 
-        .card-display {
-            display: flex;
-            gap: 0.5rem;
-            transform: rotate(-5deg);
+        /* Decentralised Network Animation */
+        .network-visual {
             position: relative;
+            width: 100%;
+            height: 100%;
             z-index: 1;
         }
 
-        .card {
-            width: 80px;
-            height: 112px;
-            background: var(--white);
-            border-radius: 8px;
+        /* SVG lines connecting the nodes */
+        .network-lines {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .network-lines line {
+            stroke: var(--red);
+            stroke-width: 1.5;
+            opacity: 0.3;
+        }
+
+        .network-lines .line-pulse {
+            stroke: var(--red);
+            stroke-width: 2;
+            opacity: 0;
+            animation: linePulse 3s ease-in-out infinite;
+        }
+
+        .network-lines .line-pulse:nth-child(2) { animation-delay: 0.5s; }
+        .network-lines .line-pulse:nth-child(4) { animation-delay: 1s; }
+        .network-lines .line-pulse:nth-child(6) { animation-delay: 1.5s; }
+        .network-lines .line-pulse:nth-child(8) { animation-delay: 2s; }
+        .network-lines .line-pulse:nth-child(10) { animation-delay: 2.5s; }
+        .network-lines .line-pulse:nth-child(12) { animation-delay: 0.8s; }
+        .network-lines .line-pulse:nth-child(14) { animation-delay: 1.8s; }
+
+        @keyframes linePulse {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Network Nodes */
+        .net-node {
+            position: absolute;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 0.5rem;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease;
-            border: 1px solid var(--mid-gray);
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-        }
-
-        .card-suit {
-            font-size: 1.5rem;
-            line-height: 1;
-        }
-
-        .card-value {
-            font-size: 1.25rem;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 2px solid var(--red);
+            color: var(--white);
             font-weight: 700;
+            z-index: 2;
+            transition: all 0.3s ease;
         }
 
-        .card.red .card-suit,
-        .card.red .card-value {
-            color: var(--red);
+        .net-node::after {
+            content: "";
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 1px solid rgba(196,30,58,0.2);
+            animation: nodeRing 3s ease-in-out infinite;
         }
 
-        .card.black .card-suit,
-        .card.black .card-value {
-            color: var(--charcoal);
+        @keyframes nodeRing {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .net-node:hover {
+            background: var(--red);
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(196,30,58,0.5);
+        }
+
+        /* Center node — largest */
+        .net-node.center {
+            width: 70px;
+            height: 70px;
+            font-size: 1.6rem;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--red);
+            border-color: var(--red-light);
+            box-shadow: 0 0 40px rgba(196,30,58,0.4);
+            animation: centerGlow 4s ease-in-out infinite;
+        }
+
+        .net-node.center:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        @keyframes centerGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(196,30,58,0.3); }
+            50% { box-shadow: 0 0 60px rgba(196,30,58,0.6); }
+        }
+
+        /* Outer nodes */
+        .net-node.outer {
+            width: 48px;
+            height: 48px;
+            font-size: 1.1rem;
+        }
+
+        /* Small peripheral nodes */
+        .net-node.small {
+            width: 28px;
+            height: 28px;
+            font-size: 0.65rem;
+            border-width: 1.5px;
+            color: #aaa;
+        }
+
+        .net-node.small::after {
+            display: none;
+        }
+
+        /* Node positions — spread around the center */
+        .node-1 { top: 12%; left: 18%; animation-delay: 0.2s; }
+        .node-2 { top: 8%; left: 58%; animation-delay: 0.5s; }
+        .node-3 { top: 42%; left: 82%; animation-delay: 0.8s; }
+        .node-4 { top: 75%; left: 68%; animation-delay: 1.1s; }
+        .node-5 { top: 72%; left: 22%; animation-delay: 1.4s; }
+        .node-6 { top: 35%; left: 8%; animation-delay: 1.7s; }
+
+        /* Small peripheral nodes */
+        .node-s1 { top: 5%; left: 38%; }
+        .node-s2 { top: 22%; left: 92%; }
+        .node-s3 { top: 88%; left: 48%; }
+        .node-s4 { top: 55%; left: 3%; }
+        .node-s5 { top: 90%; left: 85%; }
+
+        .net-node.outer { animation: nodeFloat 6s ease-in-out infinite; }
+
+        @keyframes nodeFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .node-1 { animation-delay: 0s; }
+        .node-2 { animation-delay: 1s; }
+        .node-3 { animation-delay: 2s; }
+        .node-4 { animation-delay: 3s; }
+        .node-5 { animation-delay: 4s; }
+        .node-6 { animation-delay: 5s; }
+
+        /* Tagline below network */
+        .network-label {
+            position: absolute;
+            bottom: 1.2rem;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.4);
+            font-weight: 600;
+            z-index: 3;
         }
 
         /* Features Section */
@@ -1085,6 +1199,141 @@
             color: var(--charcoal);
         }
 
+        /* Who We Work With Section */
+        .clients {
+            padding: 6rem 5%;
+            background: var(--white);
+            text-align: center;
+        }
+
+        .clients h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: var(--charcoal);
+        }
+
+        .clients > p {
+            color: var(--dark-gray);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .client-card {
+            padding: 2rem 1.5rem;
+            background: var(--light-gray);
+            border-radius: 6px;
+            border: 1px solid var(--mid-gray);
+            transition: all 0.3s ease;
+        }
+
+        .client-card:hover {
+            border-color: var(--red);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        }
+
+        .client-card .card-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .client-card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 0.4rem;
+        }
+
+        .client-card p {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            line-height: 1.5;
+        }
+
+        /* How It Works Section */
+        .process {
+            padding: 6rem 5%;
+            background: var(--charcoal);
+            text-align: center;
+        }
+
+        .process h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: var(--white);
+        }
+
+        .process > p {
+            color: #aaa;
+            max-width: 550px;
+            margin: 0 auto 3rem;
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .process-step {
+            position: relative;
+            padding: 2rem 1.5rem;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--red);
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .process-step h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+
+        .process-step p {
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .process-cta {
+            margin-top: 1rem;
+        }
+
+        .process-cta .btn-primary {
+            display: inline-block;
+        }
+
+        @media (max-width: 600px) {
+            .process-steps {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+
         /* Contact Section */
         .contact {
             padding: 8rem 5%;
@@ -1115,6 +1364,108 @@
 
         .contact-email:hover {
             border-color: var(--red);
+        }
+
+        /* Lead Capture Form */
+        .contact-form {
+            max-width: 520px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .form-intro {
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--dark-gray);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group label .label-icon {
+            font-size: 1.1rem;
+        }
+
+        .form-group label .label-optional {
+            font-weight: 300;
+            color: var(--dark-gray);
+            font-size: 0.8rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            border: 1px solid var(--mid-gray);
+            border-radius: 4px;
+            background: var(--white);
+            color: var(--charcoal);
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--red);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #aaa;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-hint {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-submit {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--white);
+            background: var(--red);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-submit:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        .form-or {
+            text-align: center;
+            color: var(--dark-gray);
+            font-size: 0.85rem;
+            margin-top: 1.5rem;
         }
 
         /* Footer */
@@ -1289,11 +1640,6 @@
                 gap: 2rem;
             }
 
-            .card {
-                width: 60px;
-                height: 84px;
-            }
-
             footer {
                 flex-direction: column;
                 text-align: center;
@@ -1309,7 +1655,7 @@
             <li><a href="#features">Features</a></li>
             <li><a href="#research">Research</a></li>
             <li><a href="#team">Team</a></li>
-            <li><a href="article-1.html">Blog</a></li>
+            <li><a href="blog.html">Blog</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
         <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
@@ -1322,9 +1668,9 @@
     <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
     <section class="hero">
-        <span class="hero-badge">Poker Software Development</span>
-        <h1>We build the future of <strong>digital poker</strong></h1>
-        <p class="hero-subtitle">Premium poker applications engineered for performance, fairness, and exceptional player experience.</p>
+        <span class="hero-badge">Australia's Poker Software Studio</span>
+        <h1>We build <strong>poker software</strong></h1>
+        <p class="hero-subtitle">Secure, provably fair poker platforms for operators and clubs. White-label ready, built from the ground up.</p>
         <div class="cta-group">
             <a href="#product" class="btn btn-primary">Discover Block 52</a>
             <a href="#contact" class="btn btn-secondary">Get in Touch</a>
@@ -1347,28 +1693,59 @@
                 <a href="#contact" class="btn btn-primary">Request Demo</a>
             </div>
             <div class="product-visual">
-                <div class="card-display">
-                    <div class="card black">
-                        <span class="card-value">A</span>
-                        <span class="card-suit">♠</span>
-                    </div>
-                    <div class="card red">
-                        <span class="card-value">K</span>
-                        <span class="card-suit">♥</span>
-                    </div>
-                    <div class="card red">
-                        <span class="card-value">Q</span>
-                        <span class="card-suit">♦</span>
-                    </div>
-                    <div class="card black">
-                        <span class="card-value">J</span>
-                        <span class="card-suit">♣</span>
-                    </div>
-                    <div class="card black">
-                        <span class="card-value">10</span>
-                        <span class="card-suit">♠</span>
-                    </div>
+                <div class="network-visual">
+                    <!-- SVG connection lines -->
+                    <svg class="network-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <!-- Static dim lines -->
+                        <line x1="50" y1="50" x2="20" y2="16" />
+                        <line x1="50" y1="50" x2="60" y2="12" />
+                        <line x1="50" y1="50" x2="84" y2="46" />
+                        <line x1="50" y1="50" x2="70" y2="79" />
+                        <line x1="50" y1="50" x2="24" y2="76" />
+                        <line x1="50" y1="50" x2="10" y2="39" />
+                        <!-- Cross connections -->
+                        <line x1="20" y1="16" x2="60" y2="12" />
+                        <line x1="60" y1="12" x2="84" y2="46" />
+                        <line x1="84" y1="46" x2="70" y2="79" />
+                        <line x1="70" y1="79" x2="24" y2="76" />
+                        <line x1="24" y1="76" x2="10" y2="39" />
+                        <line x1="10" y1="39" x2="20" y2="16" />
+                        <!-- Peripheral lines -->
+                        <line x1="20" y1="16" x2="40" y2="9" />
+                        <line x1="60" y1="12" x2="94" y2="26" />
+                        <line x1="70" y1="79" x2="87" y2="89" />
+                        <line x1="24" y1="76" x2="50" y2="92" />
+                        <line x1="10" y1="39" x2="5" y2="59" />
+                        <!-- Pulse overlay lines (animated) -->
+                        <line class="line-pulse" x1="50" y1="50" x2="20" y2="16" />
+                        <line class="line-pulse" x1="50" y1="50" x2="84" y2="46" />
+                        <line class="line-pulse" x1="50" y1="50" x2="24" y2="76" />
+                        <line class="line-pulse" x1="20" y1="16" x2="60" y2="12" />
+                        <line class="line-pulse" x1="84" y1="46" x2="70" y2="79" />
+                        <line class="line-pulse" x1="24" y1="76" x2="10" y2="39" />
+                        <line class="line-pulse" x1="50" y1="50" x2="60" y2="12" />
+                        <line class="line-pulse" x1="50" y1="50" x2="70" y2="79" />
+                    </svg>
+
+                    <!-- Center node -->
+                    <div class="net-node center">52</div>
+
+                    <!-- Outer suit nodes -->
+                    <div class="net-node outer node-1">♠</div>
+                    <div class="net-node outer node-2">♥</div>
+                    <div class="net-node outer node-3">♦</div>
+                    <div class="net-node outer node-4">♣</div>
+                    <div class="net-node outer node-5">♠</div>
+                    <div class="net-node outer node-6">♥</div>
+
+                    <!-- Small peripheral nodes -->
+                    <div class="net-node small node-s1">P2P</div>
+                    <div class="net-node small node-s2">ZK</div>
+                    <div class="net-node small node-s3">TX</div>
+                    <div class="net-node small node-s4">RNG</div>
+                    <div class="net-node small node-s5">NET</div>
                 </div>
+                <span class="network-label">Decentralised Poker Network</span>
             </div>
         </div>
     </section>
@@ -1708,11 +2085,106 @@ deck.shuffle(seed);
         </div>
     </section>
 
+    <section id="clients" class="clients fade-in">
+        <span class="section-label">Who We Work With</span>
+        <h2>Built for the <strong>poker industry</strong></h2>
+        <p>Whether you're running a home game or a full-scale operation, we build the platform to match.</p>
+
+        <div class="clients-grid">
+            <div class="client-card">
+                <div class="card-icon">♣</div>
+                <h3>Poker Club Operators</h3>
+                <p>Your own branded poker room — tournaments, cash games, player management.</p>
+            </div>
+            <div class="client-card">
+                <div class="card-icon">♦</div>
+                <h3>Casino & Gaming Companies</h3>
+                <p>Enterprise-grade platforms with compliance-ready architecture and audit trails.</p>
+            </div>
+            <div class="client-card">
+                <div class="card-icon">♠</div>
+                <h3>Crypto Poker Platforms</h3>
+                <p>Blockchain-native poker with provably fair mechanics and on-chain settlement.</p>
+            </div>
+            <div class="client-card">
+                <div class="card-icon">♥</div>
+                <h3>Private Game Organisers</h3>
+                <p>Custom apps for your regular game — invite-only, branded, no middleman.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="process" class="process fade-in">
+        <span class="section-label" style="color: var(--red);">How It Works</span>
+        <h2>From idea to <strong>live tables</strong></h2>
+        <p>Simple, transparent process. No surprises.</p>
+
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="step-number">1</div>
+                <h3>Get in Touch</h3>
+                <p>Reach out via Telegram, Email, or WhatsApp. Tell us what you're building.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">2</div>
+                <h3>We Scope It</h3>
+                <p>We map out your requirements, features, and timeline together.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">3</div>
+                <h3>Proposal & Quote</h3>
+                <p>You get a clear proposal with pricing, milestones, and deliverables.</p>
+            </div>
+            <div class="process-step">
+                <div class="step-number">4</div>
+                <h3>Build & Launch</h3>
+                <p>We build your platform, test it, and get you live. Ongoing support included.</p>
+            </div>
+        </div>
+
+        <div class="process-cta">
+            <a href="#contact" class="btn btn-primary">Start a Conversation</a>
+        </div>
+    </section>
+
     <section id="contact" class="contact">
         <span class="section-label">Get in Touch</span>
         <h2>Ready to deal?</h2>
-        <p>Whether you're an operator looking for a platform or a partner interested in collaboration, we'd love to hear from you.</p>
-        <a href="mailto:hello@9highstudios.com" class="contact-email">hello@9highstudios.com</a>
+        <p>Whether you're an operator looking for a platform, running a poker club, or a partner interested in collaboration — drop your details and we'll be in touch within 24 hours.</p>
+
+        <form class="contact-form" action="https://formsubmit.co/hello@9highstudios.com" method="POST">
+            <!-- Formsubmit.co config -->
+            <input type="hidden" name="_subject" value="New Lead - 9 High Studios">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="https://9highstudios.com/thanks.html">
+            <input type="text" name="_honey" style="display:none">
+
+            <p class="form-hint">Share at least one way to reach you ♠</p>
+
+            <div class="form-group">
+                <label><span class="label-icon">✉️</span> Email</label>
+                <input type="email" name="email" placeholder="you@example.com">
+            </div>
+
+            <div class="form-group">
+                <label><span class="label-icon">✈️</span> Telegram <span class="label-optional">(handle or number)</span></label>
+                <input type="text" name="telegram" placeholder="@yourhandle">
+            </div>
+
+            <div class="form-group">
+                <label><span class="label-icon">📱</span> WhatsApp <span class="label-optional">(number)</span></label>
+                <input type="text" name="whatsapp" placeholder="+61 400 000 000">
+            </div>
+
+            <div class="form-group">
+                <label><span class="label-icon">💬</span> Tell us about your project <span class="label-optional">(optional)</span></label>
+                <textarea name="message" placeholder="I'm looking to build a branded poker platform for my club..." rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="form-submit">Send It ♦</button>
+
+            <p class="form-or">or email us directly at <a href="mailto:hello@9highstudios.com" class="contact-email" style="font-size: 1rem;">hello@9highstudios.com</a></p>
+        </form>
     </section>
 
     <footer>
@@ -1774,6 +2246,19 @@ deck.shuffle(seed);
         }, { threshold: 0.1 });
 
         fadeElements.forEach(el => observer.observe(el));
+
+        // Contact form validation — require at least one contact method
+        document.querySelector('.contact-form').addEventListener('submit', function(e) {
+            const email = this.querySelector('[name="email"]').value.trim();
+            const telegram = this.querySelector('[name="telegram"]').value.trim();
+            const whatsapp = this.querySelector('[name="whatsapp"]').value.trim();
+
+            if (!email && !telegram && !whatsapp) {
+                e.preventDefault();
+                alert('Please provide at least one way to reach you — email, Telegram, or WhatsApp.');
+                return false;
+            }
+        });
     </script>
 </body>
 </html>

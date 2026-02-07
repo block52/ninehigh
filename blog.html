@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | 9 High Studios</title>
+    <meta name="description" content="Articles on poker software development, provably fair systems, blockchain security, and building better card games.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Blog Header */
+        .blog-header {
+            padding: 8rem 5% 4rem;
+            text-align: center;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .blog-header h1 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 300;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+        }
+
+        .blog-header p {
+            color: var(--dark-gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Article List */
+        .articles {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 5% 6rem;
+        }
+
+        .article-card {
+            display: block;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .article-card:hover {
+            border-color: var(--red);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        }
+
+        .article-meta {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .article-card h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+
+        .article-card p {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--white);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+            margin-top: 0.75rem;
+            margin-right: 0.3rem;
+        }
+
+        /* Coming soon state */
+        .coming-soon {
+            text-align: center;
+            padding: 3rem;
+            color: var(--dark-gray);
+            font-style: italic;
+        }
+
+        /* CTA Banner */
+        .blog-cta {
+            background: var(--charcoal);
+            padding: 4rem 5%;
+            text-align: center;
+        }
+
+        .blog-cta h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-cta p {
+            color: #aaa;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
+        <ul class="nav-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="blog-header">
+        <span class="section-label">Blog</span>
+        <h1>Insights from the <strong>felt</strong></h1>
+        <p>Technical deep-dives on poker software, provably fair systems, blockchain security, and building better card games.</p>
+    </div>
+
+    <div class="articles">
+
+        <a href="article-provably-fair.html" class="article-card">
+            <div class="article-meta">February 2026 &middot; 10 min read</div>
+            <h2>How Provably Fair Card Shuffling Actually Works</h2>
+            <p>A technical breakdown of the Fisher-Yates shuffle, commitment schemes, and why most online poker platforms can't prove their games are fair — but ours can.</p>
+            <span class="article-tag">Cryptography</span>
+            <span class="article-tag">Fairness</span>
+        </a>
+
+        <a href="article-rigged-games.html" class="article-card">
+            <div class="article-meta">February 2026 &middot; 8 min read</div>
+            <h2>Why Your Online Poker Game Might Not Be Fair</h2>
+            <p>The most common ways online poker games can be manipulated, and the cryptographic techniques that make manipulation mathematically impossible.</p>
+            <span class="article-tag">Security</span>
+            <span class="article-tag">Trust</span>
+        </a>
+
+        <a href="article-building-platform.html" class="article-card">
+            <div class="article-meta">February 2026 &middot; 12 min read</div>
+            <h2>What It Takes to Build a Secure Poker Platform</h2>
+            <p>From real-time multiplayer to zero-knowledge proofs — a behind-the-scenes look at the architecture decisions that make or break an online poker platform.</p>
+            <span class="article-tag">Architecture</span>
+            <span class="article-tag">Blockchain</span>
+        </a>
+
+        <a href="article-zkp.html" class="article-card">
+            <div class="article-meta">Coming Soon</div>
+            <h2>Zero-Knowledge Proofs for Card Games, Explained</h2>
+            <p>How ZKPs allow players to verify game fairness without revealing hidden information. Mental poker protocols made practical.</p>
+            <span class="article-tag">ZKP</span>
+            <span class="article-tag">Research</span>
+        </a>
+
+    </div>
+
+    <div class="blog-cta">
+        <h2>Want to build a poker platform?</h2>
+        <p>We'd love to hear about your project.</p>
+        <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+    </div>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> ♦</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>

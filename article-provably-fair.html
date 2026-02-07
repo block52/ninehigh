@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Provably Fair Card Shuffling Actually Works | 9 High Studios</title>
+    <meta name="description" content="A technical breakdown of provably fair card shuffling: Fisher-Yates algorithm, commitment schemes, cryptographic hashing, and zero-knowledge proofs for online poker.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="How Provably Fair Card Shuffling Actually Works">
+    <meta property="og:description" content="A technical breakdown of Fisher-Yates shuffling, commitment schemes, and why most online poker platforms can't prove their games are fair.">
+    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Steps list */
+        .steps {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+            margin-bottom: 1.5rem;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            padding-left: 2.5rem;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0.15rem;
+            width: 28px;
+            height: 28px;
+            background: var(--red);
+            color: var(--white);
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Cryptography &amp; Fairness</span>
+            <h1>How Provably Fair Card Shuffling Actually Works</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; February 2026 &middot; 10 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Cryptography</span>
+                <span class="article-tag">Fairness</span>
+                <span class="article-tag">Fisher-Yates</span>
+                <span class="article-tag">Blockchain</span>
+                <span class="article-tag">Zero-Knowledge Proofs</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+
+            <p class="lead">You sit down at a live poker table and you can watch the dealer riffle the cards. You see the plastic cut card. You see the shuffle machine churn. None of this is proof that the shuffle is random, but it gives you something online poker has never been able to offer: the ability to observe the process. Provably fair card shuffling changes that. It gives you something better than observation. It gives you mathematical certainty.</p>
+
+            <h2>The Trust Problem in Online Poker</h2>
+
+            <p>Every time you play a hand of online poker, you are trusting the platform with something fundamental: that the cards were dealt fairly. Not just "probably fair" or "audited quarterly by some third party." Actually fair. Every single hand.</p>
+
+            <p>In a live game, trust comes from physical constraints. The dealer cannot peek at the deck mid-shuffle without everyone noticing. The cards are face-down. The shoe is opaque. It is not a perfect system, but it is a system where cheating requires physical action that other players can, in principle, detect.</p>
+
+            <p>Online poker strips away all of that. The server knows every card in the deck before the hand starts. It decides what you get dealt, what the flop is, what the river brings. And you just have to take its word for it. The platform says "trust us, our RNG is certified." But certification means a company tested the software at a point in time. It does not mean the software running right now, dealing your hand right now, has not been modified, manipulated, or compromised.</p>
+
+            <p>This is not paranoia. This is the fundamental information asymmetry problem that cryptographers have been solving since the 1980s. And there is a real solution.</p>
+
+            <h2>What "Provably Fair" Actually Means</h2>
+
+            <p>"Provably fair" is not a marketing term. It is a specific cryptographic property. A system is provably fair when any participant can independently verify, after the fact, that the outcome was determined before any player action occurred and was not altered during play.</p>
+
+            <p>The key word is <strong>independently</strong>. You do not need to trust the server. You do not need to trust an auditor. You do not need to trust anyone. You can verify it yourself, on your own machine, using basic cryptographic tools that have been publicly vetted for decades.</p>
+
+            <div class="callout">
+                <p><strong>Think of it this way:</strong> Imagine the dealer seals the shuffled deck in a tamper-evident envelope before the hand starts. You can see the envelope has not been opened. After the hand, you break the seal and confirm every card matches what was dealt. That is provably fair, except the "envelope" is mathematics and it is physically impossible to forge.</p>
+            </div>
+
+            <h2>Step by Step: How a Provably Fair Shuffle Works</h2>
+
+            <p>The protocol is elegantly simple. It relies on one core property of cryptographic hash functions: it is trivially easy to compute a hash from an input, but computationally impossible to reverse-engineer the input from a hash. SHA-256, the same algorithm that secures Bitcoin, is the standard choice.</p>
+
+            <p>Here is the full sequence:</p>
+
+            <ol class="steps">
+                <li><strong>Server generates a random seed.</strong> Before the hand begins, the server generates a cryptographically random 256-bit seed. This seed determines the entire shuffle. The deck order, every card, is fully determined by this seed alone.</li>
+                <li><strong>Server computes a hash commitment.</strong> The server hashes the seed using SHA-256, producing a 64-character hex string. This hash is the <em>commitment</em>. It is sent to every player at the table before any cards are dealt.</li>
+                <li><strong>The hand plays out normally.</strong> Players receive their hole cards, streets are dealt, bets are made. Nothing unusual. The server reveals cards according to the pre-determined shuffle order.</li>
+                <li><strong>Server reveals the seed.</strong> After the hand is complete, the server publishes the original seed. This is the "envelope opening" moment.</li>
+                <li><strong>Players verify independently.</strong> Any player can now take the revealed seed, hash it with SHA-256 themselves, and confirm the result matches the commitment they received before the hand. They can also re-run the shuffle algorithm with the seed and confirm that every card dealt matches the deterministic output.</li>
+            </ol>
+
+            <div class="flow-block">
+                <h4>Provably Fair Protocol Flow</h4>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <strong>Generate Seed</strong>
+                        <span>256-bit random</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Hash (SHA-256)</strong>
+                        <span>Commitment created</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Share Hash</strong>
+                        <span>Before dealing</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Play Hand</strong>
+                        <span>Normal gameplay</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Reveal Seed</strong>
+                        <span>After showdown</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Verify</strong>
+                        <span>Hash match check</span>
+                    </div>
+                </div>
+            </div>
+
+            <p>If the server changes even a single bit of the seed after publishing the commitment, the hash will not match. SHA-256 is a one-way function. There is no way to find a different seed that produces the same hash and also produces a favorable shuffle. The math does not allow it. This is not a claim. It is a proof.</p>
+
+            <h2>The Fisher-Yates Shuffle Algorithm</h2>
+
+            <p>So the commitment scheme guarantees the shuffle was not tampered with. But how do we go from a random seed to a shuffled deck? This is where the Fisher-Yates algorithm comes in, and it is worth understanding because it is the only correct way to produce a uniformly random permutation of a deck.</p>
+
+            <h3>Why Fisher-Yates Is the Right Choice</h3>
+
+            <p>If you are a poker player who has dabbled in programming, you might think you can shuffle a deck by assigning a random number to each card and sorting. That works, sort of. But it introduces bias depending on the sorting algorithm and can produce non-uniform distributions. Fisher-Yates, published in 1938 and modernized by Donald Knuth, is mathematically proven to give every possible permutation of 52 cards an exactly equal probability of occurring. There are 52! (roughly 8 x 10<sup>67</sup>) possible orderings. Fisher-Yates hits each one with identical probability.</p>
+
+            <p>Here is the algorithm in pseudocode:</p>
+
+            <pre class="code-block"><code><span class="code-comment">// Fisher-Yates Shuffle (Knuth variant)</span>
+<span class="code-comment">// Input: deck[0..51], seed (256-bit)</span>
+
+<span class="code-keyword">function</span> fisherYatesShuffle(deck, seed):
+    rng = createDeterministicRNG(seed)
+
+    <span class="code-keyword">for</span> i = <span class="code-number">51</span> <span class="code-keyword">downto</span> <span class="code-number">1</span>:
+        j = rng.nextInt(<span class="code-number">0</span>, i)   <span class="code-comment">// uniform random in [0, i]</span>
+        swap(deck[i], deck[j])
+
+    <span class="code-keyword">return</span> deck</code></pre>
+
+            <p>That is the whole thing. Walk backwards through the array. At each position, pick a random index from the remaining unshuffled portion (including the current position) and swap. The proof of correctness is an induction argument: after processing position <em>i</em>, the element at position <em>i</em> is equally likely to be any of the original elements. By the time you reach position 0, you have a uniformly random permutation.</p>
+
+            <h3>Determinism Is the Point</h3>
+
+            <p>Notice that the algorithm takes a <strong>seed</strong> as input, not "randomness." The random number generator is deterministic -- given the same seed, it always produces the same sequence of random numbers, and therefore the same shuffle. This is what makes verification possible. Any player with the seed can re-run the algorithm and get the exact same deck order.</p>
+
+            <div class="callout">
+                <p><strong>GTO players will appreciate this:</strong> Deterministic shuffling means the game tree is fully specified before any player acts. The server cannot "adjust" the runout based on player behavior, bet sizing, or stack sizes. The river card was determined before you even looked at your hole cards. There is no possibility of a "doom switch."</p>
+            </div>
+
+            <pre class="code-block"><code><span class="code-comment">// Verification example</span>
+<span class="code-keyword">const</span> seed = <span class="code-string">"a3f1c8...revealed after hand"</span>;
+<span class="code-keyword">const</span> commitment = <span class="code-string">"7b2e9d...received before hand"</span>;
+
+<span class="code-comment">// Step 1: Verify commitment</span>
+<span class="code-keyword">const</span> hash = SHA256(seed);
+assert(hash === commitment);  <span class="code-comment">// Must match</span>
+
+<span class="code-comment">// Step 2: Reproduce the shuffle</span>
+<span class="code-keyword">const</span> deck = newOrderedDeck();   <span class="code-comment">// [AS, 2S, 3S, ... KC]</span>
+<span class="code-keyword">const</span> shuffled = fisherYatesShuffle(deck, seed);
+
+<span class="code-comment">// Step 3: Confirm dealt cards match</span>
+assert(shuffled[<span class="code-number">0</span>] === myHoleCard1);
+assert(shuffled[<span class="code-number">1</span>] === myHoleCard2);
+<span class="code-comment">// ... verify flop, turn, river positions</span></code></pre>
+
+            <h2>Zero-Knowledge Proofs: The Next Frontier</h2>
+
+            <p>The commitment scheme described above proves that the shuffle was not changed after the fact. That is a significant guarantee. But it has a limitation: to verify the shuffle, the server must reveal the seed after the hand, which means revealing the entire deck order -- including cards that were never dealt.</p>
+
+            <p>In most poker contexts this is acceptable, because the hand is over. But what if you want to prove fairness during a hand, without revealing undealt cards? What if you want to prove you have a valid hand without showing your hole cards? This is the domain of zero-knowledge proofs (ZKPs).</p>
+
+            <h3>The Mental Poker Problem</h3>
+
+            <p>Cryptographers have been working on "mental poker" since Shamir, Rivest, and Adleman (the RSA inventors) posed the question in 1979: can two players play a fair card game over the phone, without a trusted dealer? The answer is yes, using a combination of commutative encryption and zero-knowledge proofs.</p>
+
+            <p>The core idea works like this:</p>
+
+            <ul>
+                <li><strong>Commutative encryption:</strong> Each player encrypts the deck with their own key. Because the encryption is commutative, the order of encryption does not matter. A card encrypted by Player A then Player B can be decrypted by Player A first, then Player B, or vice versa.</li>
+                <li><strong>Dealing without a dealer:</strong> To deal a card to Player A, all other players remove their encryption from that specific card. Player A then decrypts with their key and sees the card. No one else can see it because they do not have Player A's key.</li>
+                <li><strong>Shuffle verification via ZKP:</strong> When a player shuffles the encrypted deck, they produce a zero-knowledge proof that the output is a valid permutation of the input. This proves no cards were added, removed, or duplicated -- without revealing the permutation itself.</li>
+            </ul>
+
+            <p>This is computationally expensive compared to the simple commitment scheme, but it eliminates the need for any trusted server whatsoever. The players collectively act as the dealer, and the math guarantees fairness without any participant being able to cheat.</p>
+
+            <div class="callout">
+                <p><strong>Poker analogy:</strong> A zero-knowledge proof is like showing you have the nuts without tabling your cards. You prove a property (my hand beats yours) without revealing the underlying information (what my exact hand is). In the context of shuffling, the server proves "this is a valid random permutation of 52 cards" without revealing which permutation.</p>
+            </div>
+
+            <h2>Why Blockchain Matters for the Audit Trail</h2>
+
+            <p>Provably fair shuffling solves the integrity problem for individual hands. But what about the bigger picture? How do you prove that every hand played on a platform over the last year was fair, not just the one you happened to verify?</p>
+
+            <p>This is where blockchain provides real value -- not as a buzzword, but as an immutable append-only log.</p>
+
+            <p>When the commitment hash for each hand is written to a blockchain before cards are dealt, you get several guarantees that no centralized database can offer:</p>
+
+            <ul>
+                <li><strong>Immutability:</strong> The commitment cannot be altered after the fact. It is embedded in a block that is secured by the consensus of the entire network.</li>
+                <li><strong>Timestamping:</strong> The block timestamp proves the commitment existed before the hand was dealt, independent of the poker platform's own servers.</li>
+                <li><strong>Public auditability:</strong> Anyone can scan the blockchain and verify every commitment, every seed, and every shuffle, even years later. The platform cannot selectively delete unfavorable audit records.</li>
+                <li><strong>Decentralization:</strong> No single entity controls the audit trail. Even if the poker platform disappears, the verification data remains on-chain permanently.</li>
+            </ul>
+
+            <p>Think of it as a public hand history that is cryptographically impossible to falsify. Every hand ever dealt is verifiable by anyone, forever. For regulators, this is a compliance dream. For players, it is the strongest possible guarantee that the game is on the level.</p>
+
+            <h2>Why This Matters for the Poker Community</h2>
+
+            <p>Online poker has a trust deficit. The major platforms ask you to trust them, and for the most part they are probably running fair games. But "probably" and "trust us" are not good enough when real money is on the line. Every serious player has had that moment -- you take a bad beat, a one-outer on the river, and a small voice in your head says "is this rigged?"</p>
+
+            <p>Provably fair systems silence that voice with mathematics. Not with assurances, not with regulatory certificates, not with corporate reputation. With verifiable, reproducible, independently confirmable proof that the deal was straight.</p>
+
+            <p>For the poker community, the implications are significant:</p>
+
+            <ul>
+                <li><strong>Solver and GTO players</strong> can confirm that the cards follow the expected distributions over large sample sizes, and verify individual hand histories down to the shuffle seed.</li>
+                <li><strong>Tournament players</strong> can verify that late-stage deals were not influenced by the platform having a financial interest in certain outcomes.</li>
+                <li><strong>Home game operators</strong> running private clubs online can offer their players the same integrity guarantees as a live cardroom, without needing to buy an expensive license or hire an auditor.</li>
+                <li><strong>Regulators</strong> get a compliance framework that is stronger than periodic audits, because every hand is individually verifiable rather than statistically sampled.</li>
+            </ul>
+
+            <p>The technology exists today. It is not theoretical. It is not "coming soon." Deterministic shuffling, commitment schemes, and cryptographic verification are well-established, battle-tested techniques that have been used in other domains for decades. The question is not whether online poker should use them. The question is why most platforms still do not.</p>
+
+            <div class="article-cta">
+                <h3>We build this technology at Nine High Studios.</h3>
+                <p>Every hand on Block 52 is provably fair. If you are building a poker platform and want your players to trust the deal, let's talk.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch &#9830;</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

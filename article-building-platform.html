@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What It Takes to Build a Secure Poker Platform | 9 High Studios</title>
+    <meta name="description" content="A behind-the-scenes look at the architecture, security, and engineering decisions that go into building a real poker platform. From WebSockets to blockchain settlement.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="What It Takes to Build a Secure Poker Platform">
+    <meta property="og:description" content="From real-time multiplayer to blockchain settlement — what actually goes into building a poker platform that isn't sketchy.">
+    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 300;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-header h1 strong {
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .article-meta {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body p {
+            font-size: 1.1rem;
+            line-height: 1.85;
+            color: var(--dark-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+        }
+
+        .article-body h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body blockquote {
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-size: 1.15rem;
+            color: var(--charcoal);
+            font-style: italic;
+            line-height: 1.7;
+        }
+
+        .article-body .highlight-box {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+        }
+
+        .article-body .highlight-box p {
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .article-body .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .article-body .highlight-box ul {
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body .highlight-box li {
+            font-size: 0.95rem;
+        }
+
+        .article-body hr {
+            border: none;
+            border-top: 1px solid var(--mid-gray);
+            margin: 3rem 0;
+        }
+
+        /* CTA Section */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 8px;
+            padding: 2.5rem;
+            margin: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: var(--white);
+            margin-bottom: 1rem;
+            margin-top: 0;
+        }
+
+        .article-cta p {
+            color: #aaa !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .article-cta .clients-line {
+            font-size: 0.85rem !important;
+            color: #777 !important;
+            margin-top: 1rem !important;
+            margin-bottom: 0 !important;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Blog CTA Banner */
+        .blog-cta {
+            background: var(--charcoal);
+            padding: 4rem 5%;
+            text-align: center;
+        }
+
+        .blog-cta h2 {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+        }
+
+        .blog-cta p {
+            color: #aaa;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .article-header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <div class="article-header">
+        <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+        <span class="section-label">Architecture &amp; Engineering</span>
+        <h1>What It Takes to Build a <strong>Secure Poker Platform</strong></h1>
+        <div class="article-meta">By Nine High Studios &middot; February 2025 &middot; 12 min read</div>
+        <div class="article-tags">
+            <span class="article-tag">Architecture</span>
+            <span class="article-tag">Blockchain</span>
+            <span class="article-tag">Security</span>
+            <span class="article-tag">White-Label</span>
+        </div>
+    </div>
+
+    <div class="article-body">
+
+        <p>If you have spent any time on poker forums, Reddit threads, or Discord groups, you have seen the same questions come up over and over: "What app should I use for home games?", "Looking for players for a house game," or "Is there a website where I can play with friends?" The answers are usually the same handful of apps, and the complaints are always identical &mdash; clunky interfaces, mysterious shuffles, sketchy money handling, and zero transparency.</p>
+
+        <p>There is a reason for that. Most poker apps are built cheaply and quickly by teams that have never sat at a real poker table. They treat poker like any other mobile game, slap on a card skin, wire up some basic logic, and ship it. Security is an afterthought. Fairness is a marketing claim, not a verifiable property. And the moment real money enters the picture, the cracks show fast.</p>
+
+        <p>We have been building poker software for years. This article is a behind-the-scenes look at what actually goes into a platform that works &mdash; one that real players would trust with their money and real operators would trust with their reputation.</p>
+
+        <h2>Why So Many Poker Apps Feel Sketchy</h2>
+
+        <p>The bar for launching a poker app is deceptively low. A competent developer can get a basic Texas Hold'em game running in a few weeks. Cards get dealt, bets go in, pots get awarded. It looks like poker. But looking like poker and being a trustworthy poker platform are two entirely different things.</p>
+
+        <p>The cheap approach typically involves a single-server architecture, a random number generator that nobody can audit, no real disconnect handling, and money management that amounts to a database column tracking balances. Players have no way to verify the shuffle was fair. Operators have no way to prove it. And when something goes wrong &mdash; a player disconnects mid-hand, two friends collude, a bot sits at the table &mdash; the software has no mechanism to detect or handle any of it.</p>
+
+        <p>This is not hypothetical. This is the reality of most poker apps on the market right now. If you cannot verify the shuffle, you are trusting the operator completely. And in an industry where trust is the entire product, that is a terrible foundation.</p>
+
+        <h2>The Minimum Viable Poker Platform</h2>
+
+        <p>So what do you actually need to build something that works? Here is the honest list &mdash; the baseline that separates a real platform from a weekend project.</p>
+
+        <h3>Real-Time Multiplayer Engine</h3>
+
+        <p>Poker is a real-time, turn-based, multi-player game with hidden information. That combination is harder to engineer than most people think. You need persistent WebSocket connections for every player at every table, and you need sub-second latency on every action. When a player clicks fold, everyone at the table needs to see it immediately. Not in two seconds. Not after a loading spinner. Immediately.</p>
+
+        <p>This means building a dedicated real-time server layer &mdash; not bolting socket connections onto a REST API. It means connection pooling, heartbeat monitoring, graceful reconnection, and a message protocol designed specifically for poker state updates.</p>
+
+        <h3>Game State Management</h3>
+
+        <p>Every poker hand is a state machine with strict rules about what can happen next and who can act. Managing that state across multiple connected clients, with network delays, disconnections, and race conditions, is one of the hardest problems in poker engineering.</p>
+
+        <p>What happens when two players click "all-in" at the exact same moment? What happens when the player who is supposed to act disconnects? What happens when the server crashes mid-hand and needs to recover? Every one of these edge cases needs a deterministic answer, and that answer needs to be the same whether you are playing on WiFi in Melbourne or mobile data in Manila.</p>
+
+        <h3>Card Dealing and Shuffle Integrity</h3>
+
+        <p>This is the foundation of everything. If players cannot trust the cards, nothing else matters. A proper shuffle implementation uses a cryptographically secure random number generator, a well-studied algorithm like Fisher-Yates, and ideally a <a href="article-provably-fair.html">provably fair commitment scheme</a> where the shuffle can be independently verified after the hand completes.</p>
+
+        <p>Most platforms use a basic pseudo-random number generator and call it a day. Players have no way to check. Operators say "trust us." We think that is unacceptable. Provably fair is not a feature &mdash; it is a requirement.</p>
+
+        <h3>Player Authentication and Identity</h3>
+
+        <p>In a home game, you know everyone at the table. Online, you need systems that prevent one person from sitting at the same table twice, track player identity across sessions, and maintain account security. This means proper authentication, session management, and for operators who need it, KYC integration.</p>
+
+        <h3>Chip and Money Management</h3>
+
+        <p>The moment real money is involved, you need proper accounting. Not just a balance field in a database. You need an immutable ledger of every deposit, withdrawal, bet, rake deduction, and transfer. You need atomic transactions that can never leave the system in an inconsistent state. You need audit trails that an accountant or regulator can actually follow.</p>
+
+        <p>This is where most cheap platforms cut the most corners, and it is where things go most spectacularly wrong.</p>
+
+        <h2>The Hard Problems Most People Underestimate</h2>
+
+        <p>Even if you get the basics right, there is a second tier of problems that separate a functional platform from a professional one. These are the things that only become obvious when real players are using the system with real stakes.</p>
+
+        <h3>Collusion Detection</h3>
+
+        <p>Two friends sitting at the same table, sharing their hole cards over a phone call, is the oldest form of cheating in online poker. Detecting it requires statistical analysis of betting patterns, win rates, and player relationships over time. You need systems that flag suspicious patterns &mdash; soft play, chip dumping, coordinated raises &mdash; and escalate them for review. This is not something you bolt on later. It needs to be designed into the data model from day one.</p>
+
+        <h3>Bot Prevention</h3>
+
+        <p>Poker bots are sophisticated enough to beat most recreational players. Preventing them requires a combination of behavioral analysis, timing pattern detection, and session fingerprinting. Simple CAPTCHAs are not enough. You need to build ongoing monitoring that can distinguish human decision-making patterns from algorithmic ones, even when the bot is designed to look human.</p>
+
+        <h3>Time Bank and Disconnect Handling</h3>
+
+        <p>This sounds trivial until you build it. What is the default action when a player's time runs out? Fold? Check if possible? What about a player who disconnects &mdash; do they get an all-in protection on their current pot, or do they auto-fold? Different rules suit different game types, and the system needs to handle all of them cleanly without disrupting the flow for other players at the table.</p>
+
+        <h3>Multi-Table Tournament Architecture</h3>
+
+        <p>Running a single cash game table is hard enough. Running a tournament with hundreds of players, table balancing, blind level increases, bubble mechanics, final table formation, and prize distribution is an order of magnitude more complex. The tournament director logic alone &mdash; deciding when to break tables, where to seat moved players, how to handle simultaneous eliminations &mdash; requires careful algorithmic design and extensive testing.</p>
+
+        <h3>Rake Calculation and Distribution</h3>
+
+        <p>Rake seems simple: take a percentage of the pot. But which method? Pot rake, time rake, or tournament fees? What is the cap? How do you handle split pots? How do you calculate rake contributions for loyalty programs? How do you report it accurately for regulatory compliance? Rake is a business-critical calculation that needs to be precise, transparent, and auditable every single hand.</p>
+
+        <h2>Why White-Label Beats Building from Scratch</h2>
+
+        <p>If you are a poker club operator reading this list and thinking "there is no way I can build all of that," you are right. And you should not have to.</p>
+
+        <p>This is exactly why the white-label model exists. Instead of spending hundreds of thousands of dollars and a year or more building a poker platform from scratch, you take a battle-tested platform and make it yours.</p>
+
+        <div class="highlight-box">
+            <p><strong>What white-label gives you:</strong></p>
+            <ul>
+                <li>A proven, tested real-time poker engine that already handles all the edge cases</li>
+                <li>Your branding, your colours, your logo, your domain</li>
+                <li>Your players, your community, your rules</li>
+                <li>Customisable game types, blind structures, and tournament formats</li>
+                <li>Ongoing updates, security patches, and new features without your own dev team</li>
+            </ul>
+        </div>
+
+        <p>The operator's job should be growing their player base, running great games, and building their community &mdash; not debugging WebSocket connections at 3am or figuring out why the pot split logic breaks on a four-way all-in with side pots.</p>
+
+        <p>The best analogy is restaurants. You do not build your own point-of-sale system. You do not manufacture your own ovens. You focus on the food and the experience, and you use proven tools built by people who specialise in them. Poker platforms work the same way.</p>
+
+        <h2>Blockchain Integration: Why It Changes Everything</h2>
+
+        <p>If you have been around poker forums for a while, you have probably heard blockchain mentioned in the context of poker and dismissed it as hype. Fair enough &mdash; a lot of crypto projects in gaming have been exactly that. But there are specific properties of blockchain technology that solve real, persistent problems in online poker.</p>
+
+        <h3>On-Chain Settlement</h3>
+
+        <p>The biggest trust problem in online poker is not the shuffle &mdash; it is the money. Players deposit funds, play, and then hope the operator actually pays out withdrawals. We have all seen platforms that slow-roll withdrawals, impose suspicious limits, or simply vanish with player funds.</p>
+
+        <p>On-chain settlement removes the trust requirement entirely. Funds are held in smart contracts, not operator bank accounts. Payouts execute automatically based on game outcomes. The operator never touches player funds directly. This is not a theoretical improvement &mdash; it eliminates the single biggest source of fraud in online poker.</p>
+
+        <h3>Transparent Rake</h3>
+
+        <p>With traditional platforms, players have to take the operator's word for it that the rake is what they say it is. With blockchain, every rake deduction is a transaction on a public ledger. Players can verify exactly how much was taken from every pot. This level of transparency builds trust that no amount of marketing can achieve.</p>
+
+        <h3>Player-Owned Accounts</h3>
+
+        <p>On a traditional platform, your account, your hand history, and your reputation belong to the operator. If they shut down, everything disappears. With blockchain-based identity, players own their accounts through their wallet. Their history, their stats, their reputation are portable and permanent.</p>
+
+        <h3>Cross-Platform Portability</h3>
+
+        <p>When player identity and funds live on-chain rather than in a single operator's database, players can move between platforms without starting from zero. Your bankroll, your stats, your verified identity travel with you. This is better for players and, counterintuitively, better for operators too &mdash; because it lowers the barrier for new players to try your platform.</p>
+
+        <h2>What to Look for in a Poker Software Partner</h2>
+
+        <p>Whether you are running a weekly home game and want something better than a free app, or you are a club operator planning a full-scale launch, choosing the right software partner matters more than almost any other decision. Here is what we think you should look for.</p>
+
+        <h3>Do They Play Poker?</h3>
+
+        <p>This is not a joke. If the team building your poker platform does not play poker, they will make decisions that look right on paper but feel wrong at the table. They will not understand why the fold button needs to be in exactly the right spot, why the action timer needs to feel fair but not slow, or why the chip animation matters more than they think. Poker software built by poker players is different, and you can feel it immediately.</p>
+
+        <h3>Provably Fair: Non-Negotiable</h3>
+
+        <p>If your software partner cannot explain exactly how their shuffle works and prove that it is fair, walk away. This is not an optional feature. It is the minimum bar for legitimacy. Ask them about their random number generation, their commitment scheme, and whether players can independently verify hand outcomes. If the answer is "just trust us," find someone else.</p>
+
+        <h3>White-Label Flexibility</h3>
+
+        <p>Your platform should look and feel like yours, not like a generic template with your logo pasted on. Look for deep customisation &mdash; not just colours and logos, but game rules, tournament structures, lobby layout, and player experience details. Your players should never feel like they are on someone else's platform.</p>
+
+        <h3>Ongoing Support and Updates</h3>
+
+        <p>Poker software is not a one-and-done project. The landscape changes, players expect new features, security threats evolve, and regulations shift. You need a partner who will be there for the long run &mdash; shipping updates, patching vulnerabilities, adding new game types, and helping you grow. Ask about their update cycle, their support model, and their roadmap.</p>
+
+        <hr>
+
+        <div class="article-cta">
+            <h3>Ready to Build Your Platform?</h3>
+            <p>At Nine High Studios, we have built all of this. Block 52 is our poker platform &mdash; and we can build yours too. Whether you are running a home game or launching a full-scale operation, get in touch.</p>
+            <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            <p class="clients-line">We work with poker club operators, casino companies, crypto platforms, and private game organisers.</p>
+        </div>
+
+        <p style="text-align: center; margin-top: 2rem;"><a href="blog.html">&larr; Back to all articles</a></p>
+
+    </div>
+
+    <div class="blog-cta">
+        <h2>Want to build a poker platform?</h2>
+        <p>We'd love to hear about your project.</p>
+        <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+    </div>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

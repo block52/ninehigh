@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get in Touch | 9 High Studios — Poker Software Development</title>
+    <meta name="description" content="Want a custom poker platform? Leave your Telegram, Email, or WhatsApp and we'll get back to you within 24 hours.">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="9 High Studios — Let's Build Your Poker Platform">
+    <meta property="og:description" content="We build secure, provably fair poker software for operators and clubs. Get in touch.">
+    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--charcoal);
+            color: var(--charcoal);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span {
+            color: var(--white);
+            font-weight: 300;
+        }
+
+        .tagline {
+            color: #999;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        /* Main Card */
+        .contact-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 3rem 2.5rem;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .contact-card h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .contact-card h1 strong {
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.1rem;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--charcoal);
+            margin-bottom: 0.35rem;
+        }
+
+        .label-icon {
+            font-size: 1.05rem;
+        }
+
+        .label-optional {
+            font-weight: 300;
+            color: var(--dark-gray);
+            font-size: 0.78rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 0.9rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            border: 1px solid var(--mid-gray);
+            border-radius: 4px;
+            background: var(--white);
+            color: var(--charcoal);
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--red);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #aaa;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .form-hint {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--dark-gray);
+            margin-bottom: 1.2rem;
+        }
+
+        .form-submit {
+            display: block;
+            width: 100%;
+            padding: 0.9rem;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            color: var(--white);
+            background: var(--red);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .form-submit:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Trust signals */
+        .trust {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .trust-item {
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .trust-item .icon {
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .page-footer {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .page-footer a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .page-footer a:hover {
+            color: var(--white);
+        }
+
+        /* Mobile tweaks */
+        @media (max-width: 500px) {
+            .contact-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .contact-card h1 {
+                font-size: 1.35rem;
+            }
+
+            .trust {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
+        <div class="tagline">Poker Software Development</div>
+    </div>
+
+    <div class="contact-card">
+        <h1>Let's build your <strong>poker platform</strong></h1>
+        <p class="subtitle">Drop your details and we'll get back to you within 24 hours.</p>
+
+        <form action="https://formsubmit.co/hello@9highstudios.com" method="POST" id="contactForm">
+            <!-- Formsubmit.co config -->
+            <input type="hidden" name="_subject" value="New Lead - 9 High Studios (Landing Page)">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="hidden" name="_next" value="https://9highstudios.com/thanks.html">
+            <input type="text" name="_honey" style="display:none">
+
+            <p class="form-hint">Share at least one way to reach you ♠</p>
+
+            <div class="form-group">
+                <label><span class="label-icon">✉️</span> Email</label>
+                <input type="email" name="email" placeholder="you@example.com">
+            </div>
+
+            <div class="form-group">
+                <label><span class="label-icon">✈️</span> Telegram <span class="label-optional">(handle or number)</span></label>
+                <input type="text" name="telegram" placeholder="@yourhandle">
+            </div>
+
+            <div class="form-group">
+                <label><span class="label-icon">📱</span> WhatsApp <span class="label-optional">(number)</span></label>
+                <input type="text" name="whatsapp" placeholder="+61 400 000 000">
+            </div>
+
+            <div class="form-group">
+                <label><span class="label-icon">💬</span> About your project <span class="label-optional">(optional)</span></label>
+                <textarea name="message" placeholder="I'm running a poker club and want our own branded platform..." rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="form-submit">Send It ♦</button>
+
+            <div class="trust">
+                <span class="trust-item"><span class="icon">🔒</span> Provably fair tech</span>
+                <span class="trust-item"><span class="icon">🇦🇺</span> Built in Australia</span>
+                <span class="trust-item"><span class="icon">♠</span> White-label ready</span>
+            </div>
+        </form>
+    </div>
+
+    <div class="page-footer">
+        <a href="index.html">← Back to 9highstudios.com</a>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            const email = this.querySelector('[name="email"]').value.trim();
+            const telegram = this.querySelector('[name="telegram"]').value.trim();
+            const whatsapp = this.querySelector('[name="whatsapp"]').value.trim();
+
+            if (!email && !telegram && !whatsapp) {
+                e.preventDefault();
+                alert('Please provide at least one way to reach you — email, Telegram, or WhatsApp.');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>

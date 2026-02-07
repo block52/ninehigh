@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why Your Online Poker Game Might Not Be Fair (And How to Fix It) | 9 High Studios</title>
+    <meta name="description" content="Is your online poker game rigged? Learn how most platforms shuffle cards, why you can't verify fairness, and what provably fair technology changes everything.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Why Your Online Poker Game Might Not Be Fair (And How to Fix It)">
+    <meta property="og:description" content="Is your online poker game rigged? Learn how most platforms shuffle cards, why you can't verify fairness, and what provably fair technology changes everything.">
+    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 300;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        .article-header h1 strong {
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin: 2.5rem 0 1rem;
+            padding-top: 1rem;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin: 2rem 0 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body ul, .article-body ol {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            margin-bottom: 0.5rem;
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+            font-weight: 600;
+        }
+
+        .article-body blockquote {
+            border-left: 3px solid var(--red);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            background: var(--light-gray);
+            border-radius: 0 6px 6px 0;
+        }
+
+        .article-body blockquote p {
+            font-size: 1.05rem;
+            font-style: italic;
+            color: var(--charcoal);
+            margin-bottom: 0;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin: 1.5rem 0;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment {
+            color: #6a9955;
+        }
+
+        .code-keyword {
+            color: var(--red-light);
+        }
+
+        .code-string {
+            color: #98c379;
+        }
+
+        .code-number {
+            color: #d19a66;
+        }
+
+        code.inline {
+            background: var(--light-gray);
+            padding: 0.15rem 0.45rem;
+            border-radius: 3px;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--red-dark);
+            border: 1px solid var(--mid-gray);
+        }
+
+        /* Callout Box */
+        .callout {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 8px;
+            padding: 1.5rem 1.75rem;
+            margin: 2rem 0;
+        }
+
+        .callout h4 {
+            font-size: 1rem;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+
+        .callout p {
+            font-size: 0.95rem !important;
+            margin-bottom: 0.5rem;
+        }
+
+        .callout p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Divider */
+        .article-divider {
+            border: none;
+            border-top: 1px solid var(--mid-gray);
+            margin: 2.5rem 0;
+        }
+
+        /* CTA Section */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 10px;
+            padding: 2.5rem;
+            margin: 3rem 0 1rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            font-weight: 400;
+            margin: 0 0 0.75rem !important;
+            padding: 0 !important;
+        }
+
+        .article-cta p {
+            color: #aaa !important;
+            font-size: 0.95rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header h1 {
+                font-size: 1.6rem;
+            }
+
+            .article-body p,
+            .article-body ul,
+            .article-body ol {
+                font-size: 1rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> ♦</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">← Back to Blog</a>
+            <span class="section-label">Security &amp; Trust</span>
+            <h1>Why Your Online Poker Game Might Not Be <strong>Fair</strong> (And How to Fix It)</h1>
+            <div class="article-meta-info">By Tom Miller &middot; February 2026 &middot; 8 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Security</span>
+                <span class="article-tag">Trust</span>
+                <span class="article-tag">Provably Fair</span>
+                <span class="article-tag">Cryptography</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+
+            <p>If you have ever posted "Is this game rigged?" on a poker forum, you are not alone. It is one of the most common questions in online poker communities. After a brutal string of bad beats, runner-runner suckouts, or seemingly impossible coolers, it is only natural to wonder whether the deck is actually being shuffled fairly.</p>
+
+            <p>Here is the thing: <strong>your suspicion is not irrational.</strong> It is actually a perfectly reasonable response to a system that asks you to trust it without giving you any way to verify that trust. And that is a design problem, not a player problem.</p>
+
+            <p>This article will walk you through how online poker shuffling actually works, why the current model is fundamentally broken from a trust perspective, and what technology exists today to fix it.</p>
+
+            <h2>Why Players Suspect Games Are Rigged</h2>
+
+            <p>Poker is a game of incomplete information played over long time horizons. Variance is brutal, and even seasoned professionals experience stretches where the math feels broken. So some of the "rigged" feeling is simply the nature of the game colliding with human psychology. We remember the bad beats far more vividly than the times we got lucky.</p>
+
+            <p>But there is a deeper reason the question keeps coming up, and it has nothing to do with tilt or confirmation bias. The reason is structural:</p>
+
+            <blockquote><p>On most online poker platforms, you have absolutely no way to verify that the cards were shuffled fairly. You are trusting a black box.</p></blockquote>
+
+            <p>When you sit down at a live game, you can see the dealer shuffle. You can cut the deck. There are cameras, floor staff, and physical randomness. Online, all of that disappears. The platform tells you the shuffle was random, and you either believe it or you do not. There is no middle ground and no way to check.</p>
+
+            <p>That gap between "we promise it's fair" and "here's proof it's fair" is exactly where distrust lives.</p>
+
+            <h2>How Most Platforms Shuffle Cards</h2>
+
+            <p>The standard approach for online poker platforms works like this:</p>
+
+            <ol>
+                <li>The server generates a random number using a random number generator (RNG).</li>
+                <li>That random number seeds a shuffle algorithm that produces a deck ordering.</li>
+                <li>Cards are dealt to players from that shuffled deck.</li>
+                <li>The hand plays out.</li>
+            </ol>
+
+            <p>The RNG is usually certified by a third-party testing lab. The platform publishes certificates saying their RNG has been audited. Everything looks legitimate on paper.</p>
+
+            <p>So what is the problem?</p>
+
+            <p>The problem is that <strong>the entire shuffle happens server-side, behind closed doors.</strong> The platform generates the random seed, runs the shuffle, and deals the cards. At no point does any player have visibility into, or influence over, the process. You are relying entirely on the operator's honesty and the integrity of their systems.</p>
+
+            <p>RNG certification tells you the random number generator <em>can</em> produce fair outcomes. It does not tell you whether the platform actually <em>used</em> it for your specific hand. There is no hand-level proof. No audit trail you can independently check. You just have to take their word for it.</p>
+
+            <h2>The Core Problem: You Cannot Verify After the Fact</h2>
+
+            <p>Imagine a dice game where someone rolls the dice behind a screen, looks at the result, and then tells you what it was. Even if they have a certificate saying their dice are regulation quality, would you trust that process? Most people would not, and they would be right to be skeptical.</p>
+
+            <p>That is essentially the model for online poker today. The critical missing piece is <strong>post-hoc verification</strong> -- the ability for any player to independently check, after a hand is over, that the shuffle was generated fairly and was not manipulated.</p>
+
+            <p>Without this capability, players are stuck in a trust dilemma:</p>
+
+            <ul>
+                <li>If you win, the game feels fine.</li>
+                <li>If you lose, you have no way to distinguish between honest variance and manipulation.</li>
+                <li>If the platform ever wanted to favor certain players, alter action, or manipulate outcomes, there would be no cryptographic evidence to catch them.</li>
+            </ul>
+
+            <p>This is not an accusation. Most operators are probably running honest games. But "probably honest" is a terrible foundation for a game where real money is on the line.</p>
+
+            <h2>What "Provably Fair" Actually Means</h2>
+
+            <p>Provably fair is not a marketing term. It is a specific cryptographic concept that describes a system where <strong>fairness can be mathematically verified by any participant, without requiring trust in any central authority.</strong></p>
+
+            <p>The core idea is simple: instead of the platform secretly generating a shuffle and asking you to trust it, the platform <em>commits</em> to the shuffle before the hand begins, in a way that it cannot change later. After the hand, it reveals the inputs so you can independently reproduce the shuffle and confirm it matches what was dealt.</p>
+
+            <p>If the platform tried to alter the shuffle mid-hand, the math would not check out. It is not about trusting people. It is about trusting mathematics.</p>
+
+            <h2>Commitment Schemes: The Foundation of Trust</h2>
+
+            <p>The mechanism that makes this possible is called a <strong>commitment scheme</strong>. It works in two phases:</p>
+
+            <h3>Phase 1: Commit (Before the Hand)</h3>
+
+            <p>Before any cards are dealt, the platform generates a random seed and uses it to produce a shuffled deck. But instead of just dealing from it, the platform publishes a <strong>cryptographic hash</strong> of the seed. This hash acts like a sealed envelope -- it locks in the shuffle without revealing what it is.</p>
+
+            <p>A hash is a one-way function. Given a seed, you can easily compute the hash. But given only the hash, you cannot reverse-engineer the seed. This means the platform has committed to a specific shuffle, and everyone at the table can see the commitment, but nobody knows the actual deck order yet.</p>
+
+            <h3>Phase 2: Reveal (After the Hand)</h3>
+
+            <p>After the hand is complete, the platform reveals the original seed. Now any player can:</p>
+
+            <ol>
+                <li>Hash the revealed seed and verify it matches the commitment published before the hand.</li>
+                <li>Run the same shuffle algorithm with the revealed seed to reproduce the exact deck ordering.</li>
+                <li>Confirm that the cards dealt during the hand match the reproduced deck.</li>
+            </ol>
+
+            <p>If any of these checks fail, you have cryptographic proof that the platform cheated. If they all pass, you have mathematical certainty that the shuffle was fair and was determined before any cards were dealt.</p>
+
+            <div class="callout">
+                <h4>Why This Matters</h4>
+                <p>The commitment scheme means the platform cannot see how the hand will play out and then alter the shuffle to change the outcome. The shuffle is locked in before the first card is dealt. Period.</p>
+            </div>
+
+            <h2>The Fisher-Yates Shuffle: How the Deck Gets Ordered</h2>
+
+            <p>Once you have a random seed, you need a deterministic algorithm that turns that seed into a specific deck ordering. The standard for this is the <strong>Fisher-Yates shuffle</strong> (also called the Knuth shuffle), and it has been mathematically proven to produce a uniform random permutation -- every possible deck ordering is equally likely.</p>
+
+            <p>Here is how it works:</p>
+
+            <pre class="code-block"><code><span class="code-comment">// Fisher-Yates shuffle</span>
+<span class="code-comment">// Input: deck of 52 cards, a cryptographic seed</span>
+
+<span class="code-keyword">function</span> shuffle(deck, seed) {
+    rng = createRNG(seed)  <span class="code-comment">// deterministic RNG from seed</span>
+
+    <span class="code-keyword">for</span> i = <span class="code-number">51</span> <span class="code-keyword">down to</span> <span class="code-number">1</span>:
+        j = rng.nextInt(<span class="code-number">0</span>, i)  <span class="code-comment">// random index from 0 to i</span>
+        swap(deck[i], deck[j])   <span class="code-comment">// swap cards at positions i and j</span>
+
+    <span class="code-keyword">return</span> deck
+}</code></pre>
+
+            <p>Starting from the last card and working backward, the algorithm picks a random position from the remaining unshuffled cards and swaps. After 51 swaps, you have a complete, uniformly random permutation.</p>
+
+            <p>The critical property for provable fairness is that Fisher-Yates is <strong>deterministic</strong>: given the same seed, it will always produce exactly the same deck ordering. This is what makes independent verification possible. You do not need to trust the platform's copy of the deck. You can rebuild it yourself from the seed.</p>
+
+            <div class="callout">
+                <h4>A note on RNG quality</h4>
+                <p>The seed itself needs to come from a cryptographically secure source. A 256-bit seed provides 2<sup>256</sup> possible deck orderings to choose from -- a number so large it dwarfs the total number of atoms in the observable universe. Combined with Fisher-Yates, this guarantees that the shuffle space is more than sufficient for a 52-card deck (which has 52! -- roughly 8 x 10<sup>67</sup> -- possible orderings).</p>
+            </div>
+
+            <h2>Why Blockchain Makes This Even More Trustworthy</h2>
+
+            <p>Commitment schemes work without blockchain. But blockchain adds a layer that eliminates the last remaining trust assumption: <strong>what if the platform publishes a commitment and then claims it published a different one?</strong></p>
+
+            <p>When commitments are stored on a blockchain, they become part of an immutable, publicly auditable record. The platform cannot retroactively alter or delete a commitment. Every hand gets a permanent, timestamped entry that anyone can inspect at any time.</p>
+
+            <p>This matters in three key ways:</p>
+
+            <ul>
+                <li><strong>Immutability.</strong> Once a commitment is on-chain, it cannot be changed. Not by the platform, not by anyone. The math and the consensus mechanism guarantee it.</li>
+                <li><strong>Transparency.</strong> The full history of every shuffle commitment is publicly visible. Researchers, regulators, and players can all audit the same data. No special access required.</li>
+                <li><strong>Independence.</strong> Verification does not depend on the platform being online or cooperative. Even if the platform disappeared tomorrow, the on-chain record would still exist and still be verifiable.</li>
+            </ul>
+
+            <p>Think of it as the difference between a platform keeping its own records (which it controls) versus having an independent notary stamp every shuffle commitment into a public ledger that nobody controls. Blockchain is that notary.</p>
+
+            <h2>What to Look for When Choosing a Platform</h2>
+
+            <p>Not all platforms are created equal when it comes to fairness guarantees. Here is a practical checklist for evaluating whether an online poker platform takes fairness seriously:</p>
+
+            <ul>
+                <li><strong>Does it offer provably fair verification?</strong> This is the baseline. Can you independently verify each hand after it is played? If the answer is no, you are back to trusting a black box.</li>
+                <li><strong>Is the shuffle algorithm published?</strong> A trustworthy platform should tell you exactly which shuffle algorithm it uses and how the seed is generated. Fisher-Yates with a CSPRNG (cryptographically secure pseudo-random number generator) is the gold standard.</li>
+                <li><strong>Can you access the commitment before the hand?</strong> The commitment hash should be visible to players before any cards are dealt. If you can only see it afterward, the scheme is meaningless.</li>
+                <li><strong>Is there an independent audit trail?</strong> Bonus points if commitments are stored on a public blockchain rather than solely on the platform's own servers.</li>
+                <li><strong>Is the verification tool open source?</strong> You should not need to use the platform's own tool to verify. An open-source verifier means anyone can check the code and confirm it does what it claims.</li>
+            </ul>
+
+            <p>If a platform cannot answer these questions clearly, that does not necessarily mean the game is rigged. But it does mean you have no way to prove it is not. In 2026, the technology to solve this problem exists and is production-ready. There is no good reason for a platform to <em>not</em> offer provable fairness.</p>
+
+            <hr class="article-divider">
+
+            <p>The next time someone on Reddit asks "Is this game rigged?", the real answer is: <strong>on most platforms, there is literally no way to know.</strong> Not because the games are necessarily unfair, but because the architecture does not provide any mechanism for players to verify fairness independently.</p>
+
+            <p>Provably fair technology changes the question entirely. Instead of asking "do I trust this platform?", you ask "does the math check out?" And math does not have a profit motive.</p>
+
+            <p>The technology is here. The algorithms are proven. The only question is whether players will start demanding it.</p>
+
+            <div class="article-cta">
+                <h3>Building a poker platform players can trust?</h3>
+                <p>At Nine High Studios, we build poker platforms where every shuffle can be independently verified. If you are an operator looking to build trust with your players, we would love to chat.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> ♦</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
