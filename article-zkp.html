@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Knowledge Proofs for Card Games, Explained | 9 High Studios Blog</title>
+    <meta name="description" content="How zero-knowledge proofs let poker players verify game fairness without revealing hidden cards. Mental poker protocols, commitment schemes, and practical ZKP applications explained.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Zero-Knowledge Proofs for Card Games, Explained">
+    <meta property="og:description" content="How ZKPs allow players to verify game fairness without revealing hidden information. Mental poker protocols, commitment schemes, and why most platforms don't bother.">
+    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Highlight box */
+        .highlight-box {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            color: var(--red);
+        }
+
+        .highlight-box p {
+            margin-bottom: 0.75rem;
+            font-size: 1rem !important;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight-box ul {
+            margin-bottom: 0.75rem;
+        }
+
+        .highlight-box li {
+            font-size: 0.95rem !important;
+        }
+
+        /* Steps list */
+        .steps {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+            margin-bottom: 1.5rem;
+        }
+
+        .steps li {
+            counter-increment: step-counter;
+            padding-left: 2.5rem;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0.15rem;
+            width: 28px;
+            height: 28px;
+            background: var(--red);
+            color: var(--white);
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Cryptography &amp; Research</span>
+            <h1>Zero-Knowledge Proofs for Card Games, Explained</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; February 2026 &middot; 11 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">ZKP</span>
+                <span class="article-tag">Mental Poker</span>
+                <span class="article-tag">Cryptography</span>
+                <span class="article-tag">Blockchain</span>
+                <span class="article-tag">Research</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+
+            <p class="lead">You are playing a hand of poker online. The server dealt you pocket aces. It also knows your opponent has seven-deuce off suit. The server knows the flop, the turn, and the river before anyone acts. You trust that it will not use this information. But what if it did not need to know at all? What if no single party ever saw the full deck, yet everyone could still prove the game was fair? That is the promise of zero-knowledge proofs applied to card games. It sounds impossible. It is not.</p>
+
+            <h2>What Is a Zero-Knowledge Proof? (The Poker Player Version)</h2>
+
+            <p>Forget the academic definitions for a moment. Here is the version that matters if you play cards.</p>
+
+            <p>A zero-knowledge proof is a way to convince someone that a statement is true without revealing <em>why</em> it is true. You prove you know something without showing the thing you know.</p>
+
+            <p>The classic analogy uses a cave with two paths that meet at a locked door in the middle. Alice wants to prove to Bob that she knows the secret code to open the door, but she does not want to tell Bob the code. So Bob stands at the cave entrance. Alice walks in and randomly picks a path. Then Bob shouts which path he wants her to come out of. If Alice knows the code, she can always come out the correct side -- she just opens the door and walks through if needed. If she does not know the code, she has a 50/50 chance of being on the wrong side.</p>
+
+            <p>Repeat this 100 times. If Alice comes out the correct path every single time, the probability that she is faking it is 1 in 2<sup>100</sup> -- roughly 1 in a nonillion. Bob is now convinced Alice knows the code, and he learned absolutely nothing about what the code actually is.</p>
+
+            <div class="callout">
+                <p><strong>The poker translation:</strong> A zero-knowledge proof lets you prove "I shuffled this deck fairly" without revealing the deck order. Or prove "my hand beats yours" without showing your cards. Or prove "this card was part of the original 52-card deck" without revealing which card it is. The verifier learns the statement is true, and nothing else.</p>
+            </div>
+
+            <p>Three properties define a zero-knowledge proof. <strong>Completeness:</strong> if the statement is true, an honest prover can always convince the verifier. <strong>Soundness:</strong> if the statement is false, no cheating prover can convince the verifier (except with negligible probability). <strong>Zero-knowledge:</strong> the verifier learns nothing beyond the fact that the statement is true. These are not aspirational properties. They are mathematically proven guarantees.</p>
+
+            <h2>The Trust Problem in Online Poker</h2>
+
+            <p>Every online poker hand you have ever played follows the same model. A central server generates a random seed, shuffles the deck, and deals cards to players. The server sees everything. Your hole cards, your opponent's hole cards, the board, the entire remaining deck. It is the most information-privileged entity in the game, and you are trusting it not to abuse that privilege.</p>
+
+            <p>The standard defence is a <a href="article-provably-fair.html">commitment scheme</a>: the server hashes the shuffle seed before dealing, publishes the hash, then reveals the seed after the hand so you can verify the shuffle was not changed mid-hand. That is genuinely useful. It prevents the server from altering the runout based on player actions. But it does not solve the deeper problem.</p>
+
+            <p>The deeper problem is that the server <strong>knows the entire deck order at all times</strong>. Even with a commitment scheme, the server could theoretically:</p>
+
+            <ul>
+                <li>Choose a seed that produces a favourable deck for a particular player (seed-grinding)</li>
+                <li>Share hidden card information with a colluding player</li>
+                <li>Use knowledge of undealt cards to inform other system decisions</li>
+            </ul>
+
+            <p>A commitment scheme proves the shuffle was not <em>changed</em>. It does not prove the shuffle was <em>fair</em> in the first place, and it does not prevent the server from knowing information it should not know. For that, you need a fundamentally different architecture.</p>
+
+            <h2>Mental Poker: Playing Cards Without a Trusted Dealer</h2>
+
+            <p>In 1979, Adi Shamir, Ron Rivest, and Leonard Adleman -- the inventors of RSA encryption -- published a paper asking a deceptively simple question: can two people play a fair game of poker over the phone, without a trusted third party to deal the cards?</p>
+
+            <p>The answer is yes, and the family of protocols that solve this problem is called <strong>mental poker</strong>. The core insight is elegant: instead of trusting a dealer, the players collectively shuffle and deal the deck themselves, using layered encryption so that no single player ever sees any card they are not supposed to see.</p>
+
+            <h3>How the Protocol Works</h3>
+
+            <p>Imagine three players -- Alice, Bob, and Carol -- want to play a hand of poker with no server involved. Here is the simplified protocol:</p>
+
+            <ol class="steps">
+                <li><strong>Each player generates a key pair.</strong> These are standard asymmetric encryption keys. Each player keeps their private key secret and shares their public key with the group.</li>
+                <li><strong>The deck is represented as 52 distinct tokens.</strong> Before any encryption, everyone agrees on a standard mapping: token 1 is the Ace of Spades, token 2 is the Two of Spades, and so on through all 52 cards.</li>
+                <li><strong>Alice encrypts every card with her key and shuffles.</strong> She takes the 52 tokens, encrypts each one individually with her private key, shuffles the encrypted deck into a random order, and passes it to Bob. At this point, nobody -- not even Alice -- can identify which encrypted token corresponds to which card, because Alice shuffled after encrypting.</li>
+                <li><strong>Bob encrypts every card with his key and shuffles again.</strong> Now every card has two layers of encryption (Alice's and Bob's), and the order has been randomised twice. He passes the deck to Carol.</li>
+                <li><strong>Carol does the same.</strong> Three layers of encryption, three shuffles. The deck is now thoroughly randomised and triple-encrypted.</li>
+                <li><strong>To deal a card to Alice, Bob and Carol remove their encryption from that card.</strong> They each apply their decryption key to the specific card being dealt. Alice then decrypts with her own key and sees the plaintext card. Bob and Carol cannot see it because they do not have Alice's key.</li>
+            </ol>
+
+            <p>The critical property that makes this work is <strong>commutative encryption</strong>. The encryption scheme must satisfy the property that <code>Encrypt_A(Encrypt_B(card))</code> can be decrypted by applying the keys in any order. If Bob decrypts first, then Alice decrypts, the result is the same as Alice decrypting first, then Bob. This is what allows selective decryption -- revealing specific cards to specific players without exposing anything else.</p>
+
+            <div class="flow-block">
+                <h4>Mental Poker Dealing Protocol</h4>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <strong>52 Cards</strong>
+                        <span>Plaintext tokens</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Player A</strong>
+                        <span>Encrypt + Shuffle</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Player B</strong>
+                        <span>Encrypt + Shuffle</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Player C</strong>
+                        <span>Encrypt + Shuffle</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Deal</strong>
+                        <span>Selective decrypt</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Where ZKPs Enter the Picture</h3>
+
+            <p>The mental poker protocol gets you most of the way there, but it has a gap. When Alice encrypts the deck and shuffles it, how do Bob and Carol know she actually performed a valid shuffle? What if Alice duplicated a card, removed one, or rearranged the deck in a way that benefits her?</p>
+
+            <p>This is exactly where zero-knowledge proofs come in. After Alice shuffles the encrypted deck, she generates a ZKP that proves:</p>
+
+            <ul>
+                <li>The output deck is a valid permutation of the input deck (no cards added, removed, or duplicated)</li>
+                <li>Every card was encrypted correctly with her key</li>
+                <li>The shuffle was applied to the encrypted cards, not to plaintext she peeked at</li>
+            </ul>
+
+            <p>And she proves all of this <strong>without revealing the permutation</strong>. Bob and Carol can verify the proof and be mathematically certain the shuffle was valid, without learning anything about the card order. This is the zero-knowledge property in action.</p>
+
+            <h2>Commitment Schemes and ZKPs: Working Together</h2>
+
+            <p>If you have read our article on <a href="article-provably-fair.html">provably fair shuffling</a>, you already understand commitment schemes: hash the seed before the hand, reveal it after, let players verify. ZKPs do not replace commitment schemes. They extend them into territory that commitments alone cannot reach.</p>
+
+            <h3>What Commitments Give You</h3>
+
+            <p>A commitment scheme proves the deck was not changed after the initial shuffle. This is post-hoc verification: the hand plays out, the seed is revealed, and you confirm everything matches. It works well and it is computationally cheap.</p>
+
+            <h3>What ZKPs Add</h3>
+
+            <p>ZKPs allow verification <em>during</em> the hand, without revealing hidden information. The crucial difference is what stays secret. With a commitment scheme, you eventually learn the entire deck order (after the hand). With ZKPs, you never learn more than you are supposed to know.</p>
+
+            <div class="highlight-box">
+                <h3>Commitment Scheme vs. ZKP: A Comparison</h3>
+                <ul>
+                    <li><strong>Commitment scheme:</strong> Server proves "I did not change the deck after committing." Reveals the full deck after the hand. Requires a trusted server during play.</li>
+                    <li><strong>ZKP:</strong> Any party proves "I shuffled correctly / I have a valid hand / this card is from the original deck" without revealing anything beyond that statement. No trusted server required.</li>
+                </ul>
+                <p>In practice, the most robust systems use both. Commitments for the overall hand integrity. ZKPs for the specific operations that must happen without information leakage.</p>
+            </div>
+
+            <h2>Practical ZKP Applications in Poker</h2>
+
+            <p>So far this has been somewhat abstract. Here are the concrete things ZKPs enable in a card game, with pseudocode to make them tangible.</p>
+
+            <h3>1. Proving a Fair Shuffle Without Revealing the Deck</h3>
+
+            <p>A player (or server) takes an input deck, shuffles it, and produces an output deck. The ZKP proves the output is a valid permutation of the input without revealing which permutation was applied.</p>
+
+            <pre class="code-block"><code><span class="code-comment">// Shuffle proof (simplified)</span>
+<span class="code-comment">// Prover has: input_deck, output_deck, permutation</span>
+<span class="code-comment">// Verifier has: input_deck, output_deck</span>
+
+<span class="code-keyword">function</span> proveShuffle(input_deck, permutation, randomness):
+    output_deck = applyPermutation(input_deck, permutation)
+
+    <span class="code-comment">// Generate ZK proof that:</span>
+    <span class="code-comment">//   output_deck = permutation(input_deck)</span>
+    <span class="code-comment">//   permutation is a valid permutation of [0..51]</span>
+    <span class="code-comment">// Without revealing: permutation itself</span>
+
+    proof = zkProve(
+        public:  { input_deck, output_deck },
+        private: { permutation, randomness }
+    )
+    <span class="code-keyword">return</span> { output_deck, proof }
+
+<span class="code-keyword">function</span> verifyShuffle(input_deck, output_deck, proof):
+    <span class="code-keyword">return</span> zkVerify(proof, { input_deck, output_deck })
+    <span class="code-comment">// Returns true/false. Verifier learns nothing about</span>
+    <span class="code-comment">// the permutation -- only that one exists and is valid.</span></code></pre>
+
+            <h3>2. Proving You Hold a Valid Hand Without Showing Cards</h3>
+
+            <p>At showdown, a player might need to prove their hand qualifies for a specific claim (for example, "I have a flush") without revealing the exact cards. In most poker variants you show your hand at showdown anyway, but this has applications in side-pot resolution, tournament verification, and games where partial information is strategically important.</p>
+
+            <pre class="code-block"><code><span class="code-comment">// Hand validity proof</span>
+<span class="code-comment">// Prover has: card1, card2 (hole cards), board[5]</span>
+<span class="code-comment">// Verifier has: encrypted_card1, encrypted_card2, board[5]</span>
+
+<span class="code-keyword">function</span> proveHandBeats(my_cards, board, opponent_hand_rank):
+    my_best = evaluateBestHand(my_cards, board)
+
+    proof = zkProve(
+        public:  { encrypted_cards, board, opponent_hand_rank },
+        private: { my_cards, encryption_key }
+    )
+    <span class="code-comment">// Proves: decrypt(encrypted_cards) = my_cards</span>
+    <span class="code-comment">//   AND bestHand(my_cards, board) > opponent_hand_rank</span>
+    <span class="code-comment">// Reveals: nothing about the actual cards</span>
+
+    <span class="code-keyword">return</span> proof</code></pre>
+
+            <h3>3. Proving a Card Belongs to the Deck</h3>
+
+            <p>When a community card is revealed, players need assurance that it actually came from the original shuffled deck and was not substituted. A ZKP can prove that a specific plaintext card corresponds to a specific encrypted card in the committed deck, without revealing any other card in the deck.</p>
+
+            <div class="callout">
+                <p><strong>Think of it like this:</strong> In a live game, you can see the dealer pull the top card off the deck. Online, a ZKP is the cryptographic equivalent of watching the card come off the top. You cannot see the rest of the deck, but you can verify that this card was the next one in the sequence.</p>
+            </div>
+
+            <h2>Why Most Platforms Do Not Bother</h2>
+
+            <p>If ZKPs are so powerful, why does almost no online poker platform use them? The answer is straightforward: they are hard to implement, computationally expensive, and most players do not (yet) demand them.</p>
+
+            <h3>Computational Cost</h3>
+
+            <p>Generating a zero-knowledge proof is orders of magnitude more expensive than the operation being proved. A shuffle that takes microseconds to compute might take seconds or minutes to prove in zero-knowledge. For a game where players expect sub-second response times, this is a real engineering challenge.</p>
+
+            <p>The specific numbers depend on the proof system. A SNARK (Succinct Non-interactive Argument of Knowledge) proof for a 52-card shuffle permutation involves thousands of elliptic curve multiplications. Early implementations took 10-30 seconds to generate. Modern systems have brought this down significantly, but it is still not trivial.</p>
+
+            <h3>Protocol Complexity</h3>
+
+            <p>Implementing a full mental poker protocol requires every player to participate in the shuffle, which means multiple rounds of communication before each hand. In a standard server-dealt game, dealing is instant. In a mental poker game with six players, the shuffle requires six sequential rounds of encryption and six accompanying ZKPs. Each player must be online and responsive for the entire process.</p>
+
+            <h3>The "Good Enough" Problem</h3>
+
+            <p>Most established platforms already have regulatory licenses, RNG certifications, and millions of hands of history. Their players, for the most part, accept this level of assurance. The operators have no incentive to adopt a harder, more expensive technology when the existing model is "good enough" for their current user base.</p>
+
+            <p>But "good enough" is a moving target. Ten years ago, HTTPS was optional for most websites. Now it is the baseline. The question is not whether provable fairness will become the standard in online poker. It is when.</p>
+
+            <h2>Where the Field Is Going</h2>
+
+            <p>The gap between ZKP research and practical poker applications is closing faster than most people in the industry realise. Here are the developments that matter.</p>
+
+            <h3>Real-Time ZKP Generation</h3>
+
+            <p>Proof generation times are dropping dramatically. Groth16, the proof system used in Zcash, can generate proofs for moderately complex circuits in under a second on consumer hardware. Newer systems like PLONK and Halo 2 offer different tradeoffs -- slightly larger proofs but no trusted setup requirement, which matters enormously for a decentralised game.</p>
+
+            <p>The milestone to watch for is sub-100-millisecond shuffle proofs. Once you can generate a ZKP for a 52-card shuffle permutation in less time than a typical network round trip, the performance argument against mental poker largely disappears. Several teams are actively working toward this.</p>
+
+            <h3>On-Chain Verification</h3>
+
+            <p>Verifying a ZKP is already fast and cheap. A SNARK proof can be verified on Ethereum in roughly 200,000 gas -- about the cost of a simple token transfer. This means every hand of poker can be settled on-chain with cryptographic proof that the game was fair, at a cost that is commercially viable.</p>
+
+            <p>The architecture that is emerging looks like this: the game plays out off-chain (for speed), but the proofs are posted on-chain (for permanence). Players interact in real time, and the blockchain serves as the final arbiter. If there is ever a dispute, the on-chain proofs are authoritative and publicly verifiable.</p>
+
+            <div class="flow-block">
+                <h4>Hybrid Architecture: Off-Chain Play, On-Chain Proof</h4>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <strong>Game Play</strong>
+                        <span>Off-chain (fast)</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Generate Proofs</strong>
+                        <span>ZKP per hand</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Post On-Chain</strong>
+                        <span>Immutable record</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Anyone Verifies</strong>
+                        <span>Public, permanent</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Recursive Proofs and Batching</h3>
+
+            <p>One of the most exciting developments is recursive proof composition -- a ZKP that proves the validity of other ZKPs. Instead of posting one proof per hand, a platform could generate a single proof that attests to the fairness of an entire session, an entire tournament, or even an entire day of play. This compresses the on-chain footprint while maintaining the same guarantees.</p>
+
+            <p>Imagine a 10,000-hand online tournament where a single proof, verifiable by anyone in milliseconds, attests that every shuffle, every deal, and every pot award was correct. That is not science fiction. The cryptographic primitives exist today. The engineering is catching up.</p>
+
+            <h3>Client-Side Proving</h3>
+
+            <p>As WebAssembly matures and devices get faster, proof generation is moving into the browser. A player's own device generates the ZKP for their portion of the protocol, eliminating the need to trust any server at all. Each player is simultaneously a participant and a verifier. The game becomes truly peer-to-peer, with mathematics as the only authority.</p>
+
+            <h2>What This Means for Poker Players</h2>
+
+            <p>If you are a poker player and you have made it this far, you might be wondering: do I need to understand all of this to play?</p>
+
+            <p>No. Just like you do not need to understand TLS handshakes to safely use online banking, you will not need to understand elliptic curve pairings to play on a ZKP-secured poker platform. The cryptography runs under the hood. What changes is the trust model.</p>
+
+            <p>Today, you trust the platform. Tomorrow, you trust the math. The difference is that the math cannot be bribed, cannot collude, cannot have a conflict of interest, and cannot change the rules after the fact. It either checks out or it does not.</p>
+
+            <p>For the poker community specifically:</p>
+
+            <ul>
+                <li><strong>Grinders and volume players</strong> get verifiable proof that every hand in their database was dealt fairly, not just a statistical argument from a large sample.</li>
+                <li><strong>High-stakes players</strong> get the strongest possible guarantee against platform-side manipulation, which matters when six and seven figures are on the line.</li>
+                <li><strong>Home game operators</strong> can run games where no single person -- not even the host -- has access to hidden cards or can influence the deal.</li>
+                <li><strong>Regulators and jurisdictions</strong> get a compliance mechanism that is mathematically airtight rather than relying on periodic audits that sample a fraction of hands.</li>
+            </ul>
+
+            <p>The technology is not fully deployed at scale yet. But the trajectory is clear. The same cryptographic techniques that made cryptocurrency possible are now being applied to the oldest card game in the world. The result will be online poker where "is this rigged?" is not a question of trust or reputation. It is a question with a verifiable, mathematical answer.</p>
+
+            <div class="article-cta">
+                <h3>Interested in provably fair poker infrastructure?</h3>
+                <p>We are building Block 52 with ZKP-ready architecture from the ground up. If you are working on a poker platform and want to talk about what is possible, we would like to hear from you.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch &#9830;</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

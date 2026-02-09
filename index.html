@@ -10,8 +10,48 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="9 High Studios | Poker Software Development">
     <meta property="og:description" content="We build secure, provably fair poker platforms for operators and clubs. White-label ready. Built in Australia.">
-    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta property="og:image" content="https://9highstudios.com/og-image.svg">
     <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "9 High Studios",
+        "alternateName": "Nine High Studios",
+        "url": "https://9highstudios.com",
+        "logo": "https://9highstudios.com/og-image.svg",
+        "description": "We build secure, provably fair poker platforms for operators and clubs. White-label ready. Built in Australia.",
+        "email": "hello@9highstudios.com",
+        "areaServed": "Worldwide",
+        "foundingLocation": {
+            "@type": "Place",
+            "name": "Queensland, Australia"
+        },
+        "knowsAbout": ["Poker Software", "Blockchain", "Provably Fair Gaming", "White-label Platforms", "Zero-Knowledge Proofs"],
+        "makesOffer": [
+            {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "SoftwareApplication",
+                    "name": "Block 52",
+                    "applicationCategory": "GameApplication",
+                    "operatingSystem": "Web, iOS, Android",
+                    "description": "Decentralised poker engine with provably fair card shuffling, real-time multiplayer, and tournament management."
+                }
+            },
+            {
+                "@type": "Offer",
+                "itemOffered": {
+                    "@type": "Service",
+                    "name": "White-label Poker Platform Development",
+                    "description": "Custom-branded poker platforms for operators and clubs, built from the ground up."
+                }
+            }
+        ]
+    }
+    </script>
 
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♦</text></svg>">
@@ -100,34 +140,162 @@
             align-items: center;
             text-align: center;
             padding: 2rem;
-            background: var(--white);
+            background: var(--charcoal);
             position: relative;
             overflow: hidden;
         }
 
+        /* Hero network background */
+        .hero-network-bg {
+            position: absolute;
+            inset: -20px;
+            z-index: 0;
+            opacity: 0.35;
+            transition: transform 0.15s ease-out;
+            transform: scale(1.05);
+        }
+
+        .hero-network-bg .network-lines {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-network-bg .network-lines line {
+            stroke: var(--red);
+            stroke-width: 0.4;
+            opacity: 0.4;
+        }
+
+        .hero-network-bg .network-lines .line-pulse {
+            stroke: var(--red);
+            stroke-width: 0.6;
+            opacity: 0;
+            animation: heroLinePulse 4s ease-in-out infinite;
+        }
+
+        .hero-network-bg .line-pulse:nth-child(8) { animation-delay: 0.4s; }
+        .hero-network-bg .line-pulse:nth-child(9) { animation-delay: 0.9s; }
+        .hero-network-bg .line-pulse:nth-child(10) { animation-delay: 1.4s; }
+        .hero-network-bg .line-pulse:nth-child(11) { animation-delay: 1.9s; }
+        .hero-network-bg .line-pulse:nth-child(12) { animation-delay: 2.4s; }
+        .hero-network-bg .line-pulse:nth-child(13) { animation-delay: 0.7s; }
+        .hero-network-bg .line-pulse:nth-child(14) { animation-delay: 1.7s; }
+
+        @keyframes heroLinePulse {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.6; }
+        }
+
+        .hero-node {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(196, 30, 58, 0.15);
+            border: 1px solid rgba(196, 30, 58, 0.3);
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .hero-node::after {
+            content: "";
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1px solid rgba(196, 30, 58, 0.1);
+            animation: heroNodeRing 4s ease-in-out infinite;
+        }
+
+        @keyframes heroNodeRing {
+            0%, 100% { transform: scale(1); opacity: 0.2; }
+            50% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .hero-node.h-center {
+            width: 90px;
+            height: 90px;
+            font-size: 2rem;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(196, 30, 58, 0.2);
+            border: 2px solid rgba(196, 30, 58, 0.4);
+            color: rgba(255, 255, 255, 0.3);
+            animation: heroCenterGlow 5s ease-in-out infinite;
+        }
+
+        @keyframes heroCenterGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(196, 30, 58, 0.1); }
+            50% { box-shadow: 0 0 80px rgba(196, 30, 58, 0.25); }
+        }
+
+        .hero-node.h-outer {
+            width: 52px;
+            height: 52px;
+            font-size: 1.2rem;
+            animation: heroNodeFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes heroNodeFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .hero-node.h-small {
+            width: 30px;
+            height: 30px;
+            font-size: 0.6rem;
+            border-width: 1px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-node.h-small::after { display: none; }
+
+        /* Hero node positions — spread across full viewport */
+        .hn-1 { top: 15%; left: 12%; animation-delay: 0s; }
+        .hn-2 { top: 8%; left: 55%; animation-delay: 1.2s; }
+        .hn-3 { top: 45%; left: 85%; animation-delay: 2.4s; }
+        .hn-4 { top: 78%; left: 72%; animation-delay: 0.6s; }
+        .hn-5 { top: 75%; left: 20%; animation-delay: 1.8s; }
+        .hn-6 { top: 38%; left: 5%; animation-delay: 3s; }
+        .hn-s1 { top: 5%; left: 35%; }
+        .hn-s2 { top: 25%; left: 93%; }
+        .hn-s3 { top: 90%; left: 45%; }
+        .hn-s4 { top: 60%; left: 2%; }
+        .hn-s5 { top: 88%; left: 90%; }
+
+        /* Radial gradient overlay for depth */
         .hero::before {
             content: "";
             position: absolute;
-            top: -50%;
-            right: -20%;
-            width: 80%;
-            height: 150%;
-            background: linear-gradient(135deg, var(--red) 0%, var(--red-light) 100%);
-            opacity: 0.03;
-            border-radius: 50%;
-            transform: rotate(-15deg);
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--charcoal) 70%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Hero content floats above everything */
+        .hero-content {
+            position: relative;
+            z-index: 2;
         }
 
         .hero-badge {
             display: inline-block;
             padding: 0.5rem 1.25rem;
-            background: var(--red);
+            background: rgba(196, 30, 58, 0.15);
+            border: 1px solid rgba(196, 30, 58, 0.4);
             border-radius: 2rem;
             font-size: 0.85rem;
-            color: var(--white);
+            color: var(--red-light);
             margin-bottom: 2rem;
             letter-spacing: 0.1em;
             text-transform: uppercase;
+            backdrop-filter: blur(4px);
         }
 
         .hero h1 {
@@ -135,17 +303,17 @@
             font-weight: 200;
             letter-spacing: -0.02em;
             margin-bottom: 1.5rem;
-            color: var(--charcoal);
+            color: var(--white);
         }
 
         .hero h1 strong {
             font-weight: 700;
-            color: var(--red);
+            color: var(--red-light);
         }
 
         .hero-subtitle {
             font-size: 1.25rem;
-            color: var(--dark-gray);
+            color: rgba(255, 255, 255, 0.6);
             max-width: 600px;
             margin-bottom: 3rem;
         }
@@ -181,13 +349,13 @@
 
         .btn-secondary {
             background: transparent;
-            color: var(--charcoal);
-            border: 1px solid var(--mid-gray);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .btn-secondary:hover {
-            border-color: var(--charcoal);
-            background: var(--light-gray);
+            border-color: var(--white);
+            background: rgba(255, 255, 255, 0.1);
         }
 
         /* Product Section */
@@ -254,7 +422,7 @@
         }
 
         .product-visual {
-            background: #0d0d0d;
+            background: var(--charcoal);
             border-radius: 12px;
             padding: 2rem;
             display: flex;
@@ -266,179 +434,183 @@
             overflow: hidden;
         }
 
-        /* Subtle grid background */
+        /* Subtle grid bg */
         .product-visual::before {
             content: "";
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(196,30,58,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(196,30,58,0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(196,30,58,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(196,30,58,0.04) 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
-        /* Decentralised Network Animation */
-        .network-visual {
+        /* Product Showcase */
+        .product-showcase {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 0.8rem;
+            padding: 2rem;
             position: relative;
-            width: 100%;
-            height: 100%;
             z-index: 1;
         }
 
-        /* SVG lines connecting the nodes */
-        .network-lines {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .network-lines line {
-            stroke: var(--red);
-            stroke-width: 1.5;
-            opacity: 0.3;
-        }
-
-        .network-lines .line-pulse {
-            stroke: var(--red);
-            stroke-width: 2;
-            opacity: 0;
-            animation: linePulse 3s ease-in-out infinite;
-        }
-
-        .network-lines .line-pulse:nth-child(2) { animation-delay: 0.5s; }
-        .network-lines .line-pulse:nth-child(4) { animation-delay: 1s; }
-        .network-lines .line-pulse:nth-child(6) { animation-delay: 1.5s; }
-        .network-lines .line-pulse:nth-child(8) { animation-delay: 2s; }
-        .network-lines .line-pulse:nth-child(10) { animation-delay: 2.5s; }
-        .network-lines .line-pulse:nth-child(12) { animation-delay: 0.8s; }
-        .network-lines .line-pulse:nth-child(14) { animation-delay: 1.8s; }
-
-        @keyframes linePulse {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 0.7; }
-        }
-
-        /* Network Nodes */
-        .net-node {
-            position: absolute;
+        /* Pulsing diamond icon with orbit ring */
+        .showcase-icon-wrap {
+            position: relative;
+            width: 120px;
+            height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            background: #1a1a1a;
-            border: 2px solid var(--red);
-            color: var(--white);
-            font-weight: 700;
-            z-index: 2;
-            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
         }
 
-        .net-node::after {
+        .showcase-icon {
+            font-size: 3.5rem;
+            color: var(--red);
+            line-height: 1;
+            animation: diamondPulse 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(196, 30, 58, 0.6));
+            z-index: 2;
+        }
+
+        @keyframes diamondPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(196, 30, 58, 0.4)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 35px rgba(196, 30, 58, 0.7)); }
+        }
+
+        /* Orbiting ring */
+        .orbit-ring {
+            position: absolute;
+            inset: 0;
+            border: 1.5px solid rgba(196, 30, 58, 0.2);
+            border-radius: 50%;
+            animation: orbitSpin 12s linear infinite;
+        }
+
+        .orbit-ring::before {
             content: "";
             position: absolute;
-            inset: -6px;
-            border-radius: 50%;
-            border: 1px solid rgba(196,30,58,0.2);
-            animation: nodeRing 3s ease-in-out infinite;
-        }
-
-        @keyframes nodeRing {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.3); opacity: 0; }
-        }
-
-        .net-node:hover {
-            background: var(--red);
-            transform: scale(1.15);
-            box-shadow: 0 0 30px rgba(196,30,58,0.5);
-        }
-
-        /* Center node — largest */
-        .net-node.center {
-            width: 70px;
-            height: 70px;
-            font-size: 1.6rem;
+            top: -4px;
             left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
             background: var(--red);
-            border-color: var(--red-light);
-            box-shadow: 0 0 40px rgba(196,30,58,0.4);
-            animation: centerGlow 4s ease-in-out infinite;
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(196, 30, 58, 0.8);
+            transform: translateX(-50%);
         }
 
-        .net-node.center:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        @keyframes centerGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(196,30,58,0.3); }
-            50% { box-shadow: 0 0 60px rgba(196,30,58,0.6); }
-        }
-
-        /* Outer nodes */
-        .net-node.outer {
-            width: 48px;
-            height: 48px;
-            font-size: 1.1rem;
-        }
-
-        /* Small peripheral nodes */
-        .net-node.small {
-            width: 28px;
-            height: 28px;
-            font-size: 0.65rem;
-            border-width: 1.5px;
-            color: #aaa;
-        }
-
-        .net-node.small::after {
-            display: none;
-        }
-
-        /* Node positions — spread around the center */
-        .node-1 { top: 12%; left: 18%; animation-delay: 0.2s; }
-        .node-2 { top: 8%; left: 58%; animation-delay: 0.5s; }
-        .node-3 { top: 42%; left: 82%; animation-delay: 0.8s; }
-        .node-4 { top: 75%; left: 68%; animation-delay: 1.1s; }
-        .node-5 { top: 72%; left: 22%; animation-delay: 1.4s; }
-        .node-6 { top: 35%; left: 8%; animation-delay: 1.7s; }
-
-        /* Small peripheral nodes */
-        .node-s1 { top: 5%; left: 38%; }
-        .node-s2 { top: 22%; left: 92%; }
-        .node-s3 { top: 88%; left: 48%; }
-        .node-s4 { top: 55%; left: 3%; }
-        .node-s5 { top: 90%; left: 85%; }
-
-        .net-node.outer { animation: nodeFloat 6s ease-in-out infinite; }
-
-        @keyframes nodeFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        .node-1 { animation-delay: 0s; }
-        .node-2 { animation-delay: 1s; }
-        .node-3 { animation-delay: 2s; }
-        .node-4 { animation-delay: 3s; }
-        .node-5 { animation-delay: 4s; }
-        .node-6 { animation-delay: 5s; }
-
-        /* Tagline below network */
-        .network-label {
+        .orbit-ring-2 {
             position: absolute;
-            bottom: 1.2rem;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 0.75rem;
+            inset: -15px;
+            border: 1px solid rgba(196, 30, 58, 0.1);
+            border-radius: 50%;
+            animation: orbitSpin 18s linear infinite reverse;
+        }
+
+        .orbit-ring-2::before {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: var(--red-light);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(196, 30, 58, 0.6);
+            transform: translateX(-50%);
+        }
+
+        @keyframes orbitSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .showcase-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--white);
+            letter-spacing: 0.05em;
+        }
+
+        .showcase-tagline {
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.15em;
             color: rgba(255,255,255,0.4);
             font-weight: 600;
-            z-index: 3;
+        }
+
+        /* Animated stat items */
+        .showcase-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            animation: statFadeUp 0.6s ease-out both;
+        }
+
+        .stat-item:nth-child(1) { animation-delay: 0.2s; }
+        .stat-item:nth-child(2) { animation-delay: 0.4s; }
+        .stat-item:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes statFadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--red-light);
+            text-shadow: 0 0 10px rgba(196, 30, 58, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* Floating data particles */
+        .data-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--red);
+            border-radius: 50%;
+            opacity: 0;
+            animation: particleFloat 4s ease-in-out infinite;
+        }
+
+        .data-particle:nth-child(1) { left: 15%; top: 80%; animation-delay: 0s; }
+        .data-particle:nth-child(2) { left: 85%; top: 70%; animation-delay: 0.8s; }
+        .data-particle:nth-child(3) { left: 25%; top: 20%; animation-delay: 1.6s; }
+        .data-particle:nth-child(4) { left: 75%; top: 30%; animation-delay: 2.4s; }
+        .data-particle:nth-child(5) { left: 50%; top: 85%; animation-delay: 3.2s; }
+        .data-particle:nth-child(6) { left: 10%; top: 50%; animation-delay: 1.2s; }
+        .data-particle:nth-child(7) { left: 90%; top: 50%; animation-delay: 2s; }
+        .data-particle:nth-child(8) { left: 40%; top: 10%; animation-delay: 2.8s; }
+
+        @keyframes particleFloat {
+            0% { opacity: 0; transform: translateY(0) scale(1); }
+            20% { opacity: 0.6; }
+            80% { opacity: 0.6; }
+            100% { opacity: 0; transform: translateY(-40px) scale(0.5); }
         }
 
         /* Features Section */
@@ -1578,16 +1750,147 @@
             transform: translateY(-3px);
         }
 
-        /* Scroll animations */
+        /* ============================================
+           SCROLL & MOUSE ANIMATIONS
+           ============================================ */
+
+        /* Base fade-in */
         .fade-in {
             opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .fade-in.visible {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        /* Slide from left */
+        .slide-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Slide from right */
+        .slide-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Scale up reveal */
+        .scale-in {
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .scale-in.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Staggered children animation */
+        .stagger-children > * {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .stagger-children.visible > *:nth-child(1) { transition-delay: 0.05s; opacity: 1; transform: translateY(0); }
+        .stagger-children.visible > *:nth-child(2) { transition-delay: 0.12s; opacity: 1; transform: translateY(0); }
+        .stagger-children.visible > *:nth-child(3) { transition-delay: 0.19s; opacity: 1; transform: translateY(0); }
+        .stagger-children.visible > *:nth-child(4) { transition-delay: 0.26s; opacity: 1; transform: translateY(0); }
+        .stagger-children.visible > *:nth-child(5) { transition-delay: 0.33s; opacity: 1; transform: translateY(0); }
+        .stagger-children.visible > *:nth-child(6) { transition-delay: 0.40s; opacity: 1; transform: translateY(0); }
+
+        /* 3D tilt card effect (applied via JS) */
+        .tilt-card {
+            transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .tilt-card:hover {
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Once visible, allow tilt to take over transform */
+        .tilt-card.visible {
+            opacity: 1;
+        }
+
+        /* Mouse spotlight overlay for dark sections */
+        .mouse-spotlight {
+            position: relative;
+        }
+
+        .spotlight-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(196, 30, 58, 0.06), transparent 40%);
+        }
+
+        .mouse-spotlight:hover .spotlight-overlay {
+            opacity: 1;
+        }
+
+        /* Scroll-triggered text reveal */
+        .text-reveal {
+            overflow: hidden;
+        }
+
+        .text-reveal > * {
+            transform: translateY(100%);
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .text-reveal.visible > * {
+            transform: translateY(0);
+        }
+
+        /* Parallax section layer (controlled via JS) */
+        .parallax-layer {
+            will-change: transform;
+            transition: transform 0.05s linear;
+        }
+
+        /* Nav shrink on scroll */
+        nav.scrolled {
+            padding: 0.8rem 5%;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        nav {
+            transition: padding 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Hero content - smooth mouse + scroll transitions */
+        .hero-content {
+            transition: opacity 0.15s ease-out, transform 0.15s ease-out;
+        }
+
+        /* Reduce motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         /* Responsive */
@@ -1667,19 +1970,71 @@
 
     <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
 
-    <section class="hero">
-        <span class="hero-badge">Australia's Poker Software Studio</span>
-        <h1>We build <strong>poker software</strong></h1>
-        <p class="hero-subtitle">Secure, provably fair poker platforms for operators and clubs. White-label ready, built from the ground up.</p>
-        <div class="cta-group">
-            <a href="#product" class="btn btn-primary">Discover Block 52</a>
-            <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+    <section class="hero mouse-spotlight">
+        <div class="spotlight-overlay"></div>
+        <!-- Animated network background -->
+        <div class="hero-network-bg parallax-layer" data-speed="0.02">
+            <svg class="network-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <!-- Static dim lines from center -->
+                <line x1="50" y1="50" x2="12" y2="15" />
+                <line x1="50" y1="50" x2="55" y2="8" />
+                <line x1="50" y1="50" x2="85" y2="45" />
+                <line x1="50" y1="50" x2="72" y2="78" />
+                <line x1="50" y1="50" x2="20" y2="75" />
+                <line x1="50" y1="50" x2="5" y2="38" />
+                <!-- Outer ring connections -->
+                <line x1="12" y1="15" x2="55" y2="8" />
+                <line x1="55" y1="8" x2="85" y2="45" />
+                <line x1="85" y1="45" x2="72" y2="78" />
+                <line x1="72" y1="78" x2="20" y2="75" />
+                <line x1="20" y1="75" x2="5" y2="38" />
+                <line x1="5" y1="38" x2="12" y2="15" />
+                <!-- Peripheral lines -->
+                <line x1="12" y1="15" x2="35" y2="5" />
+                <line x1="55" y1="8" x2="93" y2="25" />
+                <line x1="72" y1="78" x2="90" y2="90" />
+                <line x1="20" y1="75" x2="45" y2="90" />
+                <line x1="5" y1="38" x2="2" y2="60" />
+                <!-- Pulse overlay lines -->
+                <line class="line-pulse" x1="50" y1="50" x2="12" y2="15" />
+                <line class="line-pulse" x1="50" y1="50" x2="85" y2="45" />
+                <line class="line-pulse" x1="50" y1="50" x2="20" y2="75" />
+                <line class="line-pulse" x1="12" y1="15" x2="55" y2="8" />
+                <line class="line-pulse" x1="85" y1="45" x2="72" y2="78" />
+                <line class="line-pulse" x1="20" y1="75" x2="5" y2="38" />
+                <line class="line-pulse" x1="50" y1="50" x2="55" y2="8" />
+            </svg>
+
+            <!-- Background nodes -->
+            <div class="hero-node h-center">52</div>
+            <div class="hero-node h-outer hn-1">♠</div>
+            <div class="hero-node h-outer hn-2">♥</div>
+            <div class="hero-node h-outer hn-3">♦</div>
+            <div class="hero-node h-outer hn-4">♣</div>
+            <div class="hero-node h-outer hn-5">♠</div>
+            <div class="hero-node h-outer hn-6">♥</div>
+            <div class="hero-node h-small hn-s1">P2P</div>
+            <div class="hero-node h-small hn-s2">ZK</div>
+            <div class="hero-node h-small hn-s3">TX</div>
+            <div class="hero-node h-small hn-s4">RNG</div>
+            <div class="hero-node h-small hn-s5">NET</div>
+        </div>
+
+        <!-- Hero content -->
+        <div class="hero-content">
+            <span class="hero-badge">Australia's Poker Software Studio</span>
+            <h1>We build <strong>poker software</strong></h1>
+            <p class="hero-subtitle">Secure, provably fair poker platforms for operators and clubs. White-label ready, built from the ground up.</p>
+            <div class="cta-group">
+                <a href="#product" class="btn btn-primary">Discover Block 52</a>
+                <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+            </div>
         </div>
     </section>
 
     <section id="product" class="product">
-        <div class="product-grid fade-in">
-            <div class="product-content">
+        <div class="product-grid">
+            <div class="product-content slide-left">
                 <span class="section-label">Flagship Product</span>
                 <h2>Introducing <strong>Block 52</strong></h2>
                 <p>A next-generation poker platform built from the ground up with modern architecture, provably fair mechanics, and seamless multiplayer experiences.</p>
@@ -1690,62 +2045,33 @@
                     <li>Cross-platform compatibility</li>
                     <li>Advanced hand history and analytics</li>
                 </ul>
-                <a href="#contact" class="btn btn-primary">Request Demo</a>
+                <a href="contact.html" class="btn btn-primary">Request Demo</a>
             </div>
-            <div class="product-visual">
-                <div class="network-visual">
-                    <!-- SVG connection lines -->
-                    <svg class="network-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <!-- Static dim lines -->
-                        <line x1="50" y1="50" x2="20" y2="16" />
-                        <line x1="50" y1="50" x2="60" y2="12" />
-                        <line x1="50" y1="50" x2="84" y2="46" />
-                        <line x1="50" y1="50" x2="70" y2="79" />
-                        <line x1="50" y1="50" x2="24" y2="76" />
-                        <line x1="50" y1="50" x2="10" y2="39" />
-                        <!-- Cross connections -->
-                        <line x1="20" y1="16" x2="60" y2="12" />
-                        <line x1="60" y1="12" x2="84" y2="46" />
-                        <line x1="84" y1="46" x2="70" y2="79" />
-                        <line x1="70" y1="79" x2="24" y2="76" />
-                        <line x1="24" y1="76" x2="10" y2="39" />
-                        <line x1="10" y1="39" x2="20" y2="16" />
-                        <!-- Peripheral lines -->
-                        <line x1="20" y1="16" x2="40" y2="9" />
-                        <line x1="60" y1="12" x2="94" y2="26" />
-                        <line x1="70" y1="79" x2="87" y2="89" />
-                        <line x1="24" y1="76" x2="50" y2="92" />
-                        <line x1="10" y1="39" x2="5" y2="59" />
-                        <!-- Pulse overlay lines (animated) -->
-                        <line class="line-pulse" x1="50" y1="50" x2="20" y2="16" />
-                        <line class="line-pulse" x1="50" y1="50" x2="84" y2="46" />
-                        <line class="line-pulse" x1="50" y1="50" x2="24" y2="76" />
-                        <line class="line-pulse" x1="20" y1="16" x2="60" y2="12" />
-                        <line class="line-pulse" x1="84" y1="46" x2="70" y2="79" />
-                        <line class="line-pulse" x1="24" y1="76" x2="10" y2="39" />
-                        <line class="line-pulse" x1="50" y1="50" x2="60" y2="12" />
-                        <line class="line-pulse" x1="50" y1="50" x2="70" y2="79" />
-                    </svg>
+            <div class="product-visual tilt-card scale-in">
+                <!-- Floating particles -->
+                <div class="data-particle"></div>
+                <div class="data-particle"></div>
+                <div class="data-particle"></div>
+                <div class="data-particle"></div>
+                <div class="data-particle"></div>
+                <div class="data-particle"></div>
+                <div class="data-particle"></div>
+                <div class="data-particle"></div>
 
-                    <!-- Center node -->
-                    <div class="net-node center">52</div>
-
-                    <!-- Outer suit nodes -->
-                    <div class="net-node outer node-1">♠</div>
-                    <div class="net-node outer node-2">♥</div>
-                    <div class="net-node outer node-3">♦</div>
-                    <div class="net-node outer node-4">♣</div>
-                    <div class="net-node outer node-5">♠</div>
-                    <div class="net-node outer node-6">♥</div>
-
-                    <!-- Small peripheral nodes -->
-                    <div class="net-node small node-s1">P2P</div>
-                    <div class="net-node small node-s2">ZK</div>
-                    <div class="net-node small node-s3">TX</div>
-                    <div class="net-node small node-s4">RNG</div>
-                    <div class="net-node small node-s5">NET</div>
+                <div class="product-showcase">
+                    <div class="showcase-icon-wrap">
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-ring-2"></div>
+                        <div class="showcase-icon">♦</div>
+                    </div>
+                    <div class="showcase-title">Block 52</div>
+                    <div class="showcase-tagline">Decentralised Poker Engine</div>
+                    <div class="showcase-stats">
+                        <div class="stat-item"><span class="stat-value">&lt;100ms</span><span class="stat-label">Latency</span></div>
+                        <div class="stat-item"><span class="stat-value">ZK</span><span class="stat-label">Verified</span></div>
+                        <div class="stat-item"><span class="stat-value">P2P</span><span class="stat-label">Network</span></div>
+                    </div>
                 </div>
-                <span class="network-label">Decentralised Poker Network</span>
             </div>
         </div>
     </section>
@@ -1755,7 +2081,7 @@
             <span class="section-label">Why Choose Us</span>
             <h2>Built by poker players, for poker players</h2>
         </div>
-        <div class="features-grid fade-in">
+        <div class="features-grid stagger-children">
             <div class="feature-card">
                 <div class="feature-icon">⚡</div>
                 <h3>Lightning Fast</h3>
@@ -1789,7 +2115,8 @@
         </div>
     </section>
 
-    <section id="philosophy" class="philosophy">
+    <section id="philosophy" class="philosophy mouse-spotlight">
+        <div class="spotlight-overlay"></div>
         <div class="philosophy-content fade-in">
             <span class="section-label">Player First</span>
             <h2>Built at the felt, not in a boardroom</h2>
@@ -1839,7 +2166,7 @@
             <h2>Open source tools for the community</h2>
             <p class="opensource-intro">We believe in building in public. These packages power our products and are free for everyone to use.</p>
         </div>
-        <div class="opensource-grid fade-in">
+        <div class="opensource-grid stagger-children">
             <div class="package-card">
                 <div class="package-header">
                     <span class="package-icon">📦</span>
@@ -2090,7 +2417,7 @@ deck.shuffle(seed);
         <h2>Built for the <strong>poker industry</strong></h2>
         <p>Whether you're running a home game or a full-scale operation, we build the platform to match.</p>
 
-        <div class="clients-grid">
+        <div class="clients-grid stagger-children">
             <div class="client-card">
                 <div class="card-icon">♣</div>
                 <h3>Poker Club Operators</h3>
@@ -2114,12 +2441,13 @@ deck.shuffle(seed);
         </div>
     </section>
 
-    <section id="process" class="process fade-in">
+    <section id="process" class="process fade-in mouse-spotlight">
+        <div class="spotlight-overlay"></div>
         <span class="section-label" style="color: var(--red);">How It Works</span>
         <h2>From idea to <strong>live tables</strong></h2>
         <p>Simple, transparent process. No surprises.</p>
 
-        <div class="process-steps">
+        <div class="process-steps stagger-children">
             <div class="process-step">
                 <div class="step-number">1</div>
                 <h3>Get in Touch</h3>
@@ -2198,7 +2526,7 @@ deck.shuffle(seed);
             <li><a href="terms.html">Terms</a></li>
             <li><a href="privacy.html">Privacy</a></li>
         </ul>
-        <span class="copyright">© <span id="year"></span> 9 High Studios. All rights reserved.</span>
+        <span class="copyright">© <span id="year"></span> 9 High Studios. All rights reserved. 🇦🇺 Built in Australia.</span>
     </footer>
 
     <script>
@@ -2214,7 +2542,6 @@ deck.shuffle(seed);
             navLinks.classList.toggle('active');
         });
 
-        // Close menu when clicking a link
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 menuToggle.classList.remove('active');
@@ -2225,11 +2552,68 @@ deck.shuffle(seed);
         // Back to top button
         const backToTop = document.getElementById('backToTop');
 
+        // ============================================
+        // SCROLL ANIMATIONS
+        // ============================================
+
+        // Observe all animated elements
+        const animatedEls = document.querySelectorAll('.fade-in, .slide-left, .slide-right, .scale-in, .stagger-children');
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        animatedEls.forEach(el => scrollObserver.observe(el));
+
+        // Nav shrink + back to top + hero parallax on scroll
+        const heroContent = document.querySelector('.hero-content');
+        const heroSection = document.querySelector('.hero');
+        const navEl = document.querySelector('nav');
+
+        let ticking = false;
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 500) {
-                backToTop.classList.add('visible');
-            } else {
-                backToTop.classList.remove('visible');
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+
+                    // Nav shrink
+                    if (scrollY > 80) {
+                        navEl.classList.add('scrolled');
+                    } else {
+                        navEl.classList.remove('scrolled');
+                    }
+
+                    // Back to top
+                    if (scrollY > 500) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+
+                    // Hero content fade-out on scroll
+                    if (heroContent && heroSection) {
+                        const heroH = heroSection.offsetHeight;
+                        const progress = Math.min(scrollY / heroH, 1);
+                        heroContent.style.opacity = 1 - progress * 1.5;
+                        // Only apply scroll transform if we've actually scrolled
+                        if (scrollY > 5) {
+                            heroContent.style.transform = `translateY(${scrollY * 0.3}px)`;
+                        }
+                    }
+
+                    // Parallax the hero network bg on scroll too
+                    if (heroNetworkBg && heroSection) {
+                        const heroH = heroSection.offsetHeight;
+                        const progress = Math.min(scrollY / heroH, 1);
+                        heroNetworkBg.style.opacity = 0.35 - progress * 0.3;
+                    }
+
+                    ticking = false;
+                });
+                ticking = true;
             }
         });
 
@@ -2237,19 +2621,129 @@ deck.shuffle(seed);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // Scroll fade-in animations
-        const fadeElements = document.querySelectorAll('.fade-in');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
+        // ============================================
+        // MOUSE PARALLAX ON HERO
+        // ============================================
+
+        const heroNetworkBg = document.querySelector('.hero-network-bg');
+
+        if (heroSection) {
+            heroSection.addEventListener('mousemove', (e) => {
+                const rect = heroSection.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+                // Move entire network background — creates depth
+                if (heroNetworkBg) {
+                    heroNetworkBg.style.transform = `translate(${x * 25}px, ${y * 25}px) scale(1.05)`;
+                }
+
+                // Subtle content shift (opposite direction for parallax depth)
+                if (heroContent) {
+                    heroContent.style.transform = `translate(${x * -8}px, ${y * -8}px)`;
                 }
             });
-        }, { threshold: 0.1 });
 
-        fadeElements.forEach(el => observer.observe(el));
+            heroSection.addEventListener('mouseleave', () => {
+                if (heroNetworkBg) {
+                    heroNetworkBg.style.transform = 'translate(0, 0) scale(1.05)';
+                }
+                if (heroContent) {
+                    heroContent.style.transform = '';
+                }
+            });
+        }
 
-        // Contact form validation — require at least one contact method
+        // ============================================
+        // MOUSE SPOTLIGHT ON DARK SECTIONS
+        // ============================================
+
+        document.querySelectorAll('.mouse-spotlight').forEach(section => {
+            section.addEventListener('mousemove', (e) => {
+                const rect = section.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                section.style.setProperty('--mouse-x', `${x}px`);
+                section.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // ============================================
+        // 3D TILT ON PRODUCT CARD
+        // ============================================
+
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+                const tiltX = (y - 0.5) * 10;  // -5 to 5 degrees
+                const tiltY = (x - 0.5) * -10;
+                card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            });
+        });
+
+        // ============================================
+        // MAGNETIC BUTTONS (subtle pull toward cursor)
+        // ============================================
+
+        document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
+            });
+        });
+
+        // ============================================
+        // SMOOTH CURSOR TRAIL ON HERO (subtle)
+        // ============================================
+
+        const cursorTrail = document.createElement('div');
+        cursorTrail.style.cssText = `
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(196, 30, 58, 0.08), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            transform: translate(-50%, -50%);
+            transition: left 0.15s ease-out, top 0.15s ease-out, opacity 0.3s ease;
+            opacity: 0;
+        `;
+        document.body.appendChild(cursorTrail);
+
+        let cursorInHero = false;
+
+        if (heroSection) {
+            heroSection.addEventListener('mouseenter', () => {
+                cursorInHero = true;
+                cursorTrail.style.opacity = '1';
+            });
+            heroSection.addEventListener('mouseleave', () => {
+                cursorInHero = false;
+                cursorTrail.style.opacity = '0';
+            });
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (cursorInHero) {
+                cursorTrail.style.left = e.clientX + 'px';
+                cursorTrail.style.top = e.clientY + 'px';
+            }
+        });
+
+        // Contact form validation
         document.querySelector('.contact-form').addEventListener('submit', function(e) {
             const email = this.querySelector('[name="email"]').value.trim();
             const telegram = this.querySelector('[name="telegram"]').value.trim();

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://9highstudios.com/sitemap.xml
+
+# Admin/internal pages
+Disallow: /reddit-plan.html
