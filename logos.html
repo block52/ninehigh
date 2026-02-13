@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>9 High Studios | Logo Concepts</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+            --gold: #c9a84c;
+            --gold-light: #dfc06e;
+            --gold-dark: #a68a3a;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+            background: var(--charcoal);
+            color: var(--white);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            z-index: 100;
+        }
+
+        .logo-nav {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo-nav span {
+            color: var(--white);
+            font-weight: 300;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Header */
+        .page-header {
+            padding: 10rem 5% 4rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            font-weight: 200;
+            margin-bottom: 1rem;
+        }
+
+        .page-header h1 strong {
+            color: var(--red);
+            font-weight: 700;
+        }
+
+        .page-header p {
+            color: rgba(255,255,255,0.5);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            letter-spacing: 0.03em;
+        }
+
+        /* Logo Grid */
+        .logo-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 5% 6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+        }
+
+        .logo-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .logo-card:hover {
+            border-color: rgba(196, 30, 58, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .logo-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 320px;
+            padding: 3rem;
+            position: relative;
+        }
+
+        .logo-display svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Variant row */
+        .logo-variants {
+            display: flex;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .variant {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            min-height: 140px;
+        }
+
+        .variant + .variant {
+            border-left: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .variant.dark-bg { background: var(--charcoal); }
+        .variant.light-bg { background: var(--white); }
+        .variant.red-bg { background: var(--red); }
+
+        .variant svg {
+            max-width: 180px;
+            height: auto;
+        }
+
+        .logo-info {
+            padding: 2rem 2.5rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .logo-info h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-info .concept-num {
+            color: var(--red);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.3rem;
+        }
+
+        .logo-info p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.95rem;
+            max-width: 600px;
+        }
+
+        .logo-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .logo-tags span {
+            background: rgba(196, 30, 58, 0.15);
+            color: var(--red-light);
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            letter-spacing: 0.03em;
+        }
+
+        /* Footer */
+        .page-footer {
+            text-align: center;
+            padding: 3rem 5%;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 2rem; }
+            .logo-display { min-height: 220px; padding: 2rem; }
+            .logo-variants { flex-direction: column; }
+            .variant + .variant { border-left: none; border-top: 1px solid rgba(255,255,255,0.06); }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav>
+        <a href="index.html" class="logo-nav">9 HIGH <span>STUDIOS</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <div class="page-header">
+        <h1><strong>Logo</strong> Concepts</h1>
+        <p>Five logo directions for 9 High Studios. Each concept captures a different facet of the brand &mdash; poker heritage, technology, trust, and craft.</p>
+    </div>
+
+    <!-- Logo Grid -->
+    <div class="logo-grid">
+
+        <!-- ==================== CONCEPT 1: THE DIAMOND NINE ==================== -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <svg width="400" height="280" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Diamond shape -->
+                    <polygon points="200,20 320,140 200,260 80,140" fill="none" stroke="#c41e3a" stroke-width="3"/>
+                    <polygon points="200,35 308,140 200,245 92,140" fill="rgba(196,30,58,0.08)"/>
+
+                    <!-- The 9 -->
+                    <text x="200" y="158" text-anchor="middle" dominant-baseline="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="88" font-weight="700" fill="#c41e3a">9</text>
+
+                    <!-- Studio text below -->
+                    <text x="200" y="195" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="11" font-weight="300" fill="rgba(255,255,255,0.5)"
+                          letter-spacing="8">HIGH STUDIOS</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="160" height="50" viewBox="0 0 160 50" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="25,2 46,25 25,48 4,25" fill="none" stroke="#c41e3a" stroke-width="2"/>
+                        <text x="25" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#c41e3a">9</text>
+                        <text x="95" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#c41e3a" letter-spacing="2">9 HIGH</text>
+                        <text x="95" y="38" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(255,255,255,0.5)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="160" height="50" viewBox="0 0 160 50" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="25,2 46,25 25,48 4,25" fill="none" stroke="#c41e3a" stroke-width="2"/>
+                        <text x="25" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#c41e3a">9</text>
+                        <text x="95" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#1a1a1a" letter-spacing="2">9 HIGH</text>
+                        <text x="95" y="38" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(0,0,0,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant red-bg">
+                    <svg width="160" height="50" viewBox="0 0 160 50" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="25,2 46,25 25,48 4,25" fill="none" stroke="white" stroke-width="2"/>
+                        <text x="25" y="30" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="white">9</text>
+                        <text x="95" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="white" letter-spacing="2">9 HIGH</text>
+                        <text x="95" y="38" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(255,255,255,0.7)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num">Concept 01</div>
+                <h2>The Diamond Nine</h2>
+                <p>A bold "9" set inside a diamond suit shape. The diamond is the most geometric of the four suits, conveying precision and technology. The serif "9" adds a classic poker feel while the clean diamond frame keeps it modern.</p>
+                <div class="logo-tags">
+                    <span>Classic</span>
+                    <span>Geometric</span>
+                    <span>Iconic</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 2: THE CARD EDGE ==================== -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <svg width="400" height="280" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Card outline -->
+                    <rect x="135" y="20" width="130" height="185" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+
+                    <!-- Top-left corner: 9 and diamond suit -->
+                    <text x="152" y="56" font-family="Georgia, serif" font-size="26" font-weight="700" fill="white">9</text>
+                    <text x="155" y="76" font-family="Georgia, serif" font-size="16" fill="#c41e3a">&#9830;</text>
+
+                    <!-- Center large diamond -->
+                    <text x="200" y="125" text-anchor="middle" font-family="Georgia, serif" font-size="44" fill="#c41e3a">&#9830;</text>
+
+                    <!-- Bottom-right corner (inverted) -->
+                    <text x="248" y="190" text-anchor="end" font-family="Georgia, serif" font-size="26" font-weight="700" fill="white" transform="rotate(180, 240, 180)">9</text>
+                    <text x="244" y="170" text-anchor="end" font-family="Georgia, serif" font-size="16" fill="#c41e3a" transform="rotate(180, 240, 160)">&#9830;</text>
+
+                    <!-- Company name -->
+                    <text x="200" y="240" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="28" font-weight="700" fill="#c41e3a" letter-spacing="3">9 HIGH</text>
+                    <text x="200" y="262" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="6">STUDIOS</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="180" height="50" viewBox="0 0 180 50" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="5" width="32" height="40" rx="3" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                        <text x="10" y="22" font-family="Georgia, serif" font-size="12" font-weight="700" fill="white">9</text>
+                        <text x="11" y="34" font-family="Georgia, serif" font-size="9" fill="#c41e3a">&#9830;</text>
+                        <text x="110" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#c41e3a" letter-spacing="2">9 HIGH</text>
+                        <text x="110" y="38" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(255,255,255,0.5)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="180" height="50" viewBox="0 0 180 50" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="5" width="32" height="40" rx="3" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+                        <text x="10" y="22" font-family="Georgia, serif" font-size="12" font-weight="700" fill="#1a1a1a">9</text>
+                        <text x="11" y="34" font-family="Georgia, serif" font-size="9" fill="#c41e3a">&#9830;</text>
+                        <text x="110" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#1a1a1a" letter-spacing="2">9 HIGH</text>
+                        <text x="110" y="38" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(0,0,0,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant red-bg">
+                    <svg width="180" height="50" viewBox="0 0 180 50" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="5" width="32" height="40" rx="3" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                        <text x="10" y="22" font-family="Georgia, serif" font-size="12" font-weight="700" fill="white">9</text>
+                        <text x="11" y="34" font-family="Georgia, serif" font-size="9" fill="white">&#9830;</text>
+                        <text x="110" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="white" letter-spacing="2">9 HIGH</text>
+                        <text x="110" y="38" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(255,255,255,0.7)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num">Concept 02</div>
+                <h2>The Card Edge</h2>
+                <p>Inspired by the corner of an actual playing card showing the nine of diamonds. Instantly recognisable to poker players, this concept leans into the heritage of the game while the typographic lockup beside it keeps it professional. Works brilliantly as a favicon and app icon.</p>
+                <div class="logo-tags">
+                    <span>Heritage</span>
+                    <span>Recognisable</span>
+                    <span>App-Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 3: THE NETWORK NODE ==================== -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <svg width="400" height="280" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Network lines -->
+                    <line x1="200" y1="120" x2="90" y2="55" stroke="#c41e3a" stroke-width="1" opacity="0.25"/>
+                    <line x1="200" y1="120" x2="310" y2="55" stroke="#c41e3a" stroke-width="1" opacity="0.25"/>
+                    <line x1="200" y1="120" x2="340" y2="150" stroke="#c41e3a" stroke-width="1" opacity="0.25"/>
+                    <line x1="200" y1="120" x2="60" y2="150" stroke="#c41e3a" stroke-width="1" opacity="0.25"/>
+                    <line x1="200" y1="120" x2="120" y2="200" stroke="#c41e3a" stroke-width="1" opacity="0.25"/>
+                    <line x1="200" y1="120" x2="280" y2="200" stroke="#c41e3a" stroke-width="1" opacity="0.25"/>
+
+                    <!-- Outer nodes (card suits) -->
+                    <circle cx="90" cy="55" r="14" fill="rgba(196,30,58,0.1)" stroke="#c41e3a" stroke-width="1"/>
+                    <text x="90" y="60" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="rgba(255,255,255,0.4)">&#9824;</text>
+
+                    <circle cx="310" cy="55" r="14" fill="rgba(196,30,58,0.1)" stroke="#c41e3a" stroke-width="1"/>
+                    <text x="310" y="60" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="rgba(255,255,255,0.4)">&#9829;</text>
+
+                    <circle cx="340" cy="150" r="14" fill="rgba(196,30,58,0.1)" stroke="#c41e3a" stroke-width="1"/>
+                    <text x="340" y="155" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="rgba(255,255,255,0.4)">&#9830;</text>
+
+                    <circle cx="60" cy="150" r="14" fill="rgba(196,30,58,0.1)" stroke="#c41e3a" stroke-width="1"/>
+                    <text x="60" y="155" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="rgba(255,255,255,0.4)">&#9827;</text>
+
+                    <circle cx="120" cy="200" r="14" fill="rgba(196,30,58,0.1)" stroke="#c41e3a" stroke-width="1"/>
+                    <text x="120" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="rgba(255,255,255,0.4)">&#9824;</text>
+
+                    <circle cx="280" cy="200" r="14" fill="rgba(196,30,58,0.1)" stroke="#c41e3a" stroke-width="1"/>
+                    <text x="280" y="205" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="rgba(255,255,255,0.4)">&#9829;</text>
+
+                    <!-- Center glow -->
+                    <defs>
+                        <radialGradient id="nodeGlow">
+                            <stop offset="0%" stop-color="#c41e3a" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="#c41e3a" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+                    <circle cx="200" cy="120" r="60" fill="url(#nodeGlow)"/>
+
+                    <!-- Center node -->
+                    <circle cx="200" cy="120" r="38" fill="#c41e3a"/>
+                    <text x="200" y="130" text-anchor="middle" font-family="Georgia, serif" font-size="36" font-weight="700" fill="white">9</text>
+
+                    <!-- Text below -->
+                    <text x="200" y="250" text-anchor="middle" font-family="'Segoe UI', system-ui, sans-serif" font-size="11" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="6">NINE HIGH STUDIOS</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="18" fill="#c41e3a"/>
+                        <text x="22" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="700" fill="white">9</text>
+                        <text x="112" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="white" letter-spacing="1">NINE HIGH</text>
+                        <text x="112" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(255,255,255,0.5)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="18" fill="#c41e3a"/>
+                        <text x="22" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="700" fill="white">9</text>
+                        <text x="112" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#1a1a1a" letter-spacing="1">NINE HIGH</text>
+                        <text x="112" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(0,0,0,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant red-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="18" fill="white"/>
+                        <text x="22" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#c41e3a">9</text>
+                        <text x="112" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="white" letter-spacing="1">NINE HIGH</text>
+                        <text x="112" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="9" font-weight="300" fill="rgba(255,255,255,0.7)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num">Concept 03</div>
+                <h2>The Network Node</h2>
+                <p>Matches the existing network/node aesthetic already used on the homepage. The "9" sits at the centre of a decentralised network, with card suit symbols at each satellite node. Communicates technology, connectivity, and the multiplayer nature of poker. This concept has the strongest visual continuity with the current site.</p>
+                <div class="logo-tags">
+                    <span>Tech-Forward</span>
+                    <span>Decentralised</span>
+                    <span>On-Brand</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 4: THE TYPOGRAPHIC MARK ==================== -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <svg width="440" height="240" viewBox="0 0 440 240" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Large typographic 9H -->
+                    <text x="220" y="130" text-anchor="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="120" font-weight="700" fill="white" letter-spacing="-4">
+                        <tspan fill="#c41e3a">9</tspan><tspan fill="white" font-weight="200" dx="-4">H</tspan>
+                    </text>
+
+                    <!-- Small diamond accent between -->
+                    <text x="215" y="80" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#c41e3a">&#9830;</text>
+
+                    <!-- Thin rule -->
+                    <line x1="130" y1="155" x2="310" y2="155" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+
+                    <!-- Full name below -->
+                    <text x="220" y="180" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="13" font-weight="300" fill="rgba(255,255,255,0.45)"
+                          letter-spacing="10">NINE HIGH STUDIOS</text>
+
+                    <!-- Tagline -->
+                    <text x="220" y="210" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="9" font-weight="300" fill="rgba(255,255,255,0.2)"
+                          letter-spacing="4">WE BUILD POKER SOFTWARE</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="140" height="50" viewBox="0 0 140 50" xmlns="http://www.w3.org/2000/svg">
+                        <text x="70" y="32" text-anchor="middle" font-family="Georgia, serif" font-size="32" font-weight="700" letter-spacing="-1">
+                            <tspan fill="#c41e3a">9</tspan><tspan fill="white" font-weight="200" dx="-1">H</tspan>
+                        </text>
+                        <text x="70" y="46" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="140" height="50" viewBox="0 0 140 50" xmlns="http://www.w3.org/2000/svg">
+                        <text x="70" y="32" text-anchor="middle" font-family="Georgia, serif" font-size="32" font-weight="700" letter-spacing="-1">
+                            <tspan fill="#c41e3a">9</tspan><tspan fill="#1a1a1a" font-weight="200" dx="-1">H</tspan>
+                        </text>
+                        <text x="70" y="46" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(0,0,0,0.35)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant red-bg">
+                    <svg width="140" height="50" viewBox="0 0 140 50" xmlns="http://www.w3.org/2000/svg">
+                        <text x="70" y="32" text-anchor="middle" font-family="Georgia, serif" font-size="32" font-weight="700" letter-spacing="-1">
+                            <tspan fill="white">9</tspan><tspan fill="rgba(255,255,255,0.6)" font-weight="200" dx="-1">H</tspan>
+                        </text>
+                        <text x="70" y="46" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(255,255,255,0.6)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num">Concept 04</div>
+                <h2>The Typographic Mark</h2>
+                <p>Pure typography &mdash; just "9H" (nine-high, the hand) in a bold serif with contrasting weights. The red 9 against the light H creates a striking monogram that works at any size. Extremely versatile as an app icon, watermark, or embroidered mark. Understated elegance for a premium brand.</p>
+                <div class="logo-tags">
+                    <span>Minimal</span>
+                    <span>Versatile</span>
+                    <span>Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 5: THE CHIP ==================== -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="chipGlow">
+                            <stop offset="0%" stop-color="#c41e3a" stop-opacity="0.2"/>
+                            <stop offset="100%" stop-color="#c41e3a" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Outer glow -->
+                    <circle cx="200" cy="130" r="100" fill="url(#chipGlow)"/>
+
+                    <!-- Chip outer ring -->
+                    <circle cx="200" cy="130" r="68" fill="none" stroke="#c41e3a" stroke-width="3"/>
+
+                    <!-- Chip inner ring -->
+                    <circle cx="200" cy="130" r="56" fill="none" stroke="rgba(196,30,58,0.3)" stroke-width="1"/>
+
+                    <!-- Chip notches (like a real poker chip) -->
+                    <rect x="196" y="58" width="8" height="16" rx="2" fill="#c41e3a" opacity="0.6"/>
+                    <rect x="196" y="198" width="8" height="16" rx="2" fill="#c41e3a" opacity="0.6" transform="rotate(180, 200, 206)"/>
+                    <rect x="128" y="126" width="16" height="8" rx="2" fill="#c41e3a" opacity="0.6"/>
+                    <rect x="256" y="126" width="16" height="8" rx="2" fill="#c41e3a" opacity="0.6"/>
+
+                    <!-- Diagonal notches -->
+                    <rect x="148" y="78" width="8" height="16" rx="2" fill="#c41e3a" opacity="0.4" transform="rotate(-45, 152, 86)"/>
+                    <rect x="244" y="78" width="8" height="16" rx="2" fill="#c41e3a" opacity="0.4" transform="rotate(45, 248, 86)"/>
+                    <rect x="148" y="176" width="8" height="16" rx="2" fill="#c41e3a" opacity="0.4" transform="rotate(45, 152, 184)"/>
+                    <rect x="244" y="176" width="8" height="16" rx="2" fill="#c41e3a" opacity="0.4" transform="rotate(-45, 248, 184)"/>
+
+                    <!-- Center fill -->
+                    <circle cx="200" cy="130" r="44" fill="rgba(196,30,58,0.08)"/>
+
+                    <!-- The 9 in the center -->
+                    <text x="200" y="140" text-anchor="middle" dominant-baseline="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="48" font-weight="700" fill="#c41e3a">9</text>
+
+                    <!-- Four suit marks around the 9 -->
+                    <text x="200" y="100" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="rgba(255,255,255,0.3)">&#9830;</text>
+                    <text x="200" y="170" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="rgba(255,255,255,0.3)">&#9827;</text>
+                    <text x="172" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="rgba(255,255,255,0.3)">&#9829;</text>
+                    <text x="228" y="135" text-anchor="middle" font-family="Georgia, serif" font-size="10" fill="rgba(255,255,255,0.3)">&#9824;</text>
+
+                    <!-- Company name -->
+                    <text x="200" y="240" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="24" font-weight="700" fill="white" letter-spacing="3">
+                        <tspan fill="#c41e3a">9 HIGH</tspan><tspan fill="white" font-weight="200"> STUDIOS</tspan>
+                    </text>
+
+                    <!-- Tagline -->
+                    <text x="200" y="264" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="9" font-weight="300" fill="rgba(255,255,255,0.3)"
+                          letter-spacing="4">POKER SOFTWARE DEVELOPMENT</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="18" fill="none" stroke="#c41e3a" stroke-width="2"/>
+                        <circle cx="22" cy="27" r="14" fill="none" stroke="rgba(196,30,58,0.3)" stroke-width="0.5"/>
+                        <rect x="19" y="7" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <rect x="19" y="42" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <rect x="2" y="24" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <rect x="36" y="24" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <text x="22" y="33" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#c41e3a">9</text>
+                        <text x="112" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="white" letter-spacing="1">
+                            <tspan fill="#c41e3a">9 HIGH</tspan><tspan fill="white" font-weight="200"> STUDIOS</tspan>
+                        </text>
+                        <text x="112" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="3">POKER SOFTWARE</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="18" fill="none" stroke="#c41e3a" stroke-width="2"/>
+                        <circle cx="22" cy="27" r="14" fill="none" stroke="rgba(196,30,58,0.2)" stroke-width="0.5"/>
+                        <rect x="19" y="7" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <rect x="19" y="42" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <rect x="2" y="24" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <rect x="36" y="24" width="6" height="6" rx="1" fill="#c41e3a" opacity="0.5"/>
+                        <text x="22" y="33" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="700" fill="#c41e3a">9</text>
+                        <text x="112" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" letter-spacing="1">
+                            <tspan fill="#c41e3a">9 HIGH</tspan><tspan fill="#1a1a1a" font-weight="200"> STUDIOS</tspan>
+                        </text>
+                        <text x="112" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(0,0,0,0.35)" letter-spacing="3">POKER SOFTWARE</text>
+                    </svg>
+                </div>
+                <div class="variant red-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="18" fill="none" stroke="white" stroke-width="2"/>
+                        <circle cx="22" cy="27" r="14" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                        <rect x="19" y="7" width="6" height="6" rx="1" fill="white" opacity="0.5"/>
+                        <rect x="19" y="42" width="6" height="6" rx="1" fill="white" opacity="0.5"/>
+                        <rect x="2" y="24" width="6" height="6" rx="1" fill="white" opacity="0.5"/>
+                        <rect x="36" y="24" width="6" height="6" rx="1" fill="white" opacity="0.5"/>
+                        <text x="22" y="33" text-anchor="middle" font-family="Georgia, serif" font-size="18" font-weight="700" fill="white">9</text>
+                        <text x="112" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="white" letter-spacing="1">9 HIGH STUDIOS</text>
+                        <text x="112" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(255,255,255,0.6)" letter-spacing="3">POKER SOFTWARE</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num">Concept 05</div>
+                <h2>The Chip</h2>
+                <p>A poker chip emblem with the "9" at its centre, ringed by the four card suits. The chip notches around the edge are instantly recognisable to anyone who's played live poker. Communicates authority, trust, and the physical feel of the game &mdash; perfect for a company building the digital equivalent.</p>
+                <div class="logo-tags">
+                    <span>Emblem</span>
+                    <span>Authoritative</span>
+                    <span>Tactile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== BOUTIQUE DIVIDER ==================== -->
+        <div style="text-align:center; padding:4rem 0 2rem;">
+            <div style="display:inline-block; position:relative;">
+                <div style="width:200px; height:1px; background:linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent); margin:0 auto 1.5rem;"></div>
+                <span style="font-size:0.75rem; font-weight:300; letter-spacing:0.4em; color:var(--gold); text-transform:uppercase;">Boutique Collection</span>
+                <div style="width:200px; height:1px; background:linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent); margin:1.5rem auto 0;"></div>
+            </div>
+            <p style="color:rgba(255,255,255,0.35); font-size:0.95rem; margin-top:1rem; max-width:500px; margin-left:auto; margin-right:auto;">Sharper edges. Finer details. These five concepts push into premium territory &mdash; think fashion house, think fine spirits, think the private room at the back of the casino.</p>
+        </div>
+
+        <!-- ==================== CONCEPT 6: THE ENGRAVED SEAL ==================== -->
+        <div class="logo-card" style="border-color:rgba(201,168,76,0.12);">
+            <div class="logo-display" style="min-height:360px;">
+                <svg width="400" height="320" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="sealGlow">
+                            <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.12"/>
+                            <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Ambient glow -->
+                    <circle cx="200" cy="145" r="120" fill="url(#sealGlow)"/>
+
+                    <!-- Outermost ring - fine -->
+                    <circle cx="200" cy="145" r="105" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.3"/>
+
+                    <!-- Outer decorative ring with dashes -->
+                    <circle cx="200" cy="145" r="98" fill="none" stroke="#c9a84c" stroke-width="0.8" stroke-dasharray="2 4" opacity="0.4"/>
+
+                    <!-- Main outer ring -->
+                    <circle cx="200" cy="145" r="88" fill="none" stroke="#c9a84c" stroke-width="2"/>
+
+                    <!-- Inner ring -->
+                    <circle cx="200" cy="145" r="82" fill="none" stroke="#c9a84c" stroke-width="0.5" opacity="0.5"/>
+
+                    <!-- Text ring - "NINE HIGH STUDIOS" around the circle -->
+                    <path id="topArc" d="M 130,145 A 70,70 0 0,1 270,145" fill="none"/>
+                    <text font-family="'Segoe UI', system-ui, sans-serif" font-size="9" fill="rgba(201,168,76,0.7)" letter-spacing="5" font-weight="300">
+                        <textPath href="#topArc" startOffset="50%" text-anchor="middle">NINE HIGH STUDIOS</textPath>
+                    </text>
+
+                    <path id="bottomArc" d="M 270,155 A 70,70 0 0,1 130,155" fill="none"/>
+                    <text font-family="'Segoe UI', system-ui, sans-serif" font-size="8" fill="rgba(201,168,76,0.5)" letter-spacing="4" font-weight="300">
+                        <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">EST. MMXXV &bull; AUSTRALIA</textPath>
+                    </text>
+
+                    <!-- Inner decorative circle -->
+                    <circle cx="200" cy="145" r="52" fill="none" stroke="#c9a84c" stroke-width="1" opacity="0.4"/>
+                    <circle cx="200" cy="145" r="48" fill="none" stroke="#c9a84c" stroke-width="0.3" opacity="0.3"/>
+
+                    <!-- Fine crosshatch fill in inner circle -->
+                    <clipPath id="innerClip"><circle cx="200" cy="145" r="47"/></clipPath>
+                    <g clip-path="url(#innerClip)" opacity="0.06" stroke="#c9a84c" stroke-width="0.5">
+                        <line x1="153" y1="98" x2="247" y2="192"/><line x1="158" y1="98" x2="252" y2="192"/>
+                        <line x1="163" y1="98" x2="257" y2="192"/><line x1="168" y1="98" x2="262" y2="192"/>
+                        <line x1="173" y1="98" x2="267" y2="192"/><line x1="178" y1="98" x2="272" y2="192"/>
+                        <line x1="183" y1="98" x2="277" y2="192"/><line x1="188" y1="98" x2="282" y2="192"/>
+                        <line x1="193" y1="98" x2="287" y2="192"/><line x1="198" y1="98" x2="292" y2="192"/>
+                        <line x1="143" y1="98" x2="237" y2="192"/><line x1="133" y1="98" x2="227" y2="192"/>
+                        <line x1="123" y1="98" x2="217" y2="192"/><line x1="113" y1="98" x2="207" y2="192"/>
+                    </g>
+
+                    <!-- Central "9" -->
+                    <text x="200" y="157" text-anchor="middle" dominant-baseline="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="54" font-weight="700" fill="#c9a84c">9</text>
+
+                    <!-- Four corner ornaments (tiny diamonds) -->
+                    <text x="200" y="106" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="#c9a84c" opacity="0.6">&#9830;</text>
+                    <text x="200" y="192" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="#c9a84c" opacity="0.6">&#9830;</text>
+                    <text x="157" y="150" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="#c9a84c" opacity="0.6">&#9830;</text>
+                    <text x="243" y="150" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="#c9a84c" opacity="0.6">&#9830;</text>
+
+                    <!-- Bottom text -->
+                    <text x="200" y="285" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="11" font-weight="300" fill="rgba(201,168,76,0.5)"
+                          letter-spacing="6">NINE HIGH STUDIOS</text>
+
+                    <text x="200" y="305" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="8" font-weight="300" fill="rgba(255,255,255,0.2)"
+                          letter-spacing="3">POKER SOFTWARE DEVELOPMENT</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="19" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+                        <circle cx="22" cy="27" r="16" fill="none" stroke="#c9a84c" stroke-width="0.3" opacity="0.5"/>
+                        <text x="22" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#c9a84c">9</text>
+                        <text x="112" y="20" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#c9a84c" letter-spacing="2">9 HIGH</text>
+                        <text x="112" y="36" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="8" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="19" fill="none" stroke="#a68a3a" stroke-width="1.5"/>
+                        <circle cx="22" cy="27" r="16" fill="none" stroke="#a68a3a" stroke-width="0.3" opacity="0.5"/>
+                        <text x="22" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#a68a3a">9</text>
+                        <text x="112" y="20" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#1a1a1a" letter-spacing="2">9 HIGH</text>
+                        <text x="112" y="36" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="8" font-weight="300" fill="rgba(0,0,0,0.35)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant" style="background:#1a1a1a; border-left:1px solid rgba(201,168,76,0.15);">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="22" cy="27" r="19" fill="#c9a84c"/>
+                        <text x="22" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#1a1a1a">9</text>
+                        <text x="112" y="20" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#c9a84c" letter-spacing="2">9 HIGH</text>
+                        <text x="112" y="36" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="8" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num" style="color:var(--gold);">Concept 06</div>
+                <h2>The Engraved Seal</h2>
+                <p>Inspired by banknote engraving and luxury spirit labels. Concentric fine-line rings, crosshatch fill, and gold tones give this a currency-grade feel. The curved text reads like a wax seal or coin &mdash; "NINE HIGH STUDIOS / EST. MMXXV". This says "we don't cut corners".</p>
+                <div class="logo-tags">
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Engraved</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Currency-Grade</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Prestigious</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 7: THE NEGATIVE SPACE BLADE ==================== -->
+        <div class="logo-card" style="border-color:rgba(201,168,76,0.12);">
+            <div class="logo-display" style="min-height:340px;">
+                <svg width="420" height="300" viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="nineClip">
+                            <!-- The "9" shape cut out via a path -->
+                            <path d="
+                                M 195,60
+                                C 230,60 260,80 260,115
+                                C 260,150 230,170 195,170
+                                L 195,170
+                                C 175,170 158,160 148,145
+                                L 148,145
+                                C 158,155 172,162 188,162
+                                C 218,162 242,145 242,115
+                                C 242,85 218,68 188,68
+                                C 158,68 140,88 140,115
+                                L 140,200
+                                L 155,200
+                                L 155,130
+                                C 160,155 175,170 195,170
+                                Z
+                            " fill="white"/>
+                        </clipPath>
+                        <linearGradient id="bladeGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#c41e3a"/>
+                            <stop offset="100%" stop-color="#c9a84c"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Sharp angular background shape -->
+                    <polygon points="140,35 280,35 290,215 130,215" fill="none" stroke="url(#bladeGrad)" stroke-width="2"/>
+
+                    <!-- Diagonal slash through -->
+                    <line x1="125" y1="220" x2="295" y2="30" stroke="#c41e3a" stroke-width="0.8" opacity="0.3"/>
+
+                    <!-- The 9 - large and sharp -->
+                    <text x="210" y="160" text-anchor="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="140" font-weight="700" fill="none" stroke="#c9a84c" stroke-width="1.5">9</text>
+
+                    <!-- Solid accent version overlaid slightly offset -->
+                    <text x="208" y="158" text-anchor="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="140" font-weight="700" fill="rgba(196,30,58,0.08)">9</text>
+
+                    <!-- Sharp horizontal rules -->
+                    <line x1="135" y1="175" x2="220" y2="175" stroke="#c9a84c" stroke-width="0.5" opacity="0.5"/>
+                    <line x1="135" y1="178" x2="195" y2="178" stroke="#c41e3a" stroke-width="0.5" opacity="0.3"/>
+
+                    <!-- Company name - ultra tight tracking -->
+                    <text x="210" y="245" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="26" font-weight="100" fill="white"
+                          letter-spacing="12">NINE HIGH</text>
+
+                    <!-- Thin divider -->
+                    <line x1="155" y1="258" x2="265" y2="258" stroke="rgba(201,168,76,0.3)" stroke-width="0.5"/>
+
+                    <text x="210" y="278" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="10" font-weight="300" fill="rgba(201,168,76,0.5)"
+                          letter-spacing="8">STUDIOS</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="4,5 36,5 38,50 2,50" fill="none" stroke="#c9a84c" stroke-width="1"/>
+                        <text x="20" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="30" font-weight="700" fill="none" stroke="#c9a84c" stroke-width="0.8">9</text>
+                        <text x="110" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="100" fill="white" letter-spacing="3">NINE HIGH</text>
+                        <line x1="75" y1="30" x2="145" y2="30" stroke="rgba(201,168,76,0.3)" stroke-width="0.5"/>
+                        <text x="110" y="43" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(201,168,76,0.5)" letter-spacing="5">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="4,5 36,5 38,50 2,50" fill="none" stroke="#a68a3a" stroke-width="1"/>
+                        <text x="20" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="30" font-weight="700" fill="none" stroke="#a68a3a" stroke-width="0.8">9</text>
+                        <text x="110" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="100" fill="#1a1a1a" letter-spacing="3">NINE HIGH</text>
+                        <line x1="75" y1="30" x2="145" y2="30" stroke="rgba(166,138,58,0.3)" stroke-width="0.5"/>
+                        <text x="110" y="43" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(0,0,0,0.35)" letter-spacing="5">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant" style="background:#0d0d0d; border-left:1px solid rgba(201,168,76,0.15);">
+                    <svg width="180" height="55" viewBox="0 0 180 55" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="4,5 36,5 38,50 2,50" fill="none" stroke="#c41e3a" stroke-width="1"/>
+                        <text x="20" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="30" font-weight="700" fill="none" stroke="#c41e3a" stroke-width="0.8">9</text>
+                        <text x="110" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="100" fill="white" letter-spacing="3">NINE HIGH</text>
+                        <line x1="75" y1="30" x2="145" y2="30" stroke="rgba(196,30,58,0.3)" stroke-width="0.5"/>
+                        <text x="110" y="43" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(196,30,58,0.5)" letter-spacing="5">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num" style="color:var(--gold);">Concept 07</div>
+                <h2>The Negative Space Blade</h2>
+                <p>An outlined "9" sits inside a sharp, slightly tapered trapezoid &mdash; like a blade or a monolith. The number is rendered as a stroke rather than a fill, giving it a technical-drawing precision. A diagonal slash cuts across for edge. The ultra-light "NINE HIGH" text below feels haute couture. Red-to-gold gradient on the frame signals premium.</p>
+                <div class="logo-tags">
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Sharp</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Architectural</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Haute</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 8: THE CROWN ==================== -->
+        <div class="logo-card" style="border-color:rgba(201,168,76,0.12);">
+            <div class="logo-display" style="min-height:350px;">
+                <svg width="400" height="310" viewBox="0 0 400 310" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Crown made of four diamond shapes -->
+                    <g transform="translate(200,70)">
+                        <!-- Left outer diamond -->
+                        <polygon points="-60,0 -45,-22 -30,0 -45,22" fill="none" stroke="#c9a84c" stroke-width="1" opacity="0.5"/>
+                        <!-- Left inner diamond -->
+                        <polygon points="-25,0 -12,-18 1,0 -12,18" fill="#c9a84c" opacity="0.15"/>
+                        <polygon points="-25,0 -12,-18 1,0 -12,18" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+                        <!-- Right inner diamond -->
+                        <polygon points="-1,0 12,-18 25,0 12,18" fill="#c9a84c" opacity="0.15"/>
+                        <polygon points="-1,0 12,-18 25,0 12,18" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+                        <!-- Right outer diamond -->
+                        <polygon points="30,0 45,-22 60,0 45,22" fill="none" stroke="#c9a84c" stroke-width="1" opacity="0.5"/>
+                        <!-- Center top diamond (the peak) -->
+                        <polygon points="0,-8 8,-28 0,-48 -8,-28" fill="#c9a84c" opacity="0.2"/>
+                        <polygon points="0,-8 8,-28 0,-48 -8,-28" fill="none" stroke="#c9a84c" stroke-width="1"/>
+                    </g>
+
+                    <!-- Thin horizontal rule under crown -->
+                    <line x1="145" y1="100" x2="255" y2="100" stroke="#c9a84c" stroke-width="0.5" opacity="0.4"/>
+
+                    <!-- The "9" -->
+                    <text x="200" y="180" text-anchor="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="80" font-weight="700" fill="white">9</text>
+
+                    <!-- Accent diamond below the 9 -->
+                    <polygon points="200,200 206,210 200,220 194,210" fill="#c41e3a"/>
+
+                    <!-- Company name -->
+                    <text x="200" y="255" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="22" font-weight="700" fill="#c9a84c"
+                          letter-spacing="6">NINE HIGH</text>
+
+                    <text x="200" y="278" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="10" font-weight="300" fill="rgba(255,255,255,0.35)"
+                          letter-spacing="8">STUDIOS</text>
+
+                    <!-- Fine decorative lines flanking "STUDIOS" -->
+                    <line x1="142" y1="273" x2="170" y2="273" stroke="rgba(201,168,76,0.25)" stroke-width="0.5"/>
+                    <line x1="230" y1="273" x2="258" y2="273" stroke="rgba(201,168,76,0.25)" stroke-width="0.5"/>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="160" height="60" viewBox="0 0 160 60" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Mini crown -->
+                        <g transform="translate(22,12)">
+                            <polygon points="-8,0 -4,-8 0,0 -4,8" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+                            <polygon points="0,0 4,-8 8,0 4,8" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.6"/>
+                            <polygon points="-4,-5 0,-14 4,-5" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
+                        </g>
+                        <text x="22" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="white">9</text>
+                        <text x="100" y="24" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#c9a84c" letter-spacing="2">NINE HIGH</text>
+                        <text x="100" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="160" height="60" viewBox="0 0 160 60" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(22,12)">
+                            <polygon points="-8,0 -4,-8 0,0 -4,8" fill="none" stroke="#a68a3a" stroke-width="0.8" opacity="0.6"/>
+                            <polygon points="0,0 4,-8 8,0 4,8" fill="none" stroke="#a68a3a" stroke-width="0.8" opacity="0.6"/>
+                            <polygon points="-4,-5 0,-14 4,-5" fill="none" stroke="#a68a3a" stroke-width="0.8"/>
+                        </g>
+                        <text x="22" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#1a1a1a">9</text>
+                        <text x="100" y="24" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#1a1a1a" letter-spacing="2">NINE HIGH</text>
+                        <text x="100" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(0,0,0,0.35)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant" style="background:#0a0a0a; border-left:1px solid rgba(201,168,76,0.15);">
+                    <svg width="160" height="60" viewBox="0 0 160 60" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(22,12)">
+                            <polygon points="-8,0 -4,-8 0,0 -4,8" fill="#c9a84c" opacity="0.3"/>
+                            <polygon points="0,0 4,-8 8,0 4,8" fill="#c9a84c" opacity="0.3"/>
+                            <polygon points="-4,-5 0,-14 4,-5" fill="#c9a84c" opacity="0.4"/>
+                        </g>
+                        <text x="22" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#c9a84c">9</text>
+                        <text x="100" y="24" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#c9a84c" letter-spacing="2">NINE HIGH</text>
+                        <text x="100" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(201,168,76,0.5)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num" style="color:var(--gold);">Concept 08</div>
+                <h2>The Crown</h2>
+                <p>Five diamond suit shapes arranged as a crown above the "9". The centre diamond rises tallest &mdash; forming the peak. It's regal without being gaudy, like the logo on a VIP poker room door. The red diamond accent below the nine adds the signature brand colour. Says "we run the table".</p>
+                <div class="logo-tags">
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Regal</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">VIP</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Distinctive</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 9: THE ART DECO SPLIT ==================== -->
+        <div class="logo-card" style="border-color:rgba(201,168,76,0.12);">
+            <div class="logo-display" style="min-height:350px;">
+                <svg width="420" height="310" viewBox="0 0 420 310" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="leftHalf"><rect x="0" y="0" width="208" height="310"/></clipPath>
+                        <clipPath id="rightHalf"><rect x="208" y="0" width="212" height="310"/></clipPath>
+                    </defs>
+
+                    <!-- Art deco frame -->
+                    <rect x="125" y="30" width="170" height="220" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+                    <rect x="130" y="35" width="160" height="210" fill="none" stroke="#c9a84c" stroke-width="0.3" opacity="0.4"/>
+
+                    <!-- Corner ornaments -->
+                    <line x1="120" y1="30" x2="125" y2="30" stroke="#c9a84c" stroke-width="2"/>
+                    <line x1="125" y1="25" x2="125" y2="30" stroke="#c9a84c" stroke-width="2"/>
+
+                    <line x1="295" y1="30" x2="300" y2="30" stroke="#c9a84c" stroke-width="2"/>
+                    <line x1="295" y1="25" x2="295" y2="30" stroke="#c9a84c" stroke-width="2"/>
+
+                    <line x1="120" y1="250" x2="125" y2="250" stroke="#c9a84c" stroke-width="2"/>
+                    <line x1="125" y1="250" x2="125" y2="255" stroke="#c9a84c" stroke-width="2"/>
+
+                    <line x1="295" y1="250" x2="300" y2="250" stroke="#c9a84c" stroke-width="2"/>
+                    <line x1="295" y1="250" x2="295" y2="255" stroke="#c9a84c" stroke-width="2"/>
+
+                    <!-- Left half: solid fill -->
+                    <g clip-path="url(#leftHalf)">
+                        <text x="210" y="195" text-anchor="middle"
+                              font-family="Georgia, 'Times New Roman', serif"
+                              font-size="160" font-weight="700" fill="#c41e3a">9</text>
+                    </g>
+
+                    <!-- Right half: engraved lines -->
+                    <g clip-path="url(#rightHalf)">
+                        <text x="210" y="195" text-anchor="middle"
+                              font-family="Georgia, 'Times New Roman', serif"
+                              font-size="160" font-weight="700" fill="none" stroke="#c9a84c" stroke-width="1.5">9</text>
+
+                        <!-- Horizontal engraving lines inside the 9 on right side -->
+                        <g opacity="0.3" stroke="#c9a84c" stroke-width="0.5">
+                            <line x1="208" y1="60" x2="300" y2="60"/>
+                            <line x1="208" y1="66" x2="300" y2="66"/>
+                            <line x1="208" y1="72" x2="300" y2="72"/>
+                            <line x1="208" y1="78" x2="300" y2="78"/>
+                            <line x1="208" y1="84" x2="300" y2="84"/>
+                            <line x1="208" y1="90" x2="300" y2="90"/>
+                            <line x1="208" y1="96" x2="300" y2="96"/>
+                            <line x1="208" y1="102" x2="300" y2="102"/>
+                            <line x1="208" y1="108" x2="300" y2="108"/>
+                            <line x1="208" y1="114" x2="300" y2="114"/>
+                            <line x1="208" y1="120" x2="300" y2="120"/>
+                            <line x1="208" y1="126" x2="300" y2="126"/>
+                            <line x1="208" y1="132" x2="300" y2="132"/>
+                            <line x1="208" y1="138" x2="300" y2="138"/>
+                            <line x1="208" y1="144" x2="300" y2="144"/>
+                            <line x1="208" y1="150" x2="300" y2="150"/>
+                            <line x1="208" y1="156" x2="300" y2="156"/>
+                            <line x1="208" y1="162" x2="300" y2="162"/>
+                            <line x1="208" y1="168" x2="300" y2="168"/>
+                            <line x1="208" y1="174" x2="300" y2="174"/>
+                            <line x1="208" y1="180" x2="300" y2="180"/>
+                            <line x1="208" y1="186" x2="300" y2="186"/>
+                            <line x1="208" y1="192" x2="300" y2="192"/>
+                            <line x1="208" y1="198" x2="300" y2="198"/>
+                        </g>
+                    </g>
+
+                    <!-- Centre dividing line -->
+                    <line x1="210" y1="40" x2="210" y2="240" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+                    <!-- Text below frame -->
+                    <text x="210" y="280" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="20" font-weight="100" fill="white"
+                          letter-spacing="14">NINE HIGH</text>
+
+                    <line x1="160" y1="292" x2="260" y2="292" stroke="rgba(201,168,76,0.3)" stroke-width="0.5"/>
+
+                    <text x="210" y="308" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="9" font-weight="300" fill="rgba(201,168,76,0.5)"
+                          letter-spacing="6">STUDIOS</text>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="160" height="55" viewBox="0 0 160 55" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="34" height="47" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
+                        <clipPath id="lh7"><rect x="0" y="0" width="21" height="55"/></clipPath>
+                        <clipPath id="rh7"><rect x="21" y="0" width="20" height="55"/></clipPath>
+                        <g clip-path="url(#lh7)">
+                            <text x="20" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#c41e3a">9</text>
+                        </g>
+                        <g clip-path="url(#rh7)">
+                            <text x="20" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="none" stroke="#c9a84c" stroke-width="0.8">9</text>
+                        </g>
+                        <text x="100" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="100" fill="white" letter-spacing="3">NINE HIGH</text>
+                        <text x="100" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(201,168,76,0.5)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="160" height="55" viewBox="0 0 160 55" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="34" height="47" fill="none" stroke="#a68a3a" stroke-width="0.8"/>
+                        <clipPath id="lh8"><rect x="0" y="0" width="21" height="55"/></clipPath>
+                        <clipPath id="rh8"><rect x="21" y="0" width="20" height="55"/></clipPath>
+                        <g clip-path="url(#lh8)">
+                            <text x="20" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#c41e3a">9</text>
+                        </g>
+                        <g clip-path="url(#rh8)">
+                            <text x="20" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="none" stroke="#a68a3a" stroke-width="0.8">9</text>
+                        </g>
+                        <text x="100" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="100" fill="#1a1a1a" letter-spacing="3">NINE HIGH</text>
+                        <text x="100" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(0,0,0,0.35)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant" style="background:#0a0a0a; border-left:1px solid rgba(201,168,76,0.15);">
+                    <svg width="160" height="55" viewBox="0 0 160 55" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="34" height="47" fill="none" stroke="#c9a84c" stroke-width="0.8"/>
+                        <clipPath id="lh9"><rect x="0" y="0" width="21" height="55"/></clipPath>
+                        <clipPath id="rh9"><rect x="21" y="0" width="20" height="55"/></clipPath>
+                        <g clip-path="url(#lh9)">
+                            <text x="20" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#c9a84c">9</text>
+                        </g>
+                        <g clip-path="url(#rh9)">
+                            <text x="20" y="40" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="none" stroke="#c9a84c" stroke-width="0.8">9</text>
+                        </g>
+                        <text x="100" y="22" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="13" font-weight="100" fill="#c9a84c" letter-spacing="3">NINE HIGH</text>
+                        <text x="100" y="40" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(201,168,76,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num" style="color:var(--gold);">Concept 09</div>
+                <h2>The Art Deco Split</h2>
+                <p>The "9" is split down the centre &mdash; the left half is solid red, the right half is rendered as a gold outline with horizontal engraving lines showing through. Framed in an Art Deco rectangle with corner ornaments. This is the kind of logo you'd see etched into frosted glass at a 1920s poker parlour. Dual nature: digital precision meets handcrafted tradition.</p>
+                <div class="logo-tags">
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Art Deco</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Engraved</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Dual Nature</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== CONCEPT 10: THE MONOGRAM CREST ==================== -->
+        <div class="logo-card" style="border-color:rgba(201,168,76,0.12);">
+            <div class="logo-display" style="min-height:370px;">
+                <svg width="400" height="330" viewBox="0 0 400 330" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="crestGlow">
+                            <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.08"/>
+                            <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Glow -->
+                    <ellipse cx="200" cy="140" rx="110" ry="130" fill="url(#crestGlow)"/>
+
+                    <!-- Shield / crest outline -->
+                    <path d="M 200,20 L 275,50 L 280,160 Q 280,230 200,270 Q 120,230 120,160 L 125,50 Z"
+                          fill="rgba(201,168,76,0.03)" stroke="#c9a84c" stroke-width="1.5"/>
+
+                    <!-- Inner shield line -->
+                    <path d="M 200,32 L 268,58 L 272,158 Q 272,222 200,258 Q 128,222 128,158 L 132,58 Z"
+                          fill="none" stroke="#c9a84c" stroke-width="0.4" opacity="0.4"/>
+
+                    <!-- Horizontal divider lines inside shield -->
+                    <line x1="145" y1="80" x2="255" y2="80" stroke="#c9a84c" stroke-width="0.3" opacity="0.3"/>
+                    <line x1="135" y1="210" x2="265" y2="210" stroke="#c9a84c" stroke-width="0.3" opacity="0.3"/>
+
+                    <!-- NH Monogram -->
+                    <!-- N -->
+                    <text x="180" y="162" text-anchor="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="72" font-weight="400" fill="none" stroke="#c9a84c" stroke-width="1.2">N</text>
+
+                    <!-- H overlapping -->
+                    <text x="220" y="162" text-anchor="middle"
+                          font-family="Georgia, 'Times New Roman', serif"
+                          font-size="72" font-weight="400" fill="none" stroke="#c41e3a" stroke-width="1.2">H</text>
+
+                    <!-- Small "9" in top portion of shield -->
+                    <text x="200" y="72" text-anchor="middle"
+                          font-family="Georgia, serif"
+                          font-size="20" font-weight="700" fill="#c9a84c">9</text>
+
+                    <!-- Bottom of shield text -->
+                    <text x="200" y="235" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="7" font-weight="300" fill="rgba(201,168,76,0.5)"
+                          letter-spacing="4">EST. MMXXV</text>
+
+                    <!-- Four small suit marks at compass points inside shield -->
+                    <text x="200" y="100" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="rgba(201,168,76,0.4)">&#9830;</text>
+                    <text x="150" y="145" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="rgba(201,168,76,0.4)">&#9824;</text>
+                    <text x="250" y="145" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="rgba(201,168,76,0.4)">&#9829;</text>
+                    <text x="200" y="200" text-anchor="middle" font-family="Georgia, serif" font-size="8" fill="rgba(201,168,76,0.4)">&#9827;</text>
+
+                    <!-- Company name below crest -->
+                    <text x="200" y="298" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="20" font-weight="700" fill="#c9a84c"
+                          letter-spacing="5">NINE HIGH</text>
+
+                    <text x="200" y="320" text-anchor="middle"
+                          font-family="'Segoe UI', system-ui, sans-serif"
+                          font-size="9" font-weight="300" fill="rgba(255,255,255,0.35)"
+                          letter-spacing="6">STUDIOS</text>
+
+                    <!-- Fine decorative dots flanking -->
+                    <circle cx="148" cy="295" r="1.5" fill="rgba(201,168,76,0.3)"/>
+                    <circle cx="252" cy="295" r="1.5" fill="rgba(201,168,76,0.3)"/>
+                </svg>
+            </div>
+
+            <div class="logo-variants">
+                <div class="variant dark-bg">
+                    <svg width="180" height="60" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20,3 L 38,10 L 39,38 Q 39,52 20,56 Q 1,52 1,38 L 2,10 Z"
+                              fill="none" stroke="#c9a84c" stroke-width="1"/>
+                        <text x="15" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="400" fill="none" stroke="#c9a84c" stroke-width="0.7">N</text>
+                        <text x="26" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="400" fill="none" stroke="#c41e3a" stroke-width="0.7">H</text>
+                        <text x="112" y="24" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#c9a84c" letter-spacing="2">NINE HIGH</text>
+                        <text x="112" y="42" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(255,255,255,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant light-bg">
+                    <svg width="180" height="60" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20,3 L 38,10 L 39,38 Q 39,52 20,56 Q 1,52 1,38 L 2,10 Z"
+                              fill="none" stroke="#a68a3a" stroke-width="1"/>
+                        <text x="15" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="400" fill="none" stroke="#a68a3a" stroke-width="0.7">N</text>
+                        <text x="26" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="400" fill="none" stroke="#c41e3a" stroke-width="0.7">H</text>
+                        <text x="112" y="24" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#1a1a1a" letter-spacing="2">NINE HIGH</text>
+                        <text x="112" y="42" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(0,0,0,0.35)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+                <div class="variant" style="background:#0a0a0a; border-left:1px solid rgba(201,168,76,0.15);">
+                    <svg width="180" height="60" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 20,3 L 38,10 L 39,38 Q 39,52 20,56 Q 1,52 1,38 L 2,10 Z"
+                              fill="rgba(201,168,76,0.1)" stroke="#c9a84c" stroke-width="1"/>
+                        <text x="15" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="400" fill="none" stroke="#c9a84c" stroke-width="0.7">N</text>
+                        <text x="26" y="38" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="400" fill="none" stroke="#c9a84c" stroke-width="0.7">H</text>
+                        <text x="112" y="24" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="700" fill="#c9a84c" letter-spacing="2">NINE HIGH</text>
+                        <text x="112" y="42" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="7" font-weight="300" fill="rgba(201,168,76,0.4)" letter-spacing="4">STUDIOS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="logo-info">
+                <div class="concept-num" style="color:var(--gold);">Concept 10</div>
+                <h2>The Monogram Crest</h2>
+                <p>A classic heraldic shield containing an interlocking "NH" monogram &mdash; the N in gold, the H in red, overlapping at the centre. A small "9" sits at the top of the shield like a family crest. Four card suits mark the compass points. "EST. MMXXV" at the base. This is fashion-house branding applied to poker &mdash; Herm&egrave;s meets the high-stakes room. The crest works beautifully foil-stamped on cards, embossed on leather, or watermarked on chips.</p>
+                <div class="logo-tags">
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Heraldic</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Fashion-House</span>
+                    <span style="background:rgba(201,168,76,0.12); color:var(--gold-light);">Foil-Ready</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="page-footer">
+        <p>&copy; 2025 9 High Studios. All rights reserved.</p>
+    </div>
+
+</body>
+</html>
