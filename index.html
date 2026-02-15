@@ -170,8 +170,8 @@
                 overflow: hidden;
             }
 
-            /* Hero network background */
-            .hero-network-bg {
+            /* Hero floating suits background */
+            .hero-suits-bg {
                 position: absolute;
                 inset: -20px;
                 z-index: 0;
@@ -180,194 +180,81 @@
                 transform: scale(1.05);
             }
 
-            .hero-network-bg .network-lines {
+            .floating-suit {
                 position: absolute;
-                inset: 0;
-                width: 100%;
-                height: 100%;
+                color: rgba(196, 30, 58, 0.25);
+                font-weight: 400;
+                line-height: 1;
+                user-select: none;
+                animation: suitFloat 12s ease-in-out infinite;
             }
 
-            .hero-network-bg .network-lines line {
-                stroke: var(--red);
-                stroke-width: 0.4;
-                opacity: 0.4;
-            }
-
-            .hero-network-bg .network-lines .line-pulse {
-                stroke: var(--red);
-                stroke-width: 0.6;
-                opacity: 0;
-                animation: heroLinePulse 4s ease-in-out infinite;
-            }
-
-            .hero-network-bg .line-pulse:nth-child(8) {
-                animation-delay: 0.4s;
-            }
-            .hero-network-bg .line-pulse:nth-child(9) {
-                animation-delay: 0.9s;
-            }
-            .hero-network-bg .line-pulse:nth-child(10) {
-                animation-delay: 1.4s;
-            }
-            .hero-network-bg .line-pulse:nth-child(11) {
-                animation-delay: 1.9s;
-            }
-            .hero-network-bg .line-pulse:nth-child(12) {
-                animation-delay: 2.4s;
-            }
-            .hero-network-bg .line-pulse:nth-child(13) {
-                animation-delay: 0.7s;
-            }
-            .hero-network-bg .line-pulse:nth-child(14) {
-                animation-delay: 1.7s;
-            }
-
-            @keyframes heroLinePulse {
+            @keyframes suitFloat {
                 0%,
                 100% {
-                    opacity: 0;
+                    transform: translateY(0) rotate(0deg);
                 }
                 50% {
-                    opacity: 0.6;
+                    transform: translateY(-20px) rotate(5deg);
                 }
             }
 
-            .hero-node {
-                position: absolute;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 50%;
-                background: rgba(196, 30, 58, 0.15);
-                border: 1px solid rgba(196, 30, 58, 0.3);
-                color: rgba(255, 255, 255, 0.4);
-                font-weight: 700;
-                z-index: 1;
-            }
-
-            .hero-node::after {
-                content: "";
-                position: absolute;
-                inset: -8px;
-                border-radius: 50%;
-                border: 1px solid rgba(196, 30, 58, 0.1);
-                animation: heroNodeRing 4s ease-in-out infinite;
-            }
-
-            @keyframes heroNodeRing {
-                0%,
-                100% {
-                    transform: scale(1);
-                    opacity: 0.2;
-                }
-                50% {
-                    transform: scale(1.5);
-                    opacity: 0;
-                }
-            }
-
-            .hero-node.h-center {
-                width: 90px;
-                height: 90px;
-                font-size: 2rem;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-                background: rgba(196, 30, 58, 0.2);
-                border: 2px solid rgba(196, 30, 58, 0.4);
-                color: rgba(255, 255, 255, 0.3);
-                animation: heroCenterGlow 5s ease-in-out infinite;
-            }
-
-            @keyframes heroCenterGlow {
-                0%,
-                100% {
-                    box-shadow: 0 0 40px rgba(196, 30, 58, 0.1);
-                }
-                50% {
-                    box-shadow: 0 0 80px rgba(196, 30, 58, 0.25);
-                }
-            }
-
-            .hero-node.h-outer {
-                width: 52px;
-                height: 52px;
-                font-size: 1.2rem;
-                animation: heroNodeFloat 8s ease-in-out infinite;
-            }
-
-            @keyframes heroNodeFloat {
-                0%,
-                100% {
-                    transform: translateY(0);
-                }
-                50% {
-                    transform: translateY(-8px);
-                }
-            }
-
-            .hero-node.h-small {
-                width: 30px;
-                height: 30px;
-                font-size: 0.6rem;
-                border-width: 1px;
-                color: rgba(255, 255, 255, 0.2);
-            }
-
-            .hero-node.h-small::after {
-                display: none;
-            }
-
-            /* Hero node positions — spread across full viewport */
-            .hn-1 {
-                top: 15%;
-                left: 12%;
-                animation-delay: 0s;
-            }
-            .hn-2 {
+            .fs-1 {
                 top: 8%;
-                left: 55%;
-                animation-delay: 1.2s;
+                left: 8%;
+                font-size: 8rem;
+                animation-delay: 0s;
+                animation-duration: 14s;
             }
-            .hn-3 {
-                top: 45%;
-                left: 85%;
-                animation-delay: 2.4s;
-            }
-            .hn-4 {
-                top: 78%;
-                left: 72%;
-                animation-delay: 0.6s;
-            }
-            .hn-5 {
-                top: 75%;
-                left: 20%;
-                animation-delay: 1.8s;
-            }
-            .hn-6 {
-                top: 38%;
-                left: 5%;
-                animation-delay: 3s;
-            }
-            .hn-s1 {
+            .fs-2 {
                 top: 5%;
-                left: 35%;
+                left: 65%;
+                font-size: 10rem;
+                animation-delay: 2s;
+                animation-duration: 16s;
             }
-            .hn-s2 {
-                top: 25%;
-                left: 93%;
+            .fs-3 {
+                top: 55%;
+                left: 80%;
+                font-size: 7rem;
+                animation-delay: 1s;
+                animation-duration: 12s;
             }
-            .hn-s3 {
-                top: 90%;
+            .fs-4 {
+                top: 70%;
+                left: 15%;
+                font-size: 9rem;
+                animation-delay: 3s;
+                animation-duration: 15s;
+            }
+            .fs-5 {
+                top: 30%;
                 left: 45%;
+                font-size: 12rem;
+                animation-delay: 0.5s;
+                animation-duration: 18s;
+                color: rgba(196, 30, 58, 0.12);
             }
-            .hn-s4 {
+            .fs-6 {
+                top: 85%;
+                left: 55%;
+                font-size: 6rem;
+                animation-delay: 4s;
+                animation-duration: 13s;
+            }
+            .fs-7 {
+                top: 15%;
+                left: 35%;
+                font-size: 5rem;
+                animation-delay: 1.5s;
+                animation-duration: 11s;
+            }
+            .fs-8 {
                 top: 60%;
-                left: 2%;
-            }
-            .hn-s5 {
-                top: 88%;
-                left: 90%;
+                left: 3%;
+                font-size: 6rem;
+                animation-delay: 2.5s;
+                animation-duration: 17s;
             }
 
             /* Radial gradient overlay for depth */
@@ -2218,63 +2105,20 @@
 
         <section class="hero mouse-spotlight">
             <div class="spotlight-overlay"></div>
-            <!-- Animated network background -->
-            <div class="hero-network-bg parallax-layer" data-speed="0.02">
-                <svg
-                    class="network-lines"
-                    viewBox="0 0 100 100"
-                    preserveAspectRatio="none"
-                >
-                    <!-- Static dim lines from center -->
-                    <line x1="50" y1="50" x2="12" y2="15" />
-                    <line x1="50" y1="50" x2="55" y2="8" />
-                    <line x1="50" y1="50" x2="85" y2="45" />
-                    <line x1="50" y1="50" x2="72" y2="78" />
-                    <line x1="50" y1="50" x2="20" y2="75" />
-                    <line x1="50" y1="50" x2="5" y2="38" />
-                    <!-- Outer ring connections -->
-                    <line x1="12" y1="15" x2="55" y2="8" />
-                    <line x1="55" y1="8" x2="85" y2="45" />
-                    <line x1="85" y1="45" x2="72" y2="78" />
-                    <line x1="72" y1="78" x2="20" y2="75" />
-                    <line x1="20" y1="75" x2="5" y2="38" />
-                    <line x1="5" y1="38" x2="12" y2="15" />
-                    <!-- Peripheral lines -->
-                    <line x1="12" y1="15" x2="35" y2="5" />
-                    <line x1="55" y1="8" x2="93" y2="25" />
-                    <line x1="72" y1="78" x2="90" y2="90" />
-                    <line x1="20" y1="75" x2="45" y2="90" />
-                    <line x1="5" y1="38" x2="2" y2="60" />
-                    <!-- Pulse overlay lines -->
-                    <line class="line-pulse" x1="50" y1="50" x2="12" y2="15" />
-                    <line class="line-pulse" x1="50" y1="50" x2="85" y2="45" />
-                    <line class="line-pulse" x1="50" y1="50" x2="20" y2="75" />
-                    <line class="line-pulse" x1="12" y1="15" x2="55" y2="8" />
-                    <line class="line-pulse" x1="85" y1="45" x2="72" y2="78" />
-                    <line class="line-pulse" x1="20" y1="75" x2="5" y2="38" />
-                    <line class="line-pulse" x1="50" y1="50" x2="55" y2="8" />
-                </svg>
-
-                <!-- Background nodes -->
-                <div class="hero-node h-center">52</div>
-                <div class="hero-node h-outer hn-1">♠</div>
-                <div class="hero-node h-outer hn-2">♥</div>
-                <div class="hero-node h-outer hn-3">♦</div>
-                <div class="hero-node h-outer hn-4">♣</div>
-                <div class="hero-node h-outer hn-5">♠</div>
-                <div class="hero-node h-outer hn-6">♥</div>
-                <div class="hero-node h-small hn-s1">P2P</div>
-                <div class="hero-node h-small hn-s2">ZK</div>
-                <div class="hero-node h-small hn-s3">TX</div>
-                <div class="hero-node h-small hn-s4">RNG</div>
-                <div class="hero-node h-small hn-s5">NET</div>
+            <!-- Floating suits background -->
+            <div class="hero-suits-bg parallax-layer" data-speed="0.02">
+                <span class="floating-suit fs-1">♠</span>
+                <span class="floating-suit fs-2">♥</span>
+                <span class="floating-suit fs-3">♦</span>
+                <span class="floating-suit fs-4">♣</span>
+                <span class="floating-suit fs-5">♠</span>
+                <span class="floating-suit fs-6">♥</span>
+                <span class="floating-suit fs-7">♦</span>
+                <span class="floating-suit fs-8">♣</span>
             </div>
 
             <!-- Hero content -->
             <div class="hero-content">
-                <span class="hero-badge"
-                    >Australia's Poker Software Studio</span
-                >
                 <h1>We build <strong>poker software</strong></h1>
                 <p class="hero-subtitle">
                     Secure, provably fair poker platforms for operators and
@@ -3188,7 +3032,7 @@ deck.shuffle(seed);
             // MOUSE PARALLAX ON HERO
             // ============================================
 
-            const heroNetworkBg = document.querySelector(".hero-network-bg");
+            const heroNetworkBg = document.querySelector(".hero-suits-bg");
 
             if (heroSection) {
                 heroSection.addEventListener("mousemove", (e) => {
