@@ -170,6 +170,22 @@
                 overflow: hidden;
             }
 
+            .hero-bg-image {
+                position: absolute;
+                inset: -20px;
+                z-index: 0;
+                background: url('istockphoto-614973464-1024x1024.jpg') center/cover no-repeat;
+                filter: blur(8px);
+                transform: scale(1.05);
+            }
+
+            .hero-bg-image::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.55);
+            }
+
             /* Hero floating suits background */
             .hero-suits-bg {
                 position: absolute;
@@ -255,20 +271,6 @@
                 font-size: 6rem;
                 animation-delay: 2.5s;
                 animation-duration: 17s;
-            }
-
-            /* Radial gradient overlay for depth */
-            .hero::before {
-                content: "";
-                position: absolute;
-                inset: 0;
-                background: radial-gradient(
-                    ellipse at center,
-                    transparent 0%,
-                    var(--charcoal) 70%
-                );
-                z-index: 1;
-                pointer-events: none;
             }
 
             /* Hero content floats above everything */
@@ -2107,6 +2109,7 @@
         </button>
 
         <section class="hero mouse-spotlight">
+            <div class="hero-bg-image"></div>
             <div class="spotlight-overlay"></div>
             <!-- Floating suits background -->
             <div class="hero-suits-bg parallax-layer" data-speed="0.02">
