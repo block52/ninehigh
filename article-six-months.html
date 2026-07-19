@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Six Months Building Block 52: A Build Log | 9 High Studios</title>
+    <meta name="description" content="An engineering build log covering six months of work across the Block 52 UI, Poker Virtual Machine, and blockchain — from open-sourcing the client to VRF fairness and a WebSocket-first optimistic gateway.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Six Months Building Block 52: A Build Log">
+    <meta property="og:description" content="What we shipped across the UI, Poker Virtual Machine, and chain from January to July 2026 — provably fair VRF shuffling, Sit & Go tournaments, and a WebSocket-first optimistic gateway.">
+    <meta property="og:image" content="https://9highstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Month marker */
+        .month-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Repo pills */
+        .repo-pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            background: var(--charcoal);
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 0.3rem;
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Engineering &amp; Build Log</span>
+            <h1>Six Months Building Block 52: A Build Log</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; July 2026 &middot; 14 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Build Log</span>
+                <span class="article-tag">Architecture</span>
+                <span class="article-tag">Provably Fair</span>
+                <span class="article-tag">Tournaments</span>
+                <span class="article-tag">Blockchain</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+
+            <p class="lead">Building a provably fair poker platform is not one project. It is three that have to move in lockstep: the client players actually touch, the game engine that decides what is legal, and the chain that settles the money. Over the first half of 2026 we open-sourced the client, migrated our settlement layer to Ethereum mainnet, replaced our card shuffle with verifiable randomness, shipped real-money tournaments, and rebuilt our entire transport around a WebSocket-first "optimistic gateway." This is the build log.</p>
+
+            <h2>Three Repositories, One Product</h2>
+
+            <p>Everything at Block 52 lives across three codebases, and it helps to name them up front because the rest of this article moves between them constantly:</p>
+
+            <ul>
+                <li><span class="repo-pill">UI</span> The front-end client — the table, the wallet, deposits and withdrawals, the tournament lobby. Everything a player sees.</li>
+                <li><span class="repo-pill">PVM</span> The <strong>Poker Virtual Machine</strong> — the off-chain game engine that owns the rules. It decides whose turn it is, what actions are legal, who wins the pot, and what a tournament pays out.</li>
+                <li><span class="repo-pill">Chain</span> The blockchain layer — a Cosmos-based chain that handles deposits, withdrawals, on-chain state, and final settlement. It is the source of truth for money.</li>
+            </ul>
+
+            <p>A single feature — say, a Sit &amp; Go payout — touches all three: the UI shows the prize ladder, the PVM computes who finished where, and the chain moves the funds. The story of the last six months is really the story of getting those three layers to agree on who is responsible for what.</p>
+
+            <h2>January — Foundations and a Single Source of Truth</h2>
+
+            <p><span class="month-tag">Jan 2026</span></p>
+
+            <p>The year opened with cleanup that paid off for the rest of it. Across the PVM and chain we did a data-model consolidation: <code>game_type</code> became <code>game_format</code>, a separate <code>game_variant</code> field was introduced, and the definitions were unified across the protobuf schemas, the TypeScript SDK, and every API response so there was exactly one source of truth. On the chain, we shipped a deterministic deposit-sync architecture keyed to a stored Ethereum block height — and fixed a genuinely nasty bug where non-deterministic ETH RPC calls in <code>EndBlock</code> could split validators and halt the chain.</p>
+
+            <p>On the engine side we pushed early Sit &amp; Go and tournament support, added fuzzing, and began a multi-variant refactor to make room for Omaha alongside Texas Hold'em. We also enforced determinism by ripping <code>Date.now()</code> out of the PVM — a shuffle you want to prove fair cannot depend on the wall clock. The UI, meanwhile, integrated NOWPayments for multi-crypto deposits and consolidated its sprawl of modals and hooks into a shared structure.</p>
+
+            <h2>February — Going Open Source and Moving to Mainnet</h2>
+
+            <p><span class="month-tag">Feb 2026</span></p>
+
+            <p>February was a big month for direction. We <strong>open-sourced the Block 52 UI</strong> — public repo, CI/CD for lint, build, and test, and a large styling standardization pass that moved inline styles into CSS Modules with documented visual-parity checks. The deposit and withdrawal modals were rebranded, USDT support and QR-encoded payment amounts landed, and the product was renamed throughout from its old "Cosmos" working name to Block 52.</p>
+
+            <p>The headline infrastructure change was migrating our settlement currency from Base-chain USDC to <strong>Ethereum-mainnet USDC</strong>. That rippled across the proxy, the bridge, and the UI, and came with a hard-nosed reliability push: async IPN handling, gas pricing, transaction timeouts, environment validation, and a manual bridge admin endpoint for when things go wrong. We also codified a strict typing discipline the team still refers to as the "12 Commandments of Types," and used it to sweep out fallback defaults, Wei-conversion hacks, and legacy Base references — standardizing on 6-decimal micro-USDC everywhere.</p>
+
+            <div class="callout">
+                <p><strong>Why open source?</strong> A platform that asks players to trust the deal should let them read the code that deals it. Open-sourcing the client is the first step toward the same standard we hold the shuffle to: don't trust us, verify us.</p>
+            </div>
+
+            <h2>March — Hardening the Engine, and NFT Avatars</h2>
+
+            <p><span class="month-tag">Mar 2026</span></p>
+
+            <p>March was a hardening month for the PVM. We ran a focused campaign on the ugliest corners of poker rules: dealing hole cards to all-in players who had posted blinds, guarding the winner calculation against undefined cards, busting sub-small-blind stacks correctly, and rounding rake to the nearest blind to eliminate dust. We also chased down a game that could lock up at the end of the very first hand. On the platform side, we upgraded to Cosmos SDK v0.53.6 and CometBFT v0.38.21 and spent real effort resolving a persistent AppHash divergence at block 150 — the kind of consensus bug that only shows up in production and only under load.</p>
+
+            <p>Player-facing, the marquee feature was <strong>NFT avatars</strong>, delivered end to end: on-chain registration via ETH signatures, protobuf and SDK support on the chain, and a polished selection modal with local caching in the UI. The UI also shipped hand replay and sharing — a visual replay page with "Share on X" and QR codes — plus a stage-geometry engine that auto-fits 2-, 6-, and 9-max table layouts.</p>
+
+            <h2>April — Tournaments, Managers, and a Poker Solver</h2>
+
+            <p><span class="month-tag">Apr 2026</span></p>
+
+            <p>April was the busiest month of the half, and it had three distinct threads. First, <strong>Sit &amp; Go tournaments</strong> became a real product: chip-based blind selectors, blind-level countdown timers, chip-denominated betting distinct from USDC, and mobile-responsive auto-join. Second, we refactored the PVM's internals into a clean manager architecture — extracting <code>PotManager</code>, <code>RakeManager</code>, <code>SidePotManager</code>, and a showdown evaluator into injectable, interface-driven components behind a format factory. This is the plumbing that lets cash games and tournaments share an engine while behaving differently where they must.</p>
+
+            <p>Third, and most fun: we built a poker solver from scratch in Go. A native Cactus Kev hand evaluator, range-vs-range board equity, and a CFR-based solver working across the 1,755 canonical flops, wired into our Telegram bot so it plays chart-driven poker instead of flipping a coin. On the chain, the first stage of our verifiable-randomness initiative landed — a VRF wrapper with a bias-free shuffle — setting up the big May push.</p>
+
+            <h2>May — Verifiable Randomness Goes Live</h2>
+
+            <p><span class="month-tag">May 2026</span></p>
+
+            <p>May's defining achievement was completing the multi-part <strong>VRF consensus</strong> work on the chain, replacing the legacy block-hash shuffle with proposer-side verifiable randomness. The seed is generated in <code>PrepareProposal</code>, verified in <code>ProcessProposal</code>, and the deck seed is recorded and checked as part of consensus — with VRF transactions injected as system transactions that bypass the normal ante and are locked down so nothing else can forge them.</p>
+
+            <div class="flow-block">
+                <h4>VRF Shuffle: From Proposal to Verified Deck</h4>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <strong>PrepareProposal</strong>
+                        <span>Proposer generates VRF seed</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>ProcessProposal</strong>
+                        <span>Validators verify proof</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Record Seed</strong>
+                        <span>Committed on-chain</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Shuffle</strong>
+                        <span>Deterministic deck</span>
+                    </div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">
+                        <strong>Anyone Verifies</strong>
+                        <span>Reproduce &amp; check</span>
+                    </div>
+                </div>
+            </div>
+
+            <p>Alongside VRF, tournaments matured into a settleable product. The chain gained on-chain prize payouts, entry-fee skimming to the table creator, validator-signed NFT claim signatures for winners, and a <code>MsgForceCloseGame</code> that lets a creator close a cash table and refund everyone. The PVM finalized Sit &amp; Go payout math and fixed a class of min-raise and heads-up all-in edge cases, while the UI shipped the result modal, the payout-positions panel, and a reliability pattern that holds action spinners until the chain actually confirms. Under the hood we benchmarked Bun against Node and moved the production RPC server to <code>Bun.serve</code>.</p>
+
+            <h2>June — The Optimistic Gateway</h2>
+
+            <p><span class="month-tag">Jun 2026</span></p>
+
+            <p>June was an architectural turning point. We introduced the <strong>optimistic gateway</strong>: a WebSocket-first transport where player actions are signed on the client, relayed over WebSockets for fast play, and settled to the chain behind the scenes — making the chain the opt-out path rather than the hot path for every keystroke. On the chain, this meant a new Go WebSocket gateway with per-viewer state masking (the deck is always hidden, your hole cards are yours alone), Redis-backed persistent state, real PVM-backed action application, and a settlement relay that forwards signed transactions to the chain.</p>
+
+            <p>Critically, money-movers — deposits, withdrawals, buy-ins — were deliberately kept on the direct-to-chain path. Speed where it is safe, chain where it matters. In parallel we began porting the engine to Go for the gateway's needs, validated against a parity corpus so the Go and TypeScript engines agree action for action. The UI got a matching optimistic-transport layer and a visible banner when gateway mode is active, plus a performance campaign that split its game-state context into slices and killed redundant polling to stop full-tree re-renders.</p>
+
+            <div class="callout">
+                <p><strong>The core idea:</strong> most poker actions are cheap and reversible until money settles. Sign them, send them over a socket, play at real speed — and let the chain be the authoritative backstop that settles the hand, not a toll booth on every fold.</p>
+            </div>
+
+            <h2>July — Trustless Settlement and the Action Bus</h2>
+
+            <p><span class="month-tag">Jul 2026</span></p>
+
+            <p>July was about making the new architecture trustworthy and making the client keep up. On the settlement side we converged on a trustless, unordered, serially-drained model: a settlement drain worker on the gateway with no-drop retry of recoverable rejects, resync on sequence mismatch, and unordered signing in the SDK so transactions no longer depend on a fragile account-sequence counter. The chain became the authoritative settlement layer for tournaments by delegating result computation entirely to the PVM — a new <code>MsgRecordHandEnd</code> pushes hand-end state to the chain, which now settles purely from PVM-authored results and no longer runs its own payout math.</p>
+
+            <p>In the UI, we rebuilt event handling around a <strong>WS Action Bus</strong> — a message bus with paced draining, backpressure, and animation-acknowledgment gates so the table stays in sync even when the socket delivers frames out of order or in bursts. Sit &amp; Go got a dedicated claim-winnings flow reading authoritative payouts, and we stood up a local PVM-stub backend with a Playwright gameplay suite on CI. On the engine, we deprecated and removed the <code>ALL_IN</code> action entirely: a shove is now just a raise for a player's whole stack, with "all-in" treated purely as a front-end label — a small change that deletes a whole category of edge cases.</p>
+
+            <h2>The Arc of the Half</h2>
+
+            <p>Step back and the six months trace a clear line. We started with an open-sourced client on Base-chain USDC and a monolithic request/response transport. We finished on Ethereum mainnet, with verifiable VRF-backed shuffling, real-money Sit &amp; Go tournaments settled trustlessly on-chain, and a WebSocket-first architecture where the PVM is the authoritative game engine and the chain is a clean settlement backstop.</p>
+
+            <p>The consistent theme was drawing sharp lines of responsibility between the three layers — the client presents, the PVM rules, the chain settles — and then rebuilding the connections between them so each does its job and nothing else. That is not glamorous work. But it is exactly the work that lets us make the one promise that matters: every hand is provably fair, and you don't have to take our word for it.</p>
+
+            <div class="article-cta">
+                <h3>We build provably fair poker at Nine High Studios.</h3>
+                <p>Six months of engineering behind every hand on Block 52. If you're building a poker platform and want it done right, let's talk.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch &#9830;</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
