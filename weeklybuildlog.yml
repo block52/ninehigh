@@ -1,0 +1,136 @@
+name: Weekly build log
+
+on:
+  schedule:
+    # 23:00 UTC Sunday = 09:00 Monday, Australia/Brisbane (UTC+10, no DST).
+    - cron: "0 23 * * 0"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Write an article even if the week was quiet"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: weekly-build-log
+  cancel-in-progress: false
+
+jobs:
+  build-log:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Push with the PAT rather than GITHUB_TOKEN so the Pages build
+          # still fires on the resulting commit.
+          token: ${{ secrets.BLOCK52_TOKEN }}
+          fetch-depth: 0
+
+      - name: Collect the week's activity
+        id: collect
+        env:
+          GH_TOKEN: ${{ secrets.BLOCK52_TOKEN }}
+          PR_THRESHOLD: "5"
+        run: |
+          chmod +x .github/scripts/collect-week.sh
+          .github/scripts/collect-week.sh
+
+      - name: Write the article
+        if: steps.collect.outputs.should_write == 'true' || inputs.force
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(jq:*),Bash(wc:*),Bash(date:*)"
+          prompt: |
+            You are writing this week's build-log article for the 9 High Studios
+            site. You are already in a checkout of the block52/ninehigh repo.
+
+            `week-data.json` in the repo root holds everything that happened
+            across the three Block 52 repos between
+            ${{ steps.collect.outputs.window_start }} and
+            ${{ steps.collect.outputs.window_end }}: per-repo merged pull
+            requests with line counts, commit messages, and any releases cut.
+            Read it first. Every number you print must come from that file —
+            never estimate, never round up to something you did not count.
+
+            Read `articles/three-weeks-go-engine.md` and
+            `article-three-weeks-go-engine.html` next. They are the house
+            template and the tone to match: first-person plural, concrete,
+            engineering-led, unhype. The article opens with a scoreboard of the
+            numbers, then explains what those numbers were actually spent on.
+
+            Produce four changes:
+
+            1. `articles/<slug>.md` — the markdown source. YAML frontmatter with
+               title, `author: Nine High Studios`,
+               `date: ${{ steps.collect.outputs.article_date }}`, and tags
+               starting with `Build Log` plus two to four that fit the week's
+               real work. Then: an H1, an italic one-line standfirst, a lead
+               paragraph naming the range (${{ steps.collect.outputs.window_label }})
+               and the headline numbers, a `## The scoreboard` table of
+               Repository / Merged PRs / Lines added / Lines removed / Total
+               changed with a bold Total row, then sections on the substantive
+               work. 700-1200 words. Lead with whatever was genuinely the
+               biggest thing that week rather than marching through the repos in
+               order. If a week is mostly small fixes, say so plainly and keep
+               it short rather than inflating it.
+
+            2. `article-<slug>.html` — copy `article-three-weeks-go-engine.html`
+               and replace only the content: <title>, meta description,
+               og:title, og:description, the canonical href, the <h1>,
+               `.article-meta-info` (By Nine High Studios &middot; <Month Year>
+               &middot; <N> min read, at ~220 words/min), the `.article-tags`
+               spans, and everything inside `.article-body`. Leave the entire
+               <style> block, <nav> and footer byte-for-byte unchanged. Reuse
+               `.stat-grid`/`.stat-card` for headline numbers and `.repo-pill`
+               for UI / PVM / Chain. Escape entities as the existing articles do
+               (&mdash;, &middot;, &amp;).
+
+            3. `blog.html` — add a new `<a href="article-<slug>.html"
+               class="article-card">` block as the FIRST card in the list,
+               matching the existing card structure exactly.
+
+            4. `sitemap.xml` — add a <url> entry for the new page following the
+               file's own host convention, with <lastmod> set to the article
+               date, <changefreq>monthly</changefreq>, <priority>0.7</priority>.
+
+            Slug: short, descriptive, kebab-case, matching the naming style of
+            the files already there.
+
+            Do not commit — a later step does that. Do not modify week-data.json
+            or anything under .github/.
+
+      - name: Commit and push
+        if: steps.collect.outputs.should_write == 'true' || inputs.force
+        run: |
+          rm -f week-data.json
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "::warning::Claude produced no changes — nothing to publish."
+            exit 0
+          fi
+          git config user.name  "9 High Build Log"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          TITLE=$(git diff --cached --name-only | grep -m1 '^articles/.*\.md$' \
+                  | xargs -r -I{} sh -c "sed -n 's/^title: *//p' {} | head -1 | tr -d '\"'")
+          git commit -m "blog: add \"${TITLE:-weekly}\" build log
+
+          Week of ${{ steps.collect.outputs.window_label }} —
+          ${{ steps.collect.outputs.pr_total }} merged PRs across UI, PVM and Chain.
+
+          Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+          git push
+          echo "Published: $(git rev-parse --short HEAD)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Quiet week
+        if: steps.collect.outputs.should_write != 'true' && !inputs.force
+        run: |
+          echo "Only ${{ steps.collect.outputs.pr_total }} merged PRs this week — skipping the article."
