@@ -126,7 +126,7 @@ jobs:
           Week of ${{ steps.collect.outputs.window_label }} —
           ${{ steps.collect.outputs.pr_total }} merged PRs across UI, PVM and Chain.
 
-          Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"
+          Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
           git push
           echo "Published: $(git rev-parse --short HEAD)" >> "$GITHUB_STEP_SUMMARY"
 
