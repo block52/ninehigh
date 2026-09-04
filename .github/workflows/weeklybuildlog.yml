@@ -115,6 +115,7 @@ jobs:
             or anything under .github/.
 
       - name: Commit and push
+        id: publish
         if: steps.collect.outputs.should_write == 'true' || inputs.force
         run: |
           rm -f week-data.json
@@ -125,6 +126,8 @@ jobs:
           git config user.name  "9 High Build Log"
           git config user.email "actions@users.noreply.github.com"
           git add -A
+          ARTICLE_HTML=$(git diff --cached --name-only \
+                  | grep -m1 '^article-.*\.html$' || true)
           TITLE=$(git diff --cached --name-only | grep -m1 '^articles/.*\.md$' \
                   | xargs -r -I{} sh -c "sed -n 's/^title: *//p' {} | head -1 | tr -d '\"'")
           git commit -m "blog: add \"${TITLE:-weekly}\" build log
@@ -134,7 +137,94 @@ jobs:
 
           Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
           git push
-          echo "Published: $(git rev-parse --short HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          SHA=$(git rev-parse --short HEAD)
+          echo "Published: $SHA" >> "$GITHUB_STEP_SUMMARY"
+          # Expose the published page so the tweet steps can run. Empty when
+          # nothing was published, which gates those steps off.
+          if [ -n "$ARTICLE_HTML" ]; then
+            echo "article_html=$ARTICLE_HTML" >> "$GITHUB_OUTPUT"
+            echo "article_url=https://ninehighstudios.com/$ARTICLE_HTML" >> "$GITHUB_OUTPUT"
+            echo "title=$TITLE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Draft the social posts
+        id: social_draft
+        if: steps.publish.outputs.article_url != ''
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: |
+            --max-turns 10
+            --allowedTools "Read,Write"
+          prompt: |
+            Write social posts announcing this week's build-log article and
+            save them to two files in the repo root: `tweet.txt` and
+            `facebook.txt`. Those two files are the only things you should
+            create; do not touch anything else.
+
+            The article lives at `${{ steps.publish.outputs.article_html }}`
+            in this checkout, titled "${{ steps.publish.outputs.title }}". Its
+            public URL is ${{ steps.publish.outputs.article_url }}. Read the
+            article first so both posts reflect what actually shipped.
+
+            Voice for both: 9 High Studios — first-person plural, concrete,
+            engineering-led, no hype, no emoji-spam (one tasteful emoji at
+            most, usually none). Lead with the single most interesting thing
+            that shipped or a headline number from the scoreboard, not a
+            generic "new post." Do not make the two posts word-for-word
+            identical — the Facebook one can breathe a little.
+
+            tweet.txt — the X post:
+            - Entire tweet INCLUDING the URL at most 270 characters (X counts a
+              URL as 23 chars — leave margin).
+            - End with the URL on its own line, exactly:
+              ${{ steps.publish.outputs.article_url }}
+            - At most one hashtag, only if it genuinely fits.
+
+            facebook.txt — the Facebook Page post:
+            - No hard length limit, but keep it tight: 2-4 sentences. Facebook
+              renders its own link preview card from the URL, so you do NOT need
+              to describe the link mechanically — write the commentary that
+              makes someone click.
+            - End with the URL on its own line, exactly:
+              ${{ steps.publish.outputs.article_url }}
+
+            Both files: plain text only. No surrounding quotes, no markdown, no
+            preamble. Write ONLY the post text to each file.
+
+      - name: Post to X
+        if: steps.publish.outputs.article_url != ''
+        env:
+          X_API_KEY:             ${{ secrets.X_API_KEY }}
+          X_API_SECRET:          ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN:        ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ ! -s tweet.txt ]; then
+            echo "::warning::No tweet.txt produced — skipping the post."
+            exit 0
+          fi
+          TEXT=$(cat tweet.txt)
+          echo "Tweeting: $TEXT"
+          .github/scripts/post-tweet.sh "$TEXT"
+          rm -f tweet.txt
+
+      - name: Post to Facebook
+        if: steps.publish.outputs.article_url != ''
+        env:
+          FB_PAGE_ID:           ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ ! -s facebook.txt ]; then
+            echo "::warning::No facebook.txt produced — skipping the post."
+            exit 0
+          fi
+          TEXT=$(cat facebook.txt)
+          echo "Posting to Facebook: $TEXT"
+          .github/scripts/post-facebook.sh "$TEXT" "${{ steps.publish.outputs.article_url }}"
+          rm -f facebook.txt
 
       - name: Quiet week
         if: steps.collect.outputs.should_write != 'true' && !inputs.force
