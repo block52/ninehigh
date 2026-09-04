@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choice on Join: A Week Spent on Sitting Down | 9 High Studios</title>
+    <meta name="description" content="A one-week build log across the Block 52 UI, Poker Virtual Machine and Cosmos chain: 18 merged pull requests, 2,270 lines changed, nine chain releases, six embedded Go engine bumps, and a per-seat action echo that lasted 28 hours.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Choice on Join: A Week Spent on Sitting Down">
+    <meta property="og:description" content="Eighteen pull requests, 2,270 lines and nine chain releases &mdash; nearly all of it about the thirty seconds before your first hand.">
+    <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://ninehighstudios.com/article-choice-on-join.html">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Choice on Join: A Week Spent on Sitting Down",
+        "description": "A one-week build log across the Block 52 UI, Poker Virtual Machine and Cosmos chain: 18 merged pull requests, 2,270 lines changed, nine chain releases, six embedded Go engine bumps, and a per-seat action echo that lasted 28 hours.",
+        "image": "https://ninehighstudios.com/og-image.png",
+        "datePublished": "2026-09-04",
+        "dateModified": "2026-09-04",
+        "url": "https://ninehighstudios.com/article-choice-on-join.html",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ninehighstudios.com/article-choice-on-join.html" },
+        "author": { "@type": "Organization", "name": "9 High Studios", "url": "https://ninehighstudios.com" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "9 High Studios",
+            "logo": { "@type": "ImageObject", "url": "https://ninehighstudios.com/og-image.png" }
+        }
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Month marker */
+        .month-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Repo pills */
+        .repo-pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            background: var(--charcoal);
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 0.3rem;
+        }
+
+        /* Stat grid — live production metrics */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            display: block;
+            font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+        }
+        @media (max-width: 640px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Engineering &amp; Build Log</span>
+            <h1>Choice on Join: A Week Spent on Sitting Down</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; September 2026 &middot; 5 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Build Log</span>
+                <span class="article-tag">UI</span>
+                <span class="article-tag">Release Engineering</span>
+                <span class="article-tag">Tournaments</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+
+            <p class="lead">From 24 August to 30 August 2026 we merged <strong>18 pull requests</strong> across the three Block 52 repositories and changed <strong>2,270 lines</strong> doing it &mdash; 1,635 added, 635 removed, across 51 files. The settlement chain cut <strong>nine releases</strong> in those seven days. By line count this was a small week. By subject it was an unusually focused one: almost everything that shipped was about the moment a player joins a table and decides whether they are in <em>this</em> hand or the next one.</p>
+
+            <h2>The Scoreboard</h2>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-number">18</span>
+                    <span class="stat-label">Pull requests merged</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">2,270</span>
+                    <span class="stat-label">Lines changed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">9</span>
+                    <span class="stat-label">Chain releases published</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">6</span>
+                    <span class="stat-label">Engine versions adopted</span>
+                </div>
+            </div>
+
+            <p>The three repositories broke down like this:</p>
+
+            <ul>
+                <li><span class="repo-pill">UI</span> The client &mdash; <strong>8 PRs</strong>, 1,751 lines changed (1,187 added, 564 removed).</li>
+                <li><span class="repo-pill">PVM</span> The Poker Virtual Machine &mdash; <strong>0 PRs</strong>, nothing merged.</li>
+                <li><span class="repo-pill">Chain</span> The settlement chain &mdash; <strong>10 PRs</strong>, 519 lines changed (448 added, 71 removed).</li>
+            </ul>
+
+            <p>The PVM repository recorded no merged pull requests at all this week. That row is a zero and we are going to leave it as a zero &mdash; the engine work that mattered arrived in the chain as version bumps, which is exactly what the Go port was for.</p>
+
+            <h2>Six Pull Requests About One Screen</h2>
+
+            <p>Six of the eight UI pull requests touch the same flow: what the client does when you arrive at a table.</p>
+
+            <p>It used to decide for you. On bootstrap, the client would fire a sit-in and seat you, which is fine right up until the table is mid-hand, or you are owed a big blind, or you wanted to watch a lap before committing money. So we took it apart over five merges in four days:</p>
+
+            <ul>
+                <li><strong>#546</strong> (24 Aug, +56/&minus;1) restored the <em>Sit In And Wait for BB</em> button that had gone missing.</li>
+                <li><strong>#547</strong> (26 Aug, +70/&minus;15) taught the join path to handle a <code>WAITING_FOR_BIG_BLIND</code> status instead of treating it as an unexpected state.</li>
+                <li><strong>#548</strong> (26 Aug, +111/&minus;41) is the one the week is named after: choice-on-join. No auto-fire on bootstrap. You arrive, and you say what you want.</li>
+                <li><strong>#549</strong> (27 Aug, +67/&minus;78) turned those options into a radio panel that commits on select, with no separate confirm button. It is the first PR of the week to remove more than it added.</li>
+                <li><strong>#555</strong> (27 Aug, +153/&minus;17) then put the whole thing behind a <code>sitInOptions</code> toggle, with auto-sit-in as the default and the radio panel as opt-in.</li>
+            </ul>
+
+            <p>That last step is worth being honest about. We spent four days removing an automatic behaviour and then shipped a toggle that restores it as the default. The difference is that the automatic path is now one branch of an explicit decision rather than the only thing the code knows how to do, and any table can turn it off. But the shape of the work was "make it a choice," not "make it stop."</p>
+
+            <h2>723 Lines In, 396 Lines Out</h2>
+
+            <p>The single largest change in the UI this week was <strong>#556</strong> (27 Aug): a per-seat committed-action echo, a rebase of a long-lived branch onto main, <strong>+723 lines across 6 files and not one deletion</strong>. Every seat got a small bubble showing the action that player had just committed.</p>
+
+            <p><strong>#559</strong> merged 28 hours later, on 28 August: <em>remove per-seat action echo bubble</em>, <strong>&minus;396 lines across 5 files, zero additions</strong>. It closed the issue the bubble itself had opened.</p>
+
+            <div class="callout">
+                <p><strong>It did not work at the table.</strong> It read as noise on a busy board and duplicated information the seat already carried, so it came out. The underlying plumbing stayed; only the bubble went. Between them those two pull requests account for 723 of the UI's 1,187 additions and 396 of its 564 deletions &mdash; more than half the client's churn for the week is one feature arriving and mostly leaving again.</p>
+            </div>
+
+            <p>Shipping something for a day and pulling it is a cheaper way to find that out than arguing about it for a month.</p>
+
+            <h2>The Chain: Nine Releases, Six Engine Bumps</h2>
+
+            <p>The chain merged 10 pull requests for only 519 changed lines, but recorded 25 commits and published nine releases, v0.1.131 through v0.1.139. Most of those commits are the automated version bump that follows each merge.</p>
+
+            <p>That release cadence exists because of the first fix of the week. <strong>#310</strong> (24 Aug, +7/&minus;0, one file) granted <code>packages:write</code> to the auto-tag workflow, which had been failing at startup and blocking every release since v0.1.130. v0.1.131 was published three minutes after it merged, and the tagger has not missed one since.</p>
+
+            <p>Six of the ten chain PRs are engine adoptions, pulling the embedded Go engine forward one version at a time:</p>
+
+            <ul>
+                <li><strong>v1.0.6</strong> &mdash; rake payout fix (#309)</li>
+                <li><strong>v1.0.7</strong> &mdash; wait-for-BB heads-up rotation fix (#314)</li>
+                <li><strong>v1.0.8</strong> &mdash; choice-on-join, matching the UI work above (#315)</li>
+                <li><strong>v1.0.9</strong> &mdash; post-now entry blind and a small-blind-seat deadlock (#316)</li>
+                <li><strong>v1.0.10</strong> &mdash; SNG finalise fix (#317)</li>
+                <li><strong>v1.0.11</strong> &mdash; SNG sit-in bootstrap fix (#320)</li>
+            </ul>
+
+            <p>Each of those is a three-line change to two files. Six engine fixes reached production for eighteen lines of chain code, because the engine is a pinned Go module rather than a service on the other side of a language boundary. That is the whole return on last month's port, showing up as a rounding error in the diff.</p>
+
+            <p>The chain's one real code fix was <strong>#319</strong> (28 Aug, +50/&minus;10): tolerate partial <code>Results</code> in <code>maybeFinalizeSNG</code>. Tournament finalisation assumed it would always be handed a complete result set, which is not true of a chop or of a tournament still working through multiple hands. It now finalises on what it actually has.</p>
+
+            <h2>The Rest</h2>
+
+            <p><strong>#313</strong> (26 Aug, +361/&minus;35) was the largest single chain PR of the week: a Docker option for running the chain locally, so a local testnet is one command rather than an afternoon.</p>
+
+            <p><strong>#312</strong> (+12/&minus;8) retired the node2 Docker deploy path, node2 having moved to bare-metal systemd &mdash; deleting a deploy route we no longer use before it rots.</p>
+
+            <p>And <strong>#554</strong> (+7/&minus;16) came from a Copilot agent, the only bot-authored merge of the week: the Top-Up Chips button is now always clickable while you are seated. A net deletion of nine lines to remove a disabled state nobody wanted.</p>
+
+            <h2>The Through-Line</h2>
+
+            <p>Weeks like this do not photograph well. Two thousand lines is a slow week by any measure we have, and a meaningful slice of it was a feature that lasted a day.</p>
+
+            <p>But look at what the small numbers are made of. Six engine fixes shipped for eighteen lines. A stuck release pipeline was unblocked by seven lines and produced nine releases behind it. A feature that did not work at the table was gone the next morning without a migration. The join flow that used to be an assumption is now a setting.</p>
+
+            <p>Most of the leverage in a project this size is built in the loud weeks and spent in the quiet ones. <strong>This was a quiet one.</strong></p>
+
+            <div class="article-cta">
+                <h3>Want to build a poker platform?</h3>
+                <p>We build provably fair, real-money poker where every hand is shuffled by verifiable randomness and settled on a public blockchain. We'd love to hear about your project.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
