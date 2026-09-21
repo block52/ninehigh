@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seven Pull Requests: A Clockwise Showdown and a Clock Anyone Can Call | 9 High Studios</title>
+    <meta name="description" content="A one-week build log across the Block 52 UI, Poker Virtual Machine, and chain: 7 merged pull requests, a sequenced clockwise showdown with losing-hand muck in the Go engine, a deterministic action clock built as a permissionless timeout action, and the groundwork for animating the hole-card deal.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Seven Pull Requests: A Clockwise Showdown and a Clock Anyone Can Call">
+    <meta property="og:description" content="A small week by count: 7 merged pull requests spent on a clockwise showdown where the beaten hand can muck, an action clock every validator agrees on, and the groundwork for dealing hole cards one at a time.">
+    <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://ninehighstudios.com/article-showdown-order-action-clock.html">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Seven Pull Requests: A Clockwise Showdown and a Clock Anyone Can Call",
+        "description": "A one-week build log across the Block 52 UI, Poker Virtual Machine, and chain: 7 merged pull requests, a sequenced clockwise showdown with losing-hand muck in the Go engine, a deterministic action clock built as a permissionless timeout action, and the groundwork for animating the hole-card deal.",
+        "image": "https://ninehighstudios.com/og-image.png",
+        "datePublished": "2026-09-21",
+        "dateModified": "2026-09-21",
+        "url": "https://ninehighstudios.com/article-showdown-order-action-clock.html",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ninehighstudios.com/article-showdown-order-action-clock.html" },
+        "author": { "@type": "Organization", "name": "9 High Studios", "url": "https://ninehighstudios.com" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "9 High Studios",
+            "logo": { "@type": "ImageObject", "url": "https://ninehighstudios.com/og-image.png" }
+        }
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Month marker */
+        .month-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Repo pills */
+        .repo-pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            background: var(--charcoal);
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 0.3rem;
+        }
+
+        /* Stat grid — live production metrics */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            display: block;
+            font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+        }
+        @media (max-width: 640px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Engineering &amp; Build Log</span>
+            <h1>Seven Pull Requests: A Clockwise Showdown and a Clock Anyone Can Call</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; September 2026 &middot; 6 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Build Log</span>
+                <span class="article-tag">Engine</span>
+                <span class="article-tag">Showdown</span>
+                <span class="article-tag">Determinism</span>
+                <span class="article-tag">Animation</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+
+            <p class="lead">This was a quiet week by the numbers. Between 14 September and 20 September 2026 we merged <strong>7 pull requests</strong> across the three Block 52 repositories, adding <strong>6,580 lines</strong> and removing <strong>3,711</strong>. A week that size gets a short article. But two of those seven changed how the engine behaves at the table, and both are worth explaining.</p>
+
+            <h2>The Scoreboard</h2>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-number">7</span>
+                    <span class="stat-label">Pull requests merged</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">10,291</span>
+                    <span class="stat-label">Lines changed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">6,580</span>
+                    <span class="stat-label">Lines added</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">3,711</span>
+                    <span class="stat-label">Lines removed</span>
+                </div>
+            </div>
+
+            <p>The three repositories broke down like this:</p>
+
+            <ul>
+                <li><span class="repo-pill">UI</span> The client &mdash; <strong>4 PRs</strong>, 1,742 lines changed (1,646 added, 96 removed).</li>
+                <li><span class="repo-pill">PVM</span> The Poker Virtual Machine &mdash; <strong>3 PRs</strong>, 8,549 lines changed (4,934 added, 3,615 removed).</li>
+                <li><span class="repo-pill">Chain</span> The settlement chain &mdash; <strong>0 PRs</strong>, 0 lines changed.</li>
+            </ul>
+
+            <p>Three honest footnotes. The UI row flatters us: one of its four PRs re-lands another that merged one branch short of main, so the same six files are counted twice. Counted once, the client added 998 lines and removed 48. Of the engine's 3,615 removed lines, 3,291 were a single PR deleting a smoke-test harness for the old WebSocket gateway, which is archived and had nothing left to talk to. And the chain row is a real zero, which matters for how to read everything that follows.</p>
+
+            <h2>The Big One: Showdown, in Order</h2>
+
+            <p>The largest change of the week &mdash; 4,157 lines added across 33 files &mdash; teaches the Go engine something every live dealer does without thinking: <strong>hands are shown one at a time, clockwise, and a beaten player may muck.</strong></p>
+
+            <p>Until now, any live player could show or muck in any order. The best hand still won the pot, but it wasn't poker as played. At a real table the order matters: if the player before you has already shown the nuts, you're entitled to throw your cards away unseen.</p>
+
+            <p>The new showdown runs clockwise from the first seat after the dealer button:</p>
+
+            <ul>
+                <li>The <strong>first player</strong>, every <strong>all-in player</strong>, and anyone whose hand can <strong>beat or tie</strong> the best hand shown so far is revealed automatically. No button, no action to sign.</li>
+                <li>Only a player who is <strong>already beaten</strong> pauses the sequence. They &mdash; and only they &mdash; are offered <em>show</em> or <em>muck</em>.</li>
+                <li>Show and muck are now <strong>turn-ordered</strong>. If it isn't your reveal, the engine rejects the action.</li>
+                <li>A player who mucks gets a new visible status, <code>mucked</code>. Internally they're still treated as folded, so none of the evaluation or round-end code had to change to accommodate it.</li>
+            </ul>
+
+            <div class="callout">
+                <p><strong>The cost: parity ends at showdown.</strong> Last month we wrote about proving the Go engine byte-for-byte identical to the TypeScript original. This change deliberately breaks that parity at showdown. The TypeScript engine is deprecated and won't learn the new behaviour, so the parity harnesses now skip showdown snapshots. Everything before showdown still matches byte-for-byte.</p>
+            </div>
+
+            <p>The new behaviour is covered by its own tests, including one that drives the full sequence through the same entry point the chain uses.</p>
+
+            <h2>An Action Clock Anyone Can Call</h2>
+
+            <p>The second engine change is smaller &mdash; 777 lines added across 8 files. The engine now has an <strong>action clock</strong>, and it's implemented as a transaction rather than a timer.</p>
+
+            <p>We'd tried this before in TypeScript and reverted it. That version checked for expired turns while serialising the table, which meant <em>reading</em> a table could sit a player out. And with multiple validators, "has this player run out of time?" is a dangerous question: two hosts answering it against their own clocks can disagree, and disagreement is a consensus failure.</p>
+
+            <p>So the clock is now an explicit, <strong>permissionless <code>timeout</code> action</strong>. Any address can submit it. The engine checks that the table has a timeout configured and that the deadline for the player on the clock has passed &mdash; measured from the most recent recorded action in the hand, against the timestamp of the <code>timeout</code> action itself. If so, it plays that player's forced default <em>as them</em>: check if it's legal, otherwise fold; post the blind they owe; muck at showdown if they can, otherwise show.</p>
+
+            <p>Because expiry is a pure function of the stored state and the action's timestamp, every validator applying the same <code>timeout</code> at the same block time reaches the same bytes.</p>
+
+            <p>A timed-out player is <strong>not</strong> sat out. They stay active and get dealt into the next hand, so in a tournament they're blinded off and bust normally instead of stalling a heads-up finish.</p>
+
+            <p>One known gap: a hand with no recorded action yet has nothing to anchor the clock on, so the first blind poster can't be timed out. That gets closed by having the engine post blinds itself, not by a cleverer clock.</p>
+
+            <p>We cut <strong>v1.0.17</strong> of the Go engine module right after the clock merged. It carries the clock but not the new showdown, which landed two days later.</p>
+
+            <h2>The UI: Cards That Actually Get Dealt</h2>
+
+            <p>All four client PRs were one feature: <strong>animating the hole-card deal</strong>. Today, cards simply appear in front of each seat. The plan is for them to fly from the deck, one at a time, clockwise from the seat after the button &mdash; the way a dealer pitches them.</p>
+
+            <p>What merged this week is deliberately the unglamorous half:</p>
+
+            <ul>
+                <li>A <strong>350-line plan</strong> first, as its own PR, so the design could be argued with before any code existed.</li>
+                <li><strong>Phase 0:</strong> one timing module that both the JavaScript and the CSS read, so the stylesheet can't drift from the animation budgets, plus the geometry of where the deck sits and where each seat's two cards land.</li>
+                <li><strong>Phase 1:</strong> a <code>cardsDealt</code> event and the decorator that puts seats in dealing order.</li>
+            </ul>
+
+            <p>Phase 1 turned up a nice subtlety. The engine keeps hole cards through the end of a hand and only clears them when the next one starts, so a new deal never looks like "no cards, then cards" &mdash; it looks like "last hand's cards, then this hand's". An event that watched only for the first transition would have missed every deal after the first.</p>
+
+            <p>Nothing a player can see has changed yet. The rendering phase &mdash; the flying cards, the flip, a setting to turn it off, and an instant deal for anyone with reduced motion enabled &mdash; comes next. The plan's starting budget is a 90 ms stagger, a 200 ms flight and a 300 ms flip: about two seconds to deal a nine-handed table, under one heads-up.</p>
+
+            <h2>What Hasn't Shipped</h2>
+
+            <p>Here's the part a scoreboard hides. With zero PRs merged to the chain, <strong>neither engine change is live at a table yet.</strong> The action clock needs the chain to accept <code>timeout</code> as a valid action and, eventually, to submit it for idle tables at block time. The showdown needs an engine tag, a chain bump, the <code>mucked</code> status in the SDK, and a client that drives show and muck from the engine's legal actions. Both change what validators compute, so they go out as a coordinated release rather than a quiet deploy.</p>
+
+            <p>So: a small week, mostly spent making the engine behave like a dealer would &mdash; reveal in order, let the loser muck, and don't let one player hold up the table forever. Next week's job is <strong>getting it to the felt.</strong></p>
+
+            <div class="article-cta">
+                <h3>Want to build a poker platform?</h3>
+                <p>We build provably fair, real-money poker where every hand is shuffled by verifiable randomness and settled on a public blockchain. We'd love to hear about your project.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
