@@ -11,16 +11,16 @@
 set -euo pipefail
 
 TZ_LOCAL="Australia/Brisbane"
-REPOS=("block52/ui" "block52/pvm" "block52/pokerchain")
+REPOS=("block52/ui" "block52/poker-vm" "block52/pokerchain")
 # Display names used in the article — keep in step with REPOS above.
 declare -A REPO_LABEL=(
   ["block52/ui"]="UI"
-  ["block52/pvm"]="PVM"
+  ["block52/poker-vm"]="PVM"
   ["block52/pokerchain"]="Chain"
 )
 declare -A REPO_BLURB=(
   ["block52/ui"]="the client"
-  ["block52/pvm"]="the Poker Virtual Machine"
+  ["block52/poker-vm"]="the Poker Virtual Machine"
   ["block52/pokerchain"]="the settlement chain"
 )
 
@@ -38,6 +38,9 @@ last_day=$(TZ="$TZ_LOCAL" date -d "$end_date -1 day" +%Y-%m-%d)
 
 START="${start_date}T00:00:00+10:00"
 END="${end_date}T00:00:00+10:00"
+# GitHub reports publishedAt in UTC ("...Z"); compare releases against UTC bounds.
+START_UTC=$(date -u -d "$START" +%Y-%m-%dT%H:%M:%SZ)
+END_UTC=$(date -u -d "$END" +%Y-%m-%dT%H:%M:%SZ)
 LABEL="$(TZ="$TZ_LOCAL" date -d "$start_date" '+%-d %B') to $(TZ="$TZ_LOCAL" date -d "$last_day" '+%-d %B %Y')"
 ARTICLE_DATE="$today"
 
@@ -75,7 +78,7 @@ for repo in "${REPOS[@]}"; do
 
   # Releases cut during the window (tolerated if the repo publishes none).
   gh release list --repo "$repo" --limit 30 --json tagName,publishedAt \
-      --jq "[.[] | select(.publishedAt >= \"$START\" and .publishedAt < \"$END\")]" \
+      --jq "[.[] | select(.publishedAt >= \"$START_UTC\" and .publishedAt < \"$END_UTC\")]" \
       > "$tmp/${safe}.releases.json" 2>/dev/null \
     || echo '[]' > "$tmp/${safe}.releases.json"
 
