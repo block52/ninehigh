@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
 #
 # Collects merged PRs, commits and release tags across the three Block 52 repos
-# for the previous Monday-to-Sunday week (Australia/Brisbane), and writes a
-# JSON digest to week-data.json.
+# for one Monday-to-Sunday week (Australia/Brisbane), and writes a JSON digest
+# to week-data.json. With no arguments it collects the previous complete week,
+# which is what the scheduled Monday workflow wants.
+#
+# Usage:
+#   collect-week.sh                     # the previous complete week
+#   collect-week.sh --week 2026-09-21   # the week containing that date
+#   WEEK_START=2026-09-21 collect-week.sh
+#
+# --week accepts ANY day in the target week, not just the Monday; it snaps back
+# to that week's Monday. Handy for back-filling a missed article.
 #
 # Requires: gh (authenticated via GH_TOKEN), jq.
 # Sets GitHub Actions outputs: window_start, window_end, window_label,
 # article_date, pr_total, should_write.
 
 set -euo pipefail
+
+usage() {
+  sed -n '3,15p' "$0" | sed 's/^# \?//'
+}
 
 TZ_LOCAL="Australia/Brisbane"
 REPOS=("block52/ui" "block52/poker-vm" "block52/pokerchain")
@@ -28,11 +41,44 @@ declare -A REPO_BLURB=(
 THRESHOLD="${PR_THRESHOLD:-5}"
 
 # ---------------------------------------------------------------------------
-# 1. Work out the window: previous Mon 00:00 -> Mon 00:00 (exclusive), Brisbane
+# 0. Arguments
 # ---------------------------------------------------------------------------
+WEEK_START="${WEEK_START:-}"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --week)
+      if [ $# -lt 2 ] || [ -z "$2" ]; then
+        echo "collect-week.sh: --week needs a date, e.g. --week 2026-09-21" >&2
+        exit 2
+      fi
+      WEEK_START="$2"; shift 2 ;;
+    --week=*) WEEK_START="${1#*=}"; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "collect-week.sh: unknown argument '$1'" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+# ---------------------------------------------------------------------------
+# 1. Work out the window: Mon 00:00 -> Mon 00:00 (exclusive), Brisbane
+# ---------------------------------------------------------------------------
+# `today` is always the real date — it dates the ARTICLE, not the window, so a
+# back-filled week is still published today.
 today=$(TZ="$TZ_LOCAL" date +%Y-%m-%d)
-dow=$(TZ="$TZ_LOCAL" date +%u)                       # 1 = Monday
-start_date=$(TZ="$TZ_LOCAL" date -d "$today -$((dow - 1)) days -7 days" +%Y-%m-%d)
+
+if [ -n "$WEEK_START" ]; then
+  if ! anchor=$(TZ="$TZ_LOCAL" date -d "$WEEK_START" +%Y-%m-%d 2>/dev/null); then
+    echo "collect-week.sh: '--week $WEEK_START' is not a date I can parse" >&2
+    exit 2
+  fi
+  # Snap to the Monday of the week containing the anchor.
+  dow=$(TZ="$TZ_LOCAL" date -d "$anchor" +%u)        # 1 = Monday
+  start_date=$(TZ="$TZ_LOCAL" date -d "$anchor -$((dow - 1)) days" +%Y-%m-%d)
+else
+  # Derive `dow` from `today` rather than calling `date +%u` separately: the two
+  # must describe the SAME day, or the window silently skews off Mon-Sun.
+  dow=$(TZ="$TZ_LOCAL" date -d "$today" +%u)
+  start_date=$(TZ="$TZ_LOCAL" date -d "$today -$((dow - 1)) days -7 days" +%Y-%m-%d)
+fi
 end_date=$(TZ="$TZ_LOCAL" date -d "$start_date +7 days" +%Y-%m-%d)
 last_day=$(TZ="$TZ_LOCAL" date -d "$end_date -1 day" +%Y-%m-%d)
 
@@ -45,6 +91,13 @@ LABEL="$(TZ="$TZ_LOCAL" date -d "$start_date" '+%-d %B') to $(TZ="$TZ_LOCAL" dat
 ARTICLE_DATE="$today"
 
 echo "Window: $START -> $END  ($LABEL)"
+
+# A window that hasn't closed yet still collects, but its totals are a partial
+# week and will change. Say so loudly rather than letting the number mislead.
+if [ "$end_date" \> "$today" ]; then
+  days_in=$(( ( $(date -d "$today" +%s) - $(date -d "$start_date" +%s) ) / 86400 + 1 ))
+  echo "WARNING: this week is not over — $days_in of 7 days so far, totals are partial." >&2
+fi
 
 # ---------------------------------------------------------------------------
 # 2. Pull the data

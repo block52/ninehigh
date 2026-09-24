@@ -10,6 +10,10 @@ on:
         description: "Write an article even if the week was quiet"
         type: boolean
         default: false
+      week:
+        description: "Back-fill a week — any date in it (YYYY-MM-DD). Blank = the previous complete week."
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -37,6 +41,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.BLOCK52_TOKEN }}
           PR_THRESHOLD: "5"
+          # Empty on the schedule, so the script takes the previous complete week.
+          WEEK_START: ${{ inputs.week }}
         run: |
           chmod +x .github/scripts/collect-week.sh
           .github/scripts/collect-week.sh
