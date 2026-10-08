@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Validator Short: Five Days Halted, and a Week Spent on Never Again | 9 High Studios</title>
+    <meta name="description" content="A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 10 merged pull requests after a five-day halt, a rebuilt peer topology, a self-service validator portal, and an unauthenticated bridge endpoint closed.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="One Validator Short: Five Days Halted, and a Week Spent on Never Again">
+    <meta property="og:description" content="One validator went dark and the chain stopped for five days. A week of fixing the topology, and building the portal that lets a fourth validator join.">
+    <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://ninehighstudios.com/article-one-validator-short.html">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "One Validator Short: Five Days Halted, and a Week Spent on Never Again",
+        "description": "A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 10 merged pull requests after a five-day halt, a rebuilt peer topology, a self-service validator portal, and an unauthenticated bridge endpoint closed.",
+        "image": "https://ninehighstudios.com/og-image.png",
+        "datePublished": "2026-10-08",
+        "dateModified": "2026-10-08",
+        "url": "https://ninehighstudios.com/article-one-validator-short.html",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ninehighstudios.com/article-one-validator-short.html" },
+        "author": { "@type": "Organization", "name": "9 High Studios", "url": "https://ninehighstudios.com" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "9 High Studios",
+            "logo": { "@type": "ImageObject", "url": "https://ninehighstudios.com/og-image.png" }
+        }
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Month marker */
+        .month-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Repo pills */
+        .repo-pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            background: var(--charcoal);
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 0.3rem;
+        }
+
+        /* Stat grid — live production metrics */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            display: block;
+            font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+        }
+        @media (max-width: 640px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Engineering &amp; Build Log</span>
+            <h1>One Validator Short: Five Days Halted, and a Week Spent on Never Again</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 6 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Build Log</span>
+                <span class="article-tag">Validators</span>
+                <span class="article-tag">Infrastructure</span>
+                <span class="article-tag">Security</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+            <p class="lead">The chain stopped because one machine went dark, and a network of three equal validators has no room to lose one. Between <strong>28 September and 4 October 2026</strong> we merged <strong>10 pull requests</strong> across the three Block 52 repositories. The raw count says <strong>85,486 lines added</strong> and <strong>14,303 removed</strong>. That headline is wrong, and the scoreboard explains why. Most of the real work this week went into one problem: what happens to the chain when a validator disappears.</p>
+
+            <h2>The Scoreboard</h2>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-number">10</span>
+                    <span class="stat-label">Pull requests merged</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">99,789</span>
+                    <span class="stat-label">Lines changed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">85,486</span>
+                    <span class="stat-label">Lines added</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">14,303</span>
+                    <span class="stat-label">Lines removed</span>
+                </div>
+            </div>
+
+            <p>The three repositories broke down like this:</p>
+
+            <ul>
+                <li><span class="repo-pill">UI</span> The client &mdash; <strong>3 PRs</strong>, 1,800 lines changed (1,681 added, 119 removed).</li>
+                <li><span class="repo-pill">PVM</span> The Poker Virtual Machine &mdash; <strong>4 PRs</strong>, 505 lines changed (482 added, 23 removed).</li>
+                <li><span class="repo-pill">Chain</span> The settlement chain &mdash; <strong>3 PRs</strong>, 97,484 lines changed (83,323 added, 14,161 removed).</li>
+            </ul>
+
+            <p>An honest footnote, larger than usual. Of the chain's 83,323 added lines, <strong>82,474 are a single markdown file</strong>, <code>BUG-NON-DETERMINISM.md</code>. A documentation refresh went wrong and replaced a 164-line note with one ten-line section repeated 5,880 times. It isn't code and it isn't work, and it gets fixed next week. Leave it out and the week added <strong>3,012 lines</strong> and removed <strong>14,149</strong>. It was a week of deleting things, which fits what the week was about.</p>
+
+            <h2>Why the Chain Stopped</h2>
+
+            <p>On 25 September, node1, one of our three validators, went offline because of a lapsed hosting bill. The chain halted at block <strong>344,712</strong> and stayed halted for five days.</p>
+
+            <p>The two validators that were still up were healthy. They agreed on state, with an identical app hash. They still couldn't continue. A block needs signatures from validators holding <strong>more than two-thirds</strong> of the voting power, and two out of three equal validators hold exactly two-thirds. That's not enough. The chain didn't fork or lose anything. It just stopped.</p>
+
+            <p>While we looked into it we found a second problem. Every node in the network listed node1 as its <strong>only</strong> persistent peer, and peer exchange was switched off. Once node1 was gone, the two survivors couldn't even reach each other.</p>
+
+            <p>So two separate problems were hiding in that halt. The arithmetic was fragile: <strong>three equal validators have zero fault tolerance</strong>, and only a fourth validator fixes that. The topology was fragile too, because everything hung off one host. Fixing the topology doesn't change the arithmetic, but it means that once there are enough validators, losing one host can't cut the network in pieces.</p>
+
+            <h2>Fixing the Topology</h2>
+
+            <p>The chain's documentation had drifted far enough from reality to be dangerous, so the first pull request rebuilt it from the live chain. The validator table had listed five validators, and one node ID and pubkey were wrong. It now lists the three bonded validators exactly as they are. It also writes down the new pattern: <strong>validators peer directly with each other, seed nodes exist only for discovery, and peer exchange is on everywhere</strong>. Another node can now disappear without taking any connections down with it.</p>
+
+            <p>Along the way we found that the committed <code>genesis.json</code> had <strong>zero genesis transactions</strong>, so it couldn't have booted a chain at all. The live chain runs the September USDC reset genesis, and the repository now holds that file, with every pinned hash updated. <strong>48 stale documents</strong> describing earlier versions of the network were deleted. That one pull request removed 12,286 lines.</p>
+
+            <p>The follow-up made the embedded Go engine the default configuration, which is what every validator already runs. One node template had no engine section at all, so a node built from it panicked on startup. Every script that still priced gas in <code>stake</code> on a USDC-only chain was corrected; a node configured that way rejects every transaction it sees. The old PVM deployment tooling was removed. The <code>create-validator</code> scripts were fixed to use the JSON-file form our Cosmos SDK version requires, because the flag form they'd been using is rejected outright. Chain releases <code>v0.1.168</code> and <code>v0.1.169</code> went out the same morning.</p>
+
+            <h2>Making a Fourth Validator Possible</h2>
+
+            <p>Better peering keeps the network connected. It doesn't change the arithmetic. For that you need more validators, and until this week, adding one meant a set of shell commands and a conversation with us.</p>
+
+            <p>So the SDK gained <code>createValidator</code>, released as <strong>sdk-v1.5.1</strong>. It checks a validator registration against the same rules the chain enforces before anything is signed: a 32-byte Ed25519 consensus key, a commission rate at or below its maximum, and a self-delegation above zero. Its tests use the live encoding from one of our real validators.</p>
+
+            <p>On top of that, the client's <code>/nodes</code> page became a self-service node portal with three tabs:</p>
+
+            <ul>
+                <li><strong>Network &amp; Genesis</strong> shows live chain facts and the bonded validator set, plus the network's <strong>current fault tolerance</strong>. Today that number is zero. The genesis file is SHA-256 hashed in your browser and checked against the pinned hash, so you aren't trusting our server for it.</li>
+                <li><strong>Run a Node</strong> gives you copy-ready config. It includes the seed-and-PEX pattern above, plus state sync with a trust height read live from the chain.</li>
+                <li><strong>Become a Validator</strong> signs the registration from your Block 52 wallet.</li>
+            </ul>
+
+            <p>The validator tab has one rule we're glad we added: it <strong>refuses any bond that would give one validator a third or more of the voting power</strong>. A validator that large can halt the chain by itself just by going offline. We've now seen what that looks like with only a third of the power at stake, and we'd rather the portal didn't let someone rebuild the same risk with more weight behind it.</p>
+
+            <h2>A Security Fix</h2>
+
+            <p>Our payments proxy had an admin endpoint for manually bridging USDC onto the chain. It had <strong>no authentication</strong>. The browser-side CORS rules made it look protected, but they only restrict browsers, not anything else that sends a request. It's fixed. The bridge routes now require an admin key, compared in constant time. If that key is missing or too short, the routes <strong>fail closed</strong> for everyone, so a missing environment variable can never reopen them. Eight tests mount the real router, and six of them fail against the unguarded version.</p>
+
+            <h2>The Rest</h2>
+
+            <ul>
+                <li><span class="repo-pill">PVM</span> <strong>An engine rules fix.</strong> A player joining a heads-up table with "post now" was charged both the entry big blind and the small blind. That's because the engine worked out the small blind's seat <em>before</em> the new player counted as active, and with three players the seat moves. Entrants who would land on a blind now wait a hand, and one who lands on the big blind just posts it. This changes how the game state evolves, so it ships with the next coordinated engine release.</li>
+                <li><span class="repo-pill">Chain</span> <strong>Time bank, chain side.</strong> The chain now accepts a <code>time-bank</code> action, but only from the player whose turn it is, and only with the embedded engine. It won't do anything until the next engine release includes it.</li>
+                <li><span class="repo-pill">UI</span> <strong>Client hygiene.</strong> All <strong>37</strong> <code>catch (err: any)</code> sites in the client now use typed error narrowing, and a CI step fails the build if one comes back. A contributor also replaced per-seat array scans for showing cards with an indexed lookup.</li>
+                <li><span class="repo-pill">PVM</span> <strong>Release plumbing.</strong> The SDK's publish check had marked a good release as failed because the npm registry hadn't caught up yet. It now waits on the same data <code>npm install</code> reads, and retries.</li>
+            </ul>
+
+            <h2>Where That Leaves It</h2>
+
+            <p>The chain is running, the topology no longer hangs off one host, and anyone can now register a validator without asking us. The fault-tolerance number on the new portal still reads <strong>zero</strong>, and it stays zero <strong>until a fourth validator bonds.</strong> That's the next thing to fix.</p>
+
+            <div class="article-cta">
+                <h3>Want to build a poker platform?</h3>
+                <p>We build provably fair, real-money poker where every hand is shuffled by verifiable randomness and settled on a public blockchain. We'd love to hear about your project.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
