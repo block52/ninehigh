@@ -660,7 +660,7 @@
 
 <h2>From a random byte stream to a readable test</h2>
 
-<p>A fuzz failure is a stream of random bytes, which nobody wants to debug. So every failure prints the session as a script, flags any action the engine accepted that wasn't in the player's legal actions, and renders the session as a scenario in our test language, <a href="https://github.com/block52/poker-scene-dsl">poker-scene-dsl</a>. The fuzzer's clock and the scenario's clock tick identically, so the scenario replays the session exactly. We checked this on all 200 sweep sessions. A 121-action failure can then be shrunk to the 17 sentences that matter, and committed as a test.</p>
+<p>A fuzz failure is a stream of random bytes, which nobody wants to debug. So every failure prints the session as a script, flags any action the engine accepted that wasn't in the player's legal actions, and renders the session as a scenario in our test language, <a href="https://github.com/block52/poker-scene-dsl">poker-scene-dsl</a>. The fuzzer's clock and the scenario's clock tick identically, so the scenario replays the session exactly. We checked this on all 200 sweep sessions. The fuzzer then minimises it automatically, replaying smaller and smaller pieces of the session until only the actions that matter are left. One 113-action table stall comes down to 12 sentences, ready to commit as a test.</p>
 
 <h2>Try it on your engine</h2>
 
