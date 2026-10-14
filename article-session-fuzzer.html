@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bugs Between Hands: Fuzzing Whole Poker Sessions | 9 High Studios</title>
+    <meta name="description" content="Hand histories test single hands; our table freezes lived between hands. poker-session-fuzzer plays whole multi-hand sessions and checks invariants after every action. What it found, and how it turns failures into readable tests.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Bugs Between Hands: Fuzzing Whole Poker Sessions">
+    <meta property="og:description" content="Our engine matches 10,000 of 10,000 real hands, and tables still froze. A fuzzer for the space between hands.">
+    <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://ninehighstudios.com/article-session-fuzzer.html">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "The Bugs Between Hands: Fuzzing Whole Poker Sessions",
+        "description": "Hand histories test single hands; our table freezes lived between hands. poker-session-fuzzer plays whole multi-hand sessions and checks invariants after every action. What it found, and how it turns failures into readable tests.",
+        "image": "https://ninehighstudios.com/og-image.png",
+        "datePublished": "2026-10-14",
+        "dateModified": "2026-10-14",
+        "url": "https://ninehighstudios.com/article-session-fuzzer.html",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ninehighstudios.com/article-session-fuzzer.html" },
+        "author": { "@type": "Organization", "name": "9 High Studios", "url": "https://ninehighstudios.com" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "9 High Studios",
+            "logo": { "@type": "ImageObject", "url": "https://ninehighstudios.com/og-image.png" }
+        }
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Month marker */
+        .month-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Repo pills */
+        .repo-pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            background: var(--charcoal);
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 0.3rem;
+        }
+
+        /* Stat grid — live production metrics */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            display: block;
+            font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+        }
+        @media (max-width: 640px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Engineering &amp; Testing</span>
+            <h1>The Bugs Between Hands: Fuzzing Whole Poker Sessions</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 7 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Testing</span>
+                <span class="article-tag">Fuzzing</span>
+                <span class="article-tag">Open Source</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+<p class="lead">Our engine reproduces the finishing stacks of <strong>10,000 out of 10,000</strong> real Pluribus hands. Tables still froze. The bugs weren't in any hand. They were in the space <em>between</em> hands, which no hand history ever tests. So we built a fuzzer that plays whole sessions, checked it against rules that must always hold, and open-sourced it as <a href="https://github.com/block52/poker-session-fuzzer">poker-session-fuzzer</a>.</p>
+
+<h2>Why hand histories miss it</h2>
+
+<p>Hand-history corpora (PHH, site histories, solver output) are wonderful for testing betting, side pots and showdowns. But every hand in them starts from a known state: these players, in these seats, with this button and these blinds. The step that <em>produces</em> that state never runs:</p>
+<ul>
+    <li>who busted and where the button moves next;</li>
+    <li>who's sitting out;</li>
+    <li>whether a player who sat down mid-hand is dealt in;</li>
+    <li>who gets the "deal next hand" button.</li>
+</ul>
+<p>That step is where our live table freezes came from.</p>
+
+<p>Other engines don't help much as an oracle, because most of them also model one hand at a time. And multi-hand site histories disagree with each other on dead-button and missed-blind rules, so comparing against them mostly finds rule differences, not bugs.</p>
+
+<h2>No oracle needed</h2>
+
+<p>Instead of asking "what's the right answer?", the fuzzer asks "is anything impossible true?" It plays random sessions of cash games and sit-and-gos, with 2 to 9 seats and short stacks so players bust often. Players join and leave, sit in and out, time out, and climb the blind levels. Most moves come from each player's own legal actions. After every action it checks invariants:</p>
+
+<ul>
+    <li><strong>No panic</strong>, on any action, legal or not.</li>
+    <li><strong>Status matches stack:</strong> a busted player has no chips, and an all-in player has none behind.</li>
+    <li><strong>Chip conservation:</strong> chips only appear or vanish when a player joins, tops up or leaves.</li>
+    <li><strong>Liveness:</strong> whoever is on the clock can always move the game on.</li>
+    <li><strong>Positions:</strong> the big blind is a player in the hand, and the small and big blind are different seats.</li>
+    <li><strong>No stall between hands:</strong> if enough players with chips want to play, someone is offered the next hand.</li>
+</ul>
+
+<p>It drives our engine through the exact JSON path our chain uses, rebuilding the game from serialized state on every action. Bugs where the in-memory engine is right but the serialized state loses something have bitten us before, so that matters.</p>
+
+<h2>What it found</h2>
+
+<p>Its first sweep, 200 sessions in about four seconds, found real bugs straight away. Two had already been fixed in the engine and released to mainnet by the time we wrote this, so we can describe them:</p>
+
+<ul>
+    <li><strong>An out-of-turn "new hand" reset a hand in progress.</strong> The engine had a check for "has the hand finished?", but the dispatcher never called it. A seated player could send a new-hand action mid-hand, and the pot was wiped. On an empty table the same call crashed the engine. The fix was one call to the existing check.</li>
+    <li><strong>Both blinds all-in, and the pot vanished.</strong> Late in a heads-up sit-and-go, both blinds can cover both stacks, so nobody is left to act. The engine ended the hand before dealing it, with no winner. The fix had been written the week before on a feature branch and hadn't reached the main line yet. The fuzzer found it again in seconds.</li>
+</ul>
+
+<p>It also found a handful of seating-transition bugs that are still open. All of them are ways a table can stop dealing when players sit down, sit out or leave at particular moments. Each is filed with a reproduction, and we'll write them up once they're fixed. Finally, it showed that a fix we'd just merged for collapsed blind positions was only partial: hits dropped from 46 sessions in 200 to 9, which is a useful kind of feedback to get within minutes.</p>
+
+<div class="stat-grid">
+    <div class="stat-card"><span class="stat-number">200</span><span class="stat-label">Sessions per sweep</span></div>
+    <div class="stat-card"><span class="stat-number">~4s</span><span class="stat-label">Sweep time in CI</span></div>
+    <div class="stat-card"><span class="stat-number">2</span><span class="stat-label">Chip-losing bugs fixed and live</span></div>
+    <div class="stat-card"><span class="stat-number">5</span><span class="stat-label">Open bugs filed with repros</span></div>
+</div>
+
+<h2>Keeping CI green without hiding bugs</h2>
+
+<p>A fuzzer that fails on every known bug is a fuzzer people turn off. So known bugs are listed by issue number. Their violations are counted and play continues, and only a <em>new</em> kind of violation fails the run. When a fix lands, its entry is removed, and from then on the sweep guards it.</p>
+
+<h2>From a random byte stream to a readable test</h2>
+
+<p>A fuzz failure is a stream of random bytes, which nobody wants to debug. So every failure prints the session as a script, flags any action the engine accepted that wasn't in the player's legal actions, and renders the session as a scenario in our test language, <a href="https://github.com/block52/poker-scene-dsl">poker-scene-dsl</a>. The fuzzer's clock and the scenario's clock tick identically, so the scenario replays the session exactly. We checked this on all 200 sweep sessions. A 121-action failure can then be shrunk to the 17 sentences that matter, and committed as a test.</p>
+
+<h2>Try it on your engine</h2>
+
+<p>The harness doesn't know anything about our engine. You implement two methods, <em>tell me the table</em> and <em>apply this action</em>, map the vocabulary to your engine's, and add three one-line tests: a sweep for CI, a replay for debugging, and a Go fuzz target for overnight runs. If your engine handles anything between hands (busts, the button, sitting out, late joins), there's a good chance this finds something.</p>
+
+<p>poker-session-fuzzer is MIT-licensed.</p>
+
+            <div class="article-cta">
+                <h3>Want to build a poker platform?</h3>
+                <p>We build provably fair, real-money poker where every hand is shuffled by verifiable randomness and settled on a public blockchain. We'd love to hear about your project.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>

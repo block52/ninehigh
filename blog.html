@@ -276,6 +276,33 @@
 
     <div class="articles">
 
+        <a href="article-session-fuzzer.html" class="article-card">
+            <div class="article-meta">October 2026 &middot; 7 min read</div>
+            <h2>The Bugs Between Hands: Fuzzing Whole Poker Sessions</h2>
+            <p>Hand histories test single hands; our table freezes lived between hands. poker-session-fuzzer plays whole multi-hand sessions and checks invariants after every action. What it found, and how it turns failures into readable tests.</p>
+            <span class="article-tag">Testing</span>
+            <span class="article-tag">Fuzzing</span>
+            <span class="article-tag">Open Source</span>
+        </a>
+
+        <a href="article-poker-scene-dsl.html" class="article-card">
+            <div class="article-meta">October 2026 &middot; 6 min read</div>
+            <h2>Tests That Read Like Hand Histories: Our Poker Scene DSL</h2>
+            <p>poker-scene-dsl lets poker engine tests read like a hand history. We open-sourced it, wrote an adapter for an open-source TypeScript engine, and found two rules bugs on the first preflop decision.</p>
+            <span class="article-tag">Testing</span>
+            <span class="article-tag">Open Source</span>
+            <span class="article-tag">Engine</span>
+        </a>
+
+        <a href="article-deck-math-random.html" class="article-card">
+            <div class="article-meta">October 2026 &middot; 6 min read</div>
+            <h2>Our &ldquo;Cryptographic&rdquo; Deck Used Math.random(): Four Bugs in @block52/deck</h2>
+            <p>Our open-source deck library claimed cryptographic shuffling but used Math.random(), had modulo bias, dealt the wrong cards and only ran in Node. What was wrong, why it matters at a real-money table, and what changed in 1.1.0.</p>
+            <span class="article-tag">Security</span>
+            <span class="article-tag">Provably Fair</span>
+            <span class="article-tag">Open Source</span>
+        </a>
+
         <a href="article-one-validator-short.html" class="article-card">
             <div class="article-meta">October 2026 &middot; 6 min read</div>
             <h2>One Validator Short: Five Days Halted, and a Week Spent on Never Again</h2>
