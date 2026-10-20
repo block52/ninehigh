@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The October Delta: Three Validators to Four, Two Engines to One | 9 High Studios</title>
+    <meta name="description" content="What is different about Block 52 on 20 October 2026 from 1 October, measured against September: a fourth validator, one engine instead of two, five coordinated halts, pot-limit Omaha and scheduled tournaments at every layer, and the bugs a fuzzer and 21.6 million real hands found.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The October Delta: Three Validators to Four, Two Engines to One">
+    <meta property="og:description" content="Three validators to four, two engines to one, hold'em only to hold'em and Omaha: the state of Block 52 on 20 October against 1 October.">
+    <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://ninehighstudios.com/article-october-delta.html">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "The October Delta: Three Validators to Four, Two Engines to One",
+        "description": "What is different about Block 52 on 20 October 2026 from 1 October, measured against September: a fourth validator, one engine instead of two, five coordinated halts, pot-limit Omaha and scheduled tournaments at every layer, and the bugs a fuzzer and 21.6 million real hands found.",
+        "image": "https://ninehighstudios.com/og-image.png",
+        "datePublished": "2026-10-20",
+        "dateModified": "2026-10-20",
+        "url": "https://ninehighstudios.com/article-october-delta.html",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ninehighstudios.com/article-october-delta.html" },
+        "author": { "@type": "Organization", "name": "9 High Studios", "url": "https://ninehighstudios.com" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "9 High Studios",
+            "logo": { "@type": "ImageObject", "url": "https://ninehighstudios.com/og-image.png" }
+        }
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Month marker */
+        .month-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Repo pills */
+        .repo-pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            background: var(--charcoal);
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 0.3rem;
+        }
+
+        /* Stat grid — live production metrics */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            display: block;
+            font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+        }
+        @media (max-width: 640px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Engineering &amp; Build Log</span>
+            <h1>The October Delta: Three Validators to Four, Two Engines to One</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 6 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Build Log</span>
+                <span class="article-tag">Monthly</span>
+                <span class="article-tag">Validators</span>
+                <span class="article-tag">Engine</span>
+                <span class="article-tag">Releases</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+            <p class="lead">Not what we did in October, but what is different about Block 52 on 20 October from what it was on 1 October, measured against where September left it. The weekly build logs count pull requests. This one counts state. Between <strong>1 October and 20 October 2026</strong> we merged <strong>98 pull requests</strong> across the three Block 52 repositories, adding <strong>26,997 lines</strong> and removing <strong>240,581</strong>. September, a full month, merged 134 and added 126,167. Both figures carry one distorting file: September's was an 82,474-line documentation accident, October's is the 231,180-line deletion of the TypeScript engine. Take those out and the two periods are the same size. What they changed is not.</p>
+
+            <h2>The scoreboard</h2>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-number">98</span>
+                    <span class="stat-label">Pull requests merged</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">267,578</span>
+                    <span class="stat-label">Lines changed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">26,997</span>
+                    <span class="stat-label">Lines added</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">240,581</span>
+                    <span class="stat-label">Lines removed</span>
+                </div>
+            </div>
+
+            <p>The three repositories broke down like this:</p>
+
+            <ul>
+                <li><span class="repo-pill">UI</span> The client &mdash; <strong>44 PRs</strong>, 12,920 lines changed (10,545 added, 2,375 removed).</li>
+                <li><span class="repo-pill">PVM</span> The Poker Virtual Machine &mdash; <strong>33 PRs</strong>, 251,476 lines changed (13,933 added, 237,543 removed).</li>
+                <li><span class="repo-pill">Chain</span> The settlement chain &mdash; <strong>21 PRs</strong>, 3,182 lines changed (2,519 added, 663 removed).</li>
+            </ul>
+
+            <p>For comparison, September's 134 pull requests split 71 client, 32 engine and 31 chain. The client's share fell and the engine's rose, which matches where the month went.</p>
+
+            <h2>What is different</h2>
+
+            <h3>Validators: three to four</h3>
+
+            <p>On 1 October the chain had three equal validators and a fault tolerance of <strong>zero</strong>. It had just come back from a five-day halt caused by losing one of them. On <strong>7 October</strong> a fourth validator, MDAssets, bonded at block <strong>452,611</strong>. Four validators of roughly equal weight can lose any one of them and keep producing blocks. The largest single share of voting power is now <strong>25.6 per cent</strong>, under the one-third that lets a single validator halt the chain by going offline. The chain produced <strong>303,749 blocks</strong> in the twenty days, from 359,772 to 663,521, and has not stopped once except on purpose.</p>
+
+            <h3>Engines: two to one</h3>
+
+            <p>On 1 October the repository held two poker engines: the Go engine that runs in consensus, and the TypeScript engine it was ported from. On 14 October the TypeScript engine was removed, archived with its history in a public repository, and every disagreement between the two is now a logged issue there rather than an open question. There is one engine, and it is the one the validators run.</p>
+
+            <h3>Releases: the halt is routine now</h3>
+
+            <p>September ended with the coordinated-halt procedure built and tested once. October ran it <strong>five times</strong>: on 13 October, three times on 14 October, and on 20 October. Four were clean. One was merged before the halt had taken hold, rolled the validators one at a time, and got away with it because no hand-affecting transaction landed in the window; the rule that prevents a repeat is on the runbook. The engine went from <strong>v1.0.20 to v1.0.26</strong>, six releases, and the chain from <strong>v0.1.170 to v0.1.188</strong>, nineteen.</p>
+
+            <p>The pipeline also failed quietly. From 14 October the automatic release was broken by a rejected tag push, and the release before that had published without deploying. Two chain changes merged that fortnight, the engine's timeout handling and the tournament-format guard, did not reach the validators until the 20 October halt carried them. That was found while running that halt, and the fix is open.</p>
+
+            <h3>Games: hold'em only to hold'em and pot-limit Omaha</h3>
+
+            <p>On 1 October the platform played Texas hold'em. By 14 October pot-limit Omaha existed at every layer: four-card evaluation, the pot-limit cap and variant-aware dealing in the engine; the betting limit in the SDK; the variant passed through by the chain; four hole cards, equity and creation options in the client. No Omaha table has been opened on the main chain yet.</p>
+
+            <h3>Tournaments: sit-and-go to scheduled</h3>
+
+            <p>On 1 October the only tournament format was a sit-and-go that started when the table filled. On 14 October scheduled single-table tournaments shipped end to end: a start time, <strong>2 to 9 players</strong>, payouts at every size, cancel-and-refund below the minimum, and a countdown with a Start now button in the client. Multi-table tournaments advanced on a branch through the month: a tournament director, directed tables, blind schedules with presets, big-blind antes, the tournament dealer rule and a byte-pinned golden run of a 20-entrant, three-table tournament. None of that is on the chain. It waits on the engine's hand-start release being pinned.</p>
+
+            <h3>Testing: single hands to whole sessions</h3>
+
+            <p>Two tools were open-sourced in the month and then pointed at our own engine: a scene DSL that lets a test read like a hand history, and a session fuzzer that plays multi-hand sessions and checks invariants after every action. Together with a replay of the <strong>21.6 million-hand</strong> Poker Hand History dataset, they found and fixed, in October alone: a stall between hands, a blind posted by a seat not dealt in, uncalled excess lost on leaving, a short all-in that did not have to be called, blind positions drifting onto empty seats, positions collapsing at a bust-out, a mid-hand new hand wiping the pot, all-in blinds losing it, an entry post leaving a player active with nothing, a winners list whose order depended on a live lookup, and blind markers shifting when the big blind's post put them all-in. The engine's CI gained a static-analysis and a dead-code gate.</p>
+
+            <h3>Security: four holes closed</h3>
+
+            <p>The deck stopped being published in the hand-started event (7 October), the public query that returned undealt cards was disabled and a client-chosen deck was rejected (both 14 October), and the payment proxy's manual-bridge endpoint, which had no authentication, now requires an admin key and fails closed without one (4 October).</p>
+
+            <h3>Money: deposits and withdrawals that were stuck</h3>
+
+            <p>A customer's partially paid card deposit was not being bridged; those are now bridged exactly once, and the bridge admin page lists "paid but not credited" payments with a retry. Pending withdrawals that had been signed but never redeemed can now be redeemed from the client with a validator's on-demand signature.</p>
+
+            <h3>The client</h3>
+
+            <p>In twenty days the client gained a hand-history page and a <code>?hand=N</code> link that opens any hand's final state, an in-table replay with a media transport through the session's hands that shows the cards the viewer actually knew, a clock that any observer can call on a stalled opponent, a pre-action bar, a single floating panel in place of two fly-outs, NFT viewing without a wallet, route-level code splitting, and the Omaha work above.</p>
+
+            <h3>Process</h3>
+
+            <p>All three repositories now carry the same rule for filing work: search the open and closed issues of all three, grep the code of all three, then file one issue per idea with labels. A halt-recovery runbook exists. The indexer runs as a non-validating full node and halts with the validators.</p>
+
+            <h2>What did not move</h2>
+
+            <ul>
+                <li>The engine release that lets the engine post blinds and deal on its own is built and released but <strong>held off the chain</strong>, so hands still start from the client and the multi-table director cannot go on-chain yet.</li>
+                <li>No Omaha table and no scheduled tournament has been played on the main chain with real money.</li>
+                <li>Fault tolerance is one, not two. A fifth validator would make it two.</li>
+                <li>The commit-and-reveal shuffle that removes trust in the dealing validator is designed, not built.</li>
+            </ul>
+            <h2>Where that leaves it</h2>
+
+            <p>Four validators, one engine, two game variants, two tournament formats, and a release procedure that has now been run under pressure five times. The month's biggest number is a deletion, and the month's most important change is one bonded validator. The next delta should include a hand of pot-limit Omaha on the main chain, and the engine starting its own hands.</p>
+
+            <div class="article-cta">
+                <h3>Want to build a poker platform?</h3>
+                <p>We build provably fair, real-money poker where every hand is shuffled by verifiable randomness and settled on a public blockchain. We'd love to hear about your project.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
