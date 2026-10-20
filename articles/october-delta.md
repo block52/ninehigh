@@ -50,9 +50,9 @@ On 1 October the only tournament format was a sit-and-go that started when the t
 
 Two tools were open-sourced in the month and then pointed at our own engine: a scene DSL that lets a test read like a hand history, and a session fuzzer that plays multi-hand sessions and checks invariants after every action. Together with a replay of the **21.6 million-hand** Poker Hand History dataset, they found and fixed, in October alone: a stall between hands, a blind posted by a seat not dealt in, uncalled excess lost on leaving, a short all-in that did not have to be called, blind positions drifting onto empty seats, positions collapsing at a bust-out, a mid-hand new hand wiping the pot, all-in blinds losing it, an entry post leaving a player active with nothing, a winners list whose order depended on a live lookup, and blind markers shifting when the big blind's post put them all-in. The engine's CI gained a static-analysis and a dead-code gate.
 
-### Security: four holes closed
+### Security
 
-The deck stopped being published in the hand-started event (7 October), the public query that returned undealt cards was disabled and a client-chosen deck was rejected (both 14 October), and the payment proxy's manual-bridge endpoint, which had no authentication, now requires an admin key and fails closed without one (4 October).
+The payment proxy's manual-bridge endpoint, which had no authentication, now requires an admin key and fails closed without one (4 October).
 
 ### Money: deposits and withdrawals that were stuck
 

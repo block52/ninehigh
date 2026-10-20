@@ -2,12 +2,12 @@
 title: "One Engine: 231,000 Lines Deleted, Five Engine Releases, Four Coordinated Halts"
 author: Nine High Studios
 date: 2026-10-20
-tags: [Build Log, Engine, Releases, Omaha, Security]
+tags: [Build Log, Engine, Releases, Omaha, Tournaments]
 ---
 
 # One Engine: 231,000 Lines Deleted, Five Engine Releases, Four Coordinated Halts
 
-*The TypeScript engine is gone, the Go engine shipped five releases in four days, scheduled tournaments and pot-limit Omaha reached the chain, and two ways to see the deck were closed.*
+*The TypeScript engine is gone, the Go engine shipped five releases in four days, and scheduled tournaments and pot-limit Omaha reached the chain.*
 
 Between **12 October and 18 October 2026** we merged **55 pull requests** across the three Block 52 repositories, adding **16,285 lines** and removing **237,022**. The removal figure is almost entirely one pull request, and it is the headline of the week: Block 52 now has one poker engine, not two.
 
@@ -59,10 +59,6 @@ Omaha reached every layer this week. The engine gained a four-card evaluator, th
 A sit-and-go used to start when the table filled. A scheduled single-table tournament starts at a set time with whoever has registered, from **2 to 9 players**, pays out at every size, and cancels with refunds below the minimum. The engine, the SDK (v1.8.0), the chain and the client all shipped their part on 14 October, with a countdown and a **Start now** button in the client.
 
 At the same time the chain started refusing the `tournament` format at creation. Multi-table tournaments are being built on a branch, and until their director is on the chain, a "tournament" was a sit-and-go that settled incorrectly. Legacy ones now settle like a sit-and-go, and the client dropped the type from its create forms.
-
-## Two ways to see the deck, closed
-
-Both were found in review and fixed the same day, each under its own halt. The chain had a **public query that returned the deck**, undealt cards included, to anyone who asked for a game by ID. It is disabled. And a client could **supply its own deck** when starting a hand. The chain now rejects a client-chosen deck; our own bot was the only legitimate caller, and it sends a seed instead. With the previous week's change that stopped publishing the deck in the hand-started event, the deck is no longer readable from outside the engine at any point in a hand.
 
 ## The rest
 

@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One Engine: 231,000 Lines Deleted, Five Engine Releases, Four Coordinated Halts | 9 High Studios</title>
-    <meta name="description" content="A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 55 merged pull requests, the TypeScript engine retired, five engine releases through four coordinated halts, scheduled tournaments and pot-limit Omaha on the chain, and two ways to read the deck closed.">
+    <meta name="description" content="A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 55 merged pull requests, the TypeScript engine retired, five engine releases through four coordinated halts, and scheduled tournaments and pot-limit Omaha on the chain.">
 
     <!-- Open Graph / Social -->
     <meta property="og:type" content="article">
     <meta property="og:title" content="One Engine: 231,000 Lines Deleted, Five Engine Releases, Four Coordinated Halts">
-    <meta property="og:description" content="The TypeScript engine is gone, the Go engine shipped five releases in four days, scheduled tournaments and pot-limit Omaha reached the chain, and two ways to see the deck were closed.">
+    <meta property="og:description" content="The TypeScript engine is gone, the Go engine shipped five releases in four days, and scheduled tournaments and pot-limit Omaha reached the chain.">
     <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
 
@@ -20,7 +20,7 @@
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "headline": "One Engine: 231,000 Lines Deleted, Five Engine Releases, Four Coordinated Halts",
-        "description": "A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 55 merged pull requests, the TypeScript engine retired, five engine releases through four coordinated halts, scheduled tournaments and pot-limit Omaha on the chain, and two ways to read the deck closed.",
+        "description": "A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 55 merged pull requests, the TypeScript engine retired, five engine releases through four coordinated halts, and scheduled tournaments and pot-limit Omaha on the chain.",
         "image": "https://ninehighstudios.com/og-image.png",
         "datePublished": "2026-10-20",
         "dateModified": "2026-10-20",
@@ -597,18 +597,18 @@
             <a href="blog.html" class="back-link">&larr; Back to Blog</a>
             <span class="section-label">Engineering &amp; Build Log</span>
             <h1>One Engine: 231,000 Lines Deleted, Five Engine Releases, Four Coordinated Halts</h1>
-            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 7 min read</div>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 6 min read</div>
             <div class="article-tags">
                 <span class="article-tag">Build Log</span>
                 <span class="article-tag">Engine</span>
                 <span class="article-tag">Releases</span>
                 <span class="article-tag">Omaha</span>
-                <span class="article-tag">Security</span>
+                <span class="article-tag">Tournaments</span>
             </div>
         </div>
 
         <div class="article-body">
-            <p class="lead">The TypeScript engine is gone, the Go engine shipped five releases in four days, scheduled tournaments and pot-limit Omaha reached the chain, and two ways to see the deck were closed. Between <strong>12 October and 18 October 2026</strong> we merged <strong>55 pull requests</strong> across the three Block 52 repositories, adding <strong>16,285 lines</strong> and removing <strong>237,022</strong>. The removal figure is almost entirely one pull request, and it is the headline of the week: Block 52 now has one poker engine, not two.</p>
+            <p class="lead">The TypeScript engine is gone, the Go engine shipped five releases in four days, and scheduled tournaments and pot-limit Omaha reached the chain. Between <strong>12 October and 18 October 2026</strong> we merged <strong>55 pull requests</strong> across the three Block 52 repositories, adding <strong>16,285 lines</strong> and removing <strong>237,022</strong>. The removal figure is almost entirely one pull request, and it is the headline of the week: Block 52 now has one poker engine, not two.</p>
 
             <h2>The scoreboard</h2>
 
@@ -680,10 +680,6 @@
             <p>A sit-and-go used to start when the table filled. A scheduled single-table tournament starts at a set time with whoever has registered, from <strong>2 to 9 players</strong>, pays out at every size, and cancels with refunds below the minimum. The engine, the SDK (v1.8.0), the chain and the client all shipped their part on 14 October, with a countdown and a <strong>Start now</strong> button in the client.</p>
 
             <p>At the same time the chain started refusing the <code>tournament</code> format at creation. Multi-table tournaments are being built on a branch, and until their director is on the chain, a "tournament" was a sit-and-go that settled incorrectly. Legacy ones now settle like a sit-and-go, and the client dropped the type from its create forms.</p>
-
-            <h2>Two ways to see the deck, closed</h2>
-
-            <p>Both were found in review and fixed the same day, each under its own halt. The chain had a <strong>public query that returned the deck</strong>, undealt cards included, to anyone who asked for a game by ID. It is disabled. And a client could <strong>supply its own deck</strong> when starting a hand. The chain now rejects a client-chosen deck; our own bot was the only legitimate caller, and it sends a seed instead. With the previous week's change that stopped publishing the deck in the hand-started event, the deck is no longer readable from outside the engine at any point in a hand.</p>
 
             <h2>The rest</h2>
 
