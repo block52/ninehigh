@@ -597,7 +597,7 @@
             <a href="blog.html" class="back-link">&larr; Back to Blog</a>
             <span class="section-label">Engineering &amp; Testing</span>
             <h1>Tests That Read Like Hand Histories: Our Poker Scene DSL</h1>
-            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 6 min read</div>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 8 min read</div>
             <div class="article-tags">
                 <span class="article-tag">Testing</span>
                 <span class="article-tag">Open Source</span>
@@ -672,6 +672,128 @@ sc.AssertLegal(<span class="code-string">"BB"</span>, <span class="code-string">
 <p>We now write every open engine bug as a scenario that asserts the <em>correct</em> behaviour. It's skipped by default, so CI stays green. The fix PR deletes one line, and from then on the scenario guards the fix. A bug report that ships with an executable, readable repro gets fixed faster, and it can't quietly come back.</p>
 
 <p>poker-scene-dsl is MIT-licensed. If you build a poker engine, write an adapter: it takes an afternoon, and you'll learn something about your engine on the first hand.</p>
+
+<h2>A worked adapter, in Go and in TypeScript</h2>
+
+<p>Here is the whole surface a scenario asks an engine for. Two methods, and the one detail every betting adapter trips on: whether your engine thinks in chips going in now or in street totals. The DSL carries both on every action so you send whichever yours wants. Everything below is in the <a href="https://github.com/block52/poker-scene-dsl">poker-scene-dsl</a> README.</p>
+
+<div class="code-block"><code><span class="code-comment">// What a scenario needs from any engine.</span>
+type Table interface {
+    State() scene.State       <span class="code-comment">// round, positions, blind amounts, pot, board, players with legal actions</span>
+    Apply(scene.Action) error <span class="code-comment">// reject with an error, leaving the table unchanged</span>
+}
+
+<span class="code-comment">// Every bet, raise and call carries both:</span>
+<span class="code-comment">//   Amount — the chips going in now</span>
+<span class="code-comment">//   Total  — the player's street total afterwards</span>
+<span class="code-comment">// so the adapter sends whichever its engine expects. Player.StreetBet is what</span>
+<span class="code-comment">// the player already has in on this street; <span class="code-string">"raises to"</span> needs it.</span></code></div>
+
+<p>For an engine written in Go, the adapter is one file in your test package: a projection of your state into the DSL's, and a switch that forwards each action. The names on the right are whatever your engine calls things. Once it exists, a test is a cast list and a hand history.</p>
+
+<div class="code-block"><code><span class="code-comment">// mytable_test.go — adapt your own Go engine. Names on the right are yours.</span>
+type myTable struct{ g *myengine.Game }
+
+func (t *myTable) State() scene.State {
+    s := scene.State{
+        Round: round(t.g.Street()), NextToAct: t.g.ToAct(),
+        Dealer: t.g.Button(), SmallBlind: t.g.SBSeat(), BigBlind: t.g.BBSeat(),
+        SmallBlindAmount: t.g.SB(), BigBlindAmount: t.g.BB(),
+        Pot: t.g.Pot(), Board: t.g.Board(), <span class="code-comment">// cards as <span class="code-string">"AS"</span>, <span class="code-string">"KD"</span>, … (upper-case suit)</span>
+    }
+    for _, p := range t.g.Players() {
+        s.Players = append(s.Players, scene.Player{
+            Address: p.ID, Seat: p.Seat, Stack: p.Stack,
+            StreetBet: p.InFrontThisStreet,      <span class="code-comment">// <span class="code-string">"raises to 300"</span> subtracts this</span>
+            Status:    status[p.Status],
+            Legal:     legal(p),                 <span class="code-comment">// min/max as chips going in NOW</span>
+        })
+    }
+    return s
+}
+
+func (t *myTable) Apply(a scene.Action) error {
+    switch a.Action {
+    case scene.ActJoin:
+        return t.g.Seat(a.Player, a.Seat, a.Amount)
+    case scene.ActBet, scene.ActRaise:
+        return t.g.Act(a.Player, a.Action, a.Total) <span class="code-comment">// this engine thinks in street totals</span>
+    case scene.ActNewHand:
+        return t.g.NewHand(a.Deck)                 <span class="code-comment">// <span class="code-string">"new hand with deck AS-KD-…"</span> lands here</span>
+    default:
+        return t.g.Act(a.Player, a.Action, a.Amount) <span class="code-comment">// fold, check, call, all-in, sit-in, leave, …</span>
+    }
+}
+
+<span class="code-comment">// Then a test reads like a hand history.</span>
+func TestMinRaiseReopens(t *testing.T) {
+    sc := scene.NewT(t, &amp;myTable{g: myengine.New(6, 50, 100)},
+        map[string]string{<span class="code-string">"Alice"</span>: <span class="code-string">"addr-a"</span>, <span class="code-string">"Bob"</span>: <span class="code-string">"addr-b"</span>, <span class="code-string">"Carol"</span>: <span class="code-string">"addr-c"</span>})
+    sc.MustJoin(<span class="code-string">"Alice"</span>, 1, <span class="code-string">"1000"</span>)
+    sc.MustJoin(<span class="code-string">"Bob"</span>, 2, <span class="code-string">"1000"</span>)
+    sc.MustJoin(<span class="code-string">"Carol"</span>, 3, <span class="code-string">"1000"</span>)
+    sc.Act(<span class="code-string">"Alice sits in"</span>, <span class="code-string">"Bob sits in"</span>, <span class="code-string">"Carol sits in"</span>)
+    sc.Act(<span class="code-string">"SB posts small blind"</span>, <span class="code-string">"BB posts big blind"</span>, <span class="code-string">"deal"</span>)
+
+    sc.Act(<span class="code-string">"BTN raises to 3bb"</span>, <span class="code-string">"SB calls"</span>)
+    sc.AssertRange(<span class="code-string">"BB"</span>, <span class="code-string">"raise"</span>, <span class="code-string">"500"</span>, <span class="code-string">"1000"</span>) <span class="code-comment">// min re-raise = 300 + 200, not 600</span>
+    sc.Rejects(<span class="code-string">"SB checks"</span>)                      <span class="code-comment">// not SB's turn</span>
+    sc.Act(<span class="code-string">"BB calls"</span>)
+    sc.AssertRound(scene.Flop)
+    sc.AssertPot(<span class="code-string">"900"</span>)
+    sc.AssertChips(<span class="code-string">"3000"</span>)                       <span class="code-comment">// stacks + pot: nothing created or lost</span>
+}</code></div>
+
+<p>An engine written in TypeScript plugs in through a small bridge that runs it in Node: one JSON request per line on stdin, one response per line on stdout, with the mapping done in TypeScript so your engine's types never reach Go. The Go side is a table that starts <code>node</code> once and translates <code>scene.Action</code> into those requests. That Go side already exists in the repository and is engine-agnostic, so for a TypeScript engine the bridge is the only thing you write.</p>
+
+<div class="code-block"><code><span class="code-comment">// bridge.ts — your TypeScript engine behind a JSON-lines bridge.</span>
+<span class="code-comment">// Requests: {<span class="code-string">"op"</span>:<span class="code-string">"create"</span>,…} {<span class="code-string">"op"</span>:<span class="code-string">"act"</span>,<span class="code-string">"actor"</span>,<span class="code-string">"type"</span>,<span class="code-string">"amount"</span>,<span class="code-string">"to"</span>} {<span class="code-string">"op"</span>:<span class="code-string">"newHand"</span>,<span class="code-string">"deck"</span>} {<span class="code-string">"op"</span>:<span class="code-string">"state"</span>}</span>
+import { createInterface } from <span class="code-string">"node:readline"</span>;
+import { MyEngine } from <span class="code-string">"./engine"</span>;
+
+let table: MyEngine;
+
+function view() {                        <span class="code-comment">// the same shape as scene.State</span>
+  return {
+    stage: table.street(),               <span class="code-comment">// <span class="code-string">"preflop"</span> | <span class="code-string">"flop"</span> | <span class="code-string">"turn"</span> | <span class="code-string">"river"</span> | <span class="code-string">"showdown"</span> | <span class="code-string">"end"</span></span>
+    actor: table.toAct()?.id ?? <span class="code-string">""</span>,
+    button: table.button(), smallBlind: table.sbPlayer(), bigBlind: table.bbPlayer(),
+    pot: table.pot(), board: table.board(),
+    seats: table.players().map(p =&gt; ({
+      id: p.id, seat: p.seat, stack: p.stack, streetBet: p.inFrontThisStreet, status: p.status,
+    })),
+    legal: table.legalActions().map(a =&gt; ({ type: a.kind, min: a.min, max: a.max })),
+  };
+}
+
+for await (const line of createInterface({ input: process.stdin })) {
+  const req = JSON.parse(line);
+  let out;
+  try {
+    switch (req.op) {
+      case <span class="code-string">"create"</span>:  table = new MyEngine(req.seats, req.smallBlind, req.bigBlind); break;
+      case <span class="code-string">"act"</span>:     table.act(req.actor, req.type, req.to ?? req.amount); break; <span class="code-comment">// <span class="code-string">"to"</span> = street total</span>
+      case <span class="code-string">"newHand"</span>: table.newHand(req.deck); break;
+    }
+    out = { state: view() };
+  } catch (e) {
+    out = { error: String(e) };          <span class="code-comment">// the DSL reports this as a rejection</span>
+  }
+  process.stdout.write(JSON.stringify(out) + <span class="code-string">"\n"</span>);
+}</code></div>
+
+<p>This is the exact shape of the adapter we wrote for <a href="https://github.com/Ge-limin/poker-engine-ts">poker-engine-ts</a>: <a href="https://github.com/block52/poker-scene-dsl/tree/main/adapters/pokerenginets"><code>adapters/pokerenginets</code></a> holds <code>bridge.mjs</code>, the Go table that drives it, and the thirteen passing and two skipped scenarios from the article above. Copy the pair, swap in your engine, and run:</p>
+
+<div class="code-block"><code>go get github.com/block52/poker-scene-dsl
+go test ./...                                               # your scenarios
+
+# the shipped TypeScript example, end to end
+git clone https:<span class="code-comment">//github.com/block52/poker-scene-dsl &amp;&amp; cd poker-scene-dsl</span>
+cd adapters/pokerenginets &amp;&amp; npm ci &amp;&amp; cd ../..
+go test ./adapters/pokerenginets                            # scenarios that pass
+POKER_ENGINE_TS_BUGS=1 go test -v ./adapters/pokerenginets  # include the two known-bug scenarios</code></div>
+
+<p>Pair it with <a href="https://github.com/block52/poker-session-fuzzer">poker-session-fuzzer</a> and every fuzz failure arrives as one of these scenarios, minimised and ready to commit.</p>
 
             <div class="article-cta">
                 <h3>Want to build a poker platform?</h3>
