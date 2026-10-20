@@ -597,7 +597,7 @@
             <a href="blog.html" class="back-link">&larr; Back to Blog</a>
             <span class="section-label">Engineering &amp; Testing</span>
             <h1>The Bugs Between Hands: Fuzzing Whole Poker Sessions</h1>
-            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 7 min read</div>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 9 min read</div>
             <div class="article-tags">
                 <span class="article-tag">Testing</span>
                 <span class="article-tag">Fuzzing</span>
@@ -667,6 +667,148 @@
 <p>The harness doesn't know anything about our engine. You implement two methods, <em>tell me the table</em> and <em>apply this action</em>, map the vocabulary to your engine's, and add three one-line tests: a sweep for CI, a replay for debugging, and a Go fuzz target for overnight runs. If your engine handles anything between hands (busts, the button, sitting out, late joins), there's a good chance this finds something.</p>
 
 <p>poker-session-fuzzer is MIT-licensed.</p>
+
+<h2>A worked adapter, in Go and in TypeScript</h2>
+
+<p>Here is the whole surface the fuzzer asks an engine for. Two methods, and a vocabulary of plain poker words for actions, statuses and rounds. Everything below is in the <a href="https://github.com/block52/poker-session-fuzzer">poker-session-fuzzer</a> README, and the only part you write is the mapping.</p>
+
+<div class="code-block"><code><span class="code-comment">// What the fuzzer needs from any engine. Nothing else.</span>
+type Table interface {
+    State() sessionfuzz.State       <span class="code-comment">// seats, stacks, statuses, legal actions, positions</span>
+    Apply(sessionfuzz.Action) error <span class="code-comment">// reject with an error and leave the table unchanged</span>
+}</code></div>
+
+<p>For an engine written in Go, the adapter is one file in your test package. The left-hand side of each mapping is the fuzzer's; the right-hand side is whatever your engine calls things. The three one-line tests at the bottom are the sweep for CI, the replay for debugging one seed, and the Go fuzz target for long runs.</p>
+
+<div class="code-block"><code><span class="code-comment">// mytable_test.go — adapt your own Go engine. Names on the right are yours.</span>
+type myTable struct{ g *myengine.Game }
+
+func newMyTable(c sessionfuzz.Config) (sessionfuzz.Table, error) {
+    g, err := myengine.New(c.MaxPlayers, c.SmallBlind, c.BigBlind)
+    return &amp;myTable{g: g}, err
+}
+
+<span class="code-comment">// Your statuses → the fuzzer's plain-English ones.</span>
+var status = map[myengine.Status]sessionfuzz.Status{
+    myengine.InHand: sessionfuzz.Active,  myengine.Folded: sessionfuzz.Folded,
+    myengine.AllIn:  sessionfuzz.AllIn,   myengine.Bust:   sessionfuzz.Busted,
+    myengine.Away:   sessionfuzz.SittingOut,
+}
+
+func (t *myTable) State() sessionfuzz.State {
+    s := sessionfuzz.State{
+        Round: round(t.g.Street()), HandNumber: t.g.Hand(), NextToAct: t.g.ToAct(),
+        Dealer: t.g.Button(), SmallBlind: t.g.SBSeat(), BigBlind: t.g.BBSeat(), Pot: t.g.Pot(),
+    }
+    for _, p := range t.g.Players() {
+        s.Players = append(s.Players, sessionfuzz.Player{
+            Address: p.ID, Seat: p.Seat, Stack: p.Stack, Status: status[p.Status],
+            Legal:   legal(p), <span class="code-comment">// each legal action with its min and max</span>
+        })
+    }
+    return s
+}
+
+func (t *myTable) Apply(a sessionfuzz.Action) error {
+    switch a.Action { <span class="code-comment">// <span class="code-string">"fold"</span>, <span class="code-string">"call"</span>, <span class="code-string">"raise"</span>, <span class="code-string">"join"</span>, <span class="code-string">"leave"</span>, <span class="code-string">"sit-out"</span>, <span class="code-string">"new-hand"</span>, <span class="code-string">"deal"</span>, …</span>
+    case sessionfuzz.ActJoin:
+        return t.g.Seat(a.Player, a.Seat, a.Amount)
+    case sessionfuzz.ActNewHand:
+        return t.g.NewHand(a.Deck) <span class="code-comment">// the fuzzer supplies the deck, so a session replays exactly</span>
+    default:
+        return t.g.Act(a.Player, a.Action, a.Amount)
+    }
+}
+
+var engine = sessionfuzz.EngineFunc(newMyTable)
+var opts = sessionfuzz.Options{
+    Known: []sessionfuzz.KnownIssue{{ID: <span class="code-string">"#42"</span>, Match: regexp.MustCompile(`stall-at-end`)}}, <span class="code-comment">// open bug: count it, don't fail</span>
+}
+
+func TestSessionSweep(t *testing.T)  { sessionfuzz.Sweep(t, engine, opts) }  <span class="code-comment">// 200 sessions, plain go test</span>
+func TestSessionReplay(t *testing.T) { sessionfuzz.Replay(t, engine, opts) } <span class="code-comment">// SESSIONFUZZ_SEED=n</span>
+func FuzzSession(f *testing.F)       { sessionfuzz.Fuzz(f, engine, opts) }   <span class="code-comment">// go test -fuzz</span></code></div>
+
+<p>An engine written in TypeScript plugs in the same way, with one extra piece: the engine runs in Node behind a small bridge that reads one JSON request per line and writes one response per line. The bridge does the mapping in TypeScript, so your engine's types never leak into Go. Big integers travel as strings.</p>
+
+<div class="code-block"><code><span class="code-comment">// bridge.ts — your TypeScript engine behind a JSON-lines bridge.</span>
+<span class="code-comment">// One request per line on stdin, one response per line on stdout.</span>
+import { createInterface } from <span class="code-string">"node:readline"</span>;
+import { MyEngine, Status } from <span class="code-string">"./engine"</span>;
+
+const STATUS: Record&lt;Status, string&gt; = {   <span class="code-comment">// your vocabulary → the fuzzer's</span>
+  inHand: <span class="code-string">"active"</span>, folded: <span class="code-string">"folded"</span>, allIn: <span class="code-string">"all-in"</span>,
+  bust: <span class="code-string">"busted"</span>, away: <span class="code-string">"sitting-out"</span>, waiting: <span class="code-string">"sitting-in"</span>,
+};
+
+let table: MyEngine;
+
+function view() {                           <span class="code-comment">// the same shape as sessionfuzz.State</span>
+  return {
+    round: table.street(),                  <span class="code-comment">// <span class="code-string">"preflop"</span> | <span class="code-string">"flop"</span> | <span class="code-string">"turn"</span> | <span class="code-string">"river"</span> | <span class="code-string">"showdown"</span> | <span class="code-string">"end"</span></span>
+    handNumber: table.hand(), nextToAct: table.toAct(),
+    dealer: table.button(), smallBlind: table.sbSeat(), bigBlind: table.bbSeat(),
+    pot: table.pot().toString(),            <span class="code-comment">// big integers travel as strings</span>
+    players: table.players().map(p =&gt; ({
+      address: p.id, seat: p.seat, stack: p.stack.toString(), status: STATUS[p.status],
+      legal: p.legalActions().map(a =&gt; ({ action: a.kind, min: a.min?.toString(), max: a.max?.toString() })),
+    })),
+  };
+}
+
+for await (const line of createInterface({ input: process.stdin })) {
+  const req = JSON.parse(line);
+  let out;
+  try {
+    if (req.op === <span class="code-string">"create"</span>) table = new MyEngine(req.maxPlayers, req.smallBlind, req.bigBlind);
+    else table.apply(req.player, req.action, req.amount, req.deck); <span class="code-comment">// throw to reject</span>
+    out = { state: view() };
+  } catch (e) {
+    out = { error: String(e) };             <span class="code-comment">// the fuzzer treats this as <span class="code-string">"rejected, table unchanged"</span></span>
+  }
+  process.stdout.write(JSON.stringify(out) + <span class="code-string">"\n"</span>);
+}</code></div>
+
+<p>The Go side of that pair is a table that starts <code>node</code> once, sends every <code>Apply</code> over stdin and decodes the state that comes back. It is the same shape as the Go adapter above, with the mapping on the other side of the pipe.</p>
+
+<div class="code-block"><code><span class="code-comment">// tstable_test.go — the Go side: start node once per table, speak JSON lines.</span>
+func newTSTable(c sessionfuzz.Config) (sessionfuzz.Table, error) {
+    cmd := exec.Command(<span class="code-string">"node"</span>, <span class="code-string">"bridge.js"</span>)
+    in, _ := cmd.StdinPipe()
+    outPipe, _ := cmd.StdoutPipe()
+    t := &amp;tsTable{in: in, out: bufio.NewScanner(outPipe)}
+    return t, errors.Join(cmd.Start(), t.call(map[string]any{
+        <span class="code-string">"op"</span>: <span class="code-string">"create"</span>, <span class="code-string">"maxPlayers"</span>: c.MaxPlayers,
+        <span class="code-string">"smallBlind"</span>: c.SmallBlind.String(), <span class="code-string">"bigBlind"</span>: c.BigBlind.String(),
+    }))
+}
+
+func (t *tsTable) Apply(a sessionfuzz.Action) error {
+    return t.call(map[string]any{<span class="code-string">"op"</span>: <span class="code-string">"apply"</span>, <span class="code-string">"player"</span>: a.Player, <span class="code-string">"action"</span>: a.Action,
+        <span class="code-string">"amount"</span>: a.Amount.String(), <span class="code-string">"seat"</span>: a.Seat, <span class="code-string">"deck"</span>: a.Deck})
+}
+
+func (t *tsTable) State() sessionfuzz.State { return t.last } <span class="code-comment">// decoded from the last response</span>
+
+func (t *tsTable) call(req map[string]any) error {
+    b, _ := json.Marshal(req)
+    t.in.Write(append(b, '\n'))
+    t.out.Scan()
+    var resp struct{ State *wireState; Error string }
+    json.Unmarshal(t.out.Bytes(), &amp;resp)
+    if resp.Error != <span class="code-string">""</span> { return errors.New(resp.Error) }
+    t.last = resp.State.toFuzz() <span class="code-comment">// strings back to *big.Int, statuses to sessionfuzz.Status</span>
+    return nil
+}</code></div>
+
+<p>This is not hypothetical. The scene DSL repository ships a complete, working bridge of exactly this shape for <a href="https://github.com/Ge-limin/poker-engine-ts">poker-engine-ts</a>, an open-source TypeScript engine: <a href="https://github.com/block52/poker-scene-dsl/tree/main/adapters/pokerenginets"><code>adapters/pokerenginets</code></a> holds <code>bridge.mjs</code> and the Go adapter that drives it. Copy the pair, swap in your engine, and run:</p>
+
+<div class="code-block"><code>go get github.com/block52/poker-session-fuzzer
+go test -run TestSessionSweep ./...                         # deterministic, for CI
+SESSIONFUZZ_SEED=49 go test -run TestSessionReplay -v ./...  # print one session in full
+go test -run '^$' -fuzz FuzzSession -fuzztime 10m ./...      # coverage-guided, overnight</code></div>
+
+<p>If a sweep fails, the output is a session script, the final table, and a minimised <a href="https://github.com/block52/poker-scene-dsl">poker-scene-dsl</a> scenario you can paste straight into a test. If it passes, add the known-issue list as bugs appear and let it run every night.</p>
 
             <div class="article-cta">
                 <h3>Want to build a poker platform?</h3>
