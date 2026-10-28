@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Director Lands: Multi-Table Tournaments Merge, and Their First Pieces Reach the Sit-and-Go | 9 High Studios</title>
+    <meta name="description" content="A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 53 merged pull requests, the multi-table tournament engine merged to main, three engine releases through three coordinated halts, and blind structures, late registration and fixed-limit hold'em for the sit-and-go.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Director Lands: Multi-Table Tournaments Merge, and Their First Pieces Reach the Sit-and-Go">
+    <meta property="og:description" content="A month of multi-table tournament work left its branch for main, and the parts of it that already make sense at one table reached the chain the same week.">
+    <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://ninehighstudios.com/article-director-lands.html">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "The Director Lands: Multi-Table Tournaments Merge, and Their First Pieces Reach the Sit-and-Go",
+        "description": "A one-week build log across the Block 52 UI, Poker Virtual Machine and chain: 53 merged pull requests, the multi-table tournament engine merged to main, three engine releases through three coordinated halts, and blind structures, late registration and fixed-limit hold'em for the sit-and-go.",
+        "image": "https://ninehighstudios.com/og-image.png",
+        "datePublished": "2026-10-28",
+        "dateModified": "2026-10-28",
+        "url": "https://ninehighstudios.com/article-director-lands.html",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ninehighstudios.com/article-director-lands.html" },
+        "author": { "@type": "Organization", "name": "9 High Studios", "url": "https://ninehighstudios.com" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "9 High Studios",
+            "logo": { "@type": "ImageObject", "url": "https://ninehighstudios.com/og-image.png" }
+        }
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Month marker */
+        .month-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 0.35rem;
+        }
+
+        /* Repo pills */
+        .repo-pill {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            background: var(--charcoal);
+            color: var(--white);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-right: 0.3rem;
+        }
+
+        /* Stat grid — live production metrics */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            display: block;
+            font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+        }
+        @media (max-width: 640px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Diagram / flow block */
+        .flow-block {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .flow-block h4 {
+            color: var(--white);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            min-width: 110px;
+        }
+
+        .flow-step strong {
+            display: block;
+            color: var(--white);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .flow-step span {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+        }
+
+        .flow-arrow {
+            color: var(--red);
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Engineering &amp; Build Log</span>
+            <h1>The Director Lands: Multi-Table Tournaments Merge, and Their First Pieces Reach the Sit-and-Go</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 7 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Build Log</span>
+                <span class="article-tag">Tournaments</span>
+                <span class="article-tag">Engine</span>
+                <span class="article-tag">Releases</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+            <p class="lead">A month of multi-table tournament work left its branch for main, and the parts of it that already make sense at one table reached the chain the same week. Between <strong>19 October and 25 October 2026</strong> we merged <strong>53 pull requests</strong> across the three Block 52 repositories, adding <strong>39,733 lines</strong> and removing <strong>3,772</strong>. The engine cut <strong>three releases</strong>, the SDK <strong>five</strong> and the chain <strong>five</strong>, three of them behind a coordinated halt. The biggest change is the multi-table tournament engine reaching main. The changes players can use today are three new ways to set up a sit-and-go: a blind structure, late registration and fixed-limit betting.</p>
+
+            <h2>The scoreboard</h2>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-number">53</span>
+                    <span class="stat-label">Pull requests merged</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">43,505</span>
+                    <span class="stat-label">Lines changed</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">39,733</span>
+                    <span class="stat-label">Lines added</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">3,772</span>
+                    <span class="stat-label">Lines removed</span>
+                </div>
+            </div>
+
+            <p>The three repositories broke down like this:</p>
+
+            <ul>
+                <li><span class="repo-pill">UI</span> The client &mdash; <strong>28 PRs</strong>, 7,486 lines changed (6,875 added, 611 removed).</li>
+                <li><span class="repo-pill">PVM</span> The Poker Virtual Machine &mdash; <strong>18 PRs</strong>, 31,882 lines changed (29,547 added, 2,335 removed).</li>
+                <li><span class="repo-pill">Chain</span> The settlement chain &mdash; <strong>7 PRs</strong>, 4,137 lines changed (3,311 added, 826 removed).</li>
+            </ul>
+
+            <p>The honest footnote: <strong>16,604</strong> of the PVM's added lines are two generated files in one pull request, the multi-table golden corpus (15,209 lines of JSON) and its readable rendering (1,395). Another <strong>1,955</strong> lines, added and removed in equal number, are hand-history fixtures re-baselined after deliberate changes to what the engine records. Leave the golden corpus out and the engine added 12,943 lines and the week 23,129.</p>
+
+            <h2>The tournament director reaches main</h2>
+
+            <p>Multi-table tournaments have been built since early October on one branch, so the whole stack could be tested end to end before any of it touched main. On 23 October it merged: a tournament director that owns the field, the clock and the payouts; directed tables, which take their players, blinds and hand starts from the director instead of from clients; blind structures; big-blind antes; the tournament dealer rule; a leaderboard; and the golden corpus.</p>
+
+            <p>The golden corpus is what holds it in place. It runs a <strong>20-entrant, three-table tournament</strong> down to the final table: <strong>76 hands</strong> and <strong>589 inputs</strong>, players moved between tables at hand boundaries as the field shrinks, and <strong>2 tables broken</strong>. No client acts in it at all. The director starts every hand and the action clock plays every turn, so it tests the parts of a tournament that must work when nobody is clicking. The file pins the SHA-256 of the state after every input, so an engine change that alters one byte of one state fails the test until the corpus is regenerated on purpose.</p>
+
+            <p>What it is not yet is playable. Engine <strong>v1.0.27</strong> carries all of it and the chain has pinned it since 23 October, so the code is in every validator. But there is no message to create a multi-table tournament, and the director needs the engine to start hands by itself, which the chain does not yet allow. The chain's new tournament leaderboard query serves the engine's ranking verbatim; until a tournament exists, it answers "not found".</p>
+
+            <h2>What reached the sit-and-go</h2>
+
+            <p>Blind structures were built for multi-table tournaments, but nothing about them needs a second table, so sit-and-gos adopted them now. A sit-and-go used to have one schedule, with the blinds doubling every so many minutes. It can now be created with:</p>
+
+            <ul>
+                <li><strong>A preset.</strong> Hyper-turbo (three-minute levels from 50/100), turbo (five minutes), standard (ten) and deep stack (fifteen minutes, blinds rising by half each level). Each adds a big-blind ante a few levels in.</li>
+                <li><strong>A structure of your own</strong>: doubling, linear or percentage growth, or an explicit table of levels with their own blinds, antes and durations. The SDK reads and writes a text form, so a structure can be written by hand as <code>BLINDS turbo</code> or a <code>BLINDS custom { … }</code> block.</li>
+            </ul>
+            <p>The chain checks a structure at creation with the engine's own validation, so a bad one is refused before the table exists rather than stranding it later. The create form has a structure selector with a preview of the levels, and sit-and-go tables have a <strong>Blinds</strong> tab with every level, the ante and a countdown to the next.</p>
+
+            <p><strong>Late registration</strong> came to scheduled sit-and-gos. A table can stay open after its start time while the blind level is below a number set at creation, and closes as soon as anyone has finished in the money. A late entrant gets the full starting stack and waits for the big blind. All four layers shipped it on 24 October, and it was tested on the main chain before the week was out.</p>
+
+            <p><strong>Fixed-limit hold'em</strong> joins no-limit and pot-limit. Bets and raises are one big blind before the flop and on the flop, two on the turn and river, with four bets a street at most; before the flop the big blind counts as the first. A contributor wrote the engine half, their first pull request to the engine. The chain accepts fixed-limit for hold'em and still refuses it for Omaha, because the fuzzing so far covers hold'em. The client creates fixed-limit tables, and its bet controls show the single legal amount.</p>
+
+            <h2>Three engine releases, three halts</h2>
+
+            <ul>
+                <li><strong>v1.0.26</strong> on 20 October fixed the order winners of a pot are listed in, and froze blind positions from the blinds actually posted instead of recomputing them from whoever is active. It went out as <strong>v0.1.188</strong>, under the halt during which last week's stalled release pipeline was found and restarted. The pipeline fix followed the next morning as <strong>v0.1.189</strong>, so a failed Docker push no longer skips the deploy.</li>
+                <li><strong>v1.0.27</strong> on 23 October carried multi-table tournaments and blind structures, and went out as <strong>v0.1.190</strong> with the chain's blind-structure field and the leaderboard query. It also carries the engine half of commit-and-reveal dealing, which removes trust in the dealing validator and stays dormant until the chain half lands.</li>
+                <li><strong>v0.1.191</strong> on 24 October retired a chain message the client no longer needs. The engine already records each finisher's result on the action that busts them, so a sit-and-go claim now just leaves the table.</li>
+                <li><strong>v1.0.28</strong> on 24 October carried late registration and fixed-limit hold'em, as <strong>v0.1.192</strong>.</li>
+            </ul>
+            <p>Two of these needed the client to move first, and this time the order was planned rather than discovered. The claim change was one. The other was the winning hand's wording, such as "Full House, Eights over Sevens", which used to be part of the state the chain stores, so changing a word was a hard fork. The engine now reports only the cards and the SDK derives the words. It needs the board as well as the hand to tell a "Set of Sevens" from "Trip Sevens". The client switched to the SDK's words before v1.0.27 was released, so no winner went unlabelled in between.</p>
+
+            <h2>What the fuzzer found</h2>
+
+            <p>Within three days of the blind-position fix, the session fuzzer found a case it missed. If both blinds post, both players leave before the deal and come straight back, and only the small blind sits in again, the big blind's seat stayed the big blind with its player out of the hand. That is fixed in v1.0.27. The production sit-and-go payouts are now pinned by a test, and so is the guarantee the claim change relies on: a bust's result is recorded the moment it happens and stays put while the rest of the field plays on.</p>
+
+            <h2>The client</h2>
+
+            <ul>
+                <li><strong>At the table.</strong> An observer can call the clock on a stalled opponent. A replay control steps through the session's hands at the table, showing the hole cards the viewer actually knew at each step. Chips are photoreal marble by default with a flat option, in dollars and cents at cash tables and plain points at tournaments. The pot can be shown as chips.</li>
+                <li><strong>Winning.</strong> A banner names the last pot's winner and hand, a "+amount" pill rises from the winning seat, and the celebration can be switched off.</li>
+                <li><strong>Betting.</strong> Opening-raise buttons for 2×, 2.5×, 3× and 5× the big blind. Pot presets a stack can't cover are greyed out instead of turning into a shove. An armed <strong>Call {amount}</strong> no longer calls a raise that lands just before the player's turn; only <strong>Call Any</strong> does.</li>
+                <li><strong>Creating.</strong> The create form offers Cash Game, Sit &amp; Go and Tournament, where a Tournament is a scheduled sit-and-go. <strong>Start now</strong> follows the start time and minimum players. Admins can set late registration from the tables page.</li>
+                <li><strong>Fixed.</strong> Recent Transactions no longer shows other players' joins as your own debit.</li>
+            </ul>
+            <p>Thirteen of the client's 28 pull requests came from two contributors. The client's main branch now requires a code-owner approval and green build, unit and end-to-end checks before anything merges.</p>
+
+            <h2>Where that leaves it</h2>
+
+            <p>The multi-table engine is on main, released and running inside every validator, but no one can enter a tournament on the chain yet. What changes that is the chain side of the director, and it waits on the engine starting its own hands. Meanwhile a sit-and-go can be created with a blind structure, kept open for late entrants or played fixed-limit, and late registration has already been tested on the main chain. The halt procedure ran three times without incident, with the client deployed first where it had to be.</p>
+
+            <div class="article-cta">
+                <h3>Want to build a poker platform?</h3>
+                <p>We build provably fair, real-money poker where every hand is shuffled by verifiable randomness and settled on a public blockchain. We'd love to hear about your project.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
