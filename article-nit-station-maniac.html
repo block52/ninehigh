@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Nit, the Station, and the Maniac: What On-Chain Poker Data Says About How You Play | 9 High Studios</title>
+    <meta name="description" content="Every hand on Block 52 is public, so we asked the indexer some fun questions: who is the biggest nit, the loosest player, the calling station? Three weeks of live data, eight awards, one poker morality tale — and a production bug we caught along the way.">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The Nit, the Station, and the Maniac: What On-Chain Poker Data Says About How You Play">
+    <meta property="og:description" content="Who is the biggest nit? The loosest player? The calling station? Three weeks of live on-chain poker data, eight awards, one morality tale — and a production bug we caught along the way.">
+    <meta property="og:image" content="https://ninehighstudios.com/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="https://ninehighstudios.com/article-nit-station-maniac.html">
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "The Nit, the Station, and the Maniac: What On-Chain Poker Data Says About How You Play",
+        "description": "Every hand on Block 52 is public, so we asked the indexer some fun questions: who is the biggest nit, the loosest player, the calling station? Three weeks of live data, eight awards, one poker morality tale — and a production bug we caught along the way.",
+        "image": "https://ninehighstudios.com/og-image.png",
+        "datePublished": "2026-10-30",
+        "dateModified": "2026-10-30",
+        "url": "https://ninehighstudios.com/article-nit-station-maniac.html",
+        "mainEntityOfPage": { "@type": "WebPage", "@id": "https://ninehighstudios.com/article-nit-station-maniac.html" },
+        "author": { "@type": "Organization", "name": "9 High Studios", "url": "https://ninehighstudios.com" },
+        "publisher": {
+            "@type": "Organization",
+            "name": "9 High Studios",
+            "logo": { "@type": "ImageObject", "url": "https://ninehighstudios.com/og-image.png" }
+        }
+    }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9830;</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #fafafa;
+            --light-gray: #f5f5f5;
+            --mid-gray: #e0e0e0;
+            --dark-gray: #333333;
+            --charcoal: #1a1a1a;
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #e63950;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--white);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+
+        /* Nav (matches main site) */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--mid-gray);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--red);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span { color: var(--charcoal); font-weight: 300; }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--red); }
+
+        /* Mobile Menu */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        /* Article Header */
+        .article-header {
+            padding: 8rem 5% 3rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            color: var(--red);
+            font-size: 0.85rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--red);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--red-dark);
+        }
+
+        .article-header h1 {
+            font-size: clamp(2rem, 5vw, 2.75rem);
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-bottom: 1rem;
+            line-height: 1.25;
+        }
+
+        .article-meta-info {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.75rem;
+        }
+
+        .article-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+
+        /* Article Body */
+        .article-body {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 5% 4rem;
+        }
+
+        .article-body h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--charcoal);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--mid-gray);
+        }
+
+        .article-body h2:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .article-body h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--charcoal);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .article-body p {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.25rem;
+        }
+
+        .article-body strong {
+            color: var(--charcoal);
+        }
+
+        .article-body a {
+            color: var(--red);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .article-body .btn-primary {
+            color: var(--white);
+            border-bottom: none;
+        }
+
+        .article-body a:hover {
+            border-bottom-color: var(--red);
+        }
+
+        .article-body ul, .article-body ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+        }
+
+        .article-body li {
+            color: var(--dark-gray);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Lead paragraph */
+        .lead {
+            font-size: 1.2rem !important;
+            color: var(--charcoal) !important;
+            font-weight: 400;
+            border-left: 3px solid var(--red);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem !important;
+            line-height: 1.7 !important;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0d;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border: 1px solid #333;
+        }
+
+        .code-block code {
+            color: #e0e0e0;
+        }
+
+        .code-comment { color: #6a9955; }
+        .code-keyword { color: var(--red-light); }
+        .code-string { color: #98c379; }
+        .code-number { color: #d19a66; }
+
+        /* Inline code */
+        .article-body code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--charcoal);
+        }
+
+        /* Callout / highlight box */
+        .callout {
+            background: var(--light-gray);
+            border-left: 4px solid var(--red);
+            padding: 1.5rem;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .callout p {
+            margin-bottom: 0 !important;
+            font-size: 1rem !important;
+        }
+
+        .callout strong {
+            color: var(--charcoal);
+        }
+
+        /* Stat grid — live production metrics */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: var(--light-gray);
+            border: 1px solid var(--mid-gray);
+            border-radius: 6px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .stat-card .stat-number {
+            display: block;
+            font-size: clamp(1.6rem, 4vw, 2.1rem);
+            font-weight: 700;
+            color: var(--red);
+            line-height: 1.1;
+        }
+        .stat-card .stat-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 0.5rem;
+            line-height: 1.3;
+        }
+        @media (max-width: 640px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Awards table */
+        .awards-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-size: 0.95rem;
+        }
+        .awards-table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background: var(--charcoal);
+            color: var(--white);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .awards-table td {
+            padding: 0.85rem 1rem;
+            border-bottom: 1px solid var(--mid-gray);
+            color: var(--dark-gray);
+            vertical-align: top;
+            line-height: 1.6;
+        }
+        .awards-table td:first-child {
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+        .awards-table code {
+            font-family: 'SF Mono', 'Consolas', 'Fira Code', monospace;
+            background: var(--light-gray);
+            padding: 0.1rem 0.35rem;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+        @media (max-width: 640px) {
+            .awards-table { font-size: 0.85rem; }
+            .awards-table th, .awards-table td { padding: 0.6rem 0.5rem; }
+        }
+
+        /* Article CTA */
+        .article-cta {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            text-align: center;
+        }
+
+        .article-cta h3 {
+            color: var(--white) !important;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            margin-top: 0 !important;
+        }
+
+        .article-cta p {
+            color: rgba(255,255,255,0.7) !important;
+            font-size: 1rem !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            background: var(--white);
+            border-top: 1px solid var(--mid-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--red);
+        }
+
+        .footer-logo span { color: var(--charcoal); font-weight: 300; }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--red); }
+
+        .copyright {
+            color: var(--dark-gray);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                box-shadow: -5px 0 30px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .nav-links li {
+                border-bottom: 1px solid var(--mid-gray);
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 1rem 0;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .article-header {
+                padding: 7rem 5% 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="logo">9 HIGH <span>STUDIOS</span> &#9830;</a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html" style="color: var(--red);">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <article>
+        <div class="article-header">
+            <a href="blog.html" class="back-link">&larr; Back to Blog</a>
+            <span class="section-label">Data &amp; Transparency</span>
+            <h1>The Nit, the Station, and the Maniac: What On-Chain Poker Data Says About How You Play</h1>
+            <div class="article-meta-info">By Nine High Studios &middot; October 2026 &middot; 6 min read</div>
+            <div class="article-tags">
+                <span class="article-tag">Data</span>
+                <span class="article-tag">Indexer</span>
+                <span class="article-tag">Transparency</span>
+                <span class="article-tag">Poker</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+
+            <p class="lead">Every hand dealt on Block 52 is settled on a public blockchain, and our indexer keeps the receipts. Usually we use that data for serious things &mdash; auditing shuffle randomness, proving the deck is fair. Today we used it for something better: finding out <strong>who the biggest nit is</strong>.</p>
+
+            <h2>The Dataset</h2>
+
+            <p>Our public indexer at <a href="https://indexer.block52.xyz/health">indexer.block52.xyz</a> watches the chain and records every hand, every action, every buy-in and cash-out. Over the last three weeks it has seen:</p>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <span class="stat-number">2,290</span>
+                    <span class="stat-label">Hands dealt</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">50</span>
+                    <span class="stat-label">Games</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">50</span>
+                    <span class="stat-label">Wallets at the tables</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">21</span>
+                    <span class="stat-label">Days of play</span>
+                </div>
+            </div>
+
+            <p>Everything below comes from the indexer's public REST API &mdash; the same one anybody can query. No private database, no admin panel. That's the point of the whole system: if we can compute it, so can you.</p>
+
+            <p>One note on method. For each wallet the indexer records how its decisions break down &mdash; folds, checks, calls, bets and raises. We measured <strong>looseness</strong> as the share of decisions where a player voluntarily put money in the pot (call, bet or raise), <strong>nittiness</strong> as the share where they folded, and the classic <strong>aggression factor</strong> as bets-plus-raises divided by calls. We only ranked wallets with at least 150 recorded decisions, so nobody wins an award for folding three hands and going home.</p>
+
+            <h2>The Awards</h2>
+
+            <table class="awards-table">
+                <tr>
+                    <th>Award</th>
+                    <th>Wallet</th>
+                    <th>The evidence</th>
+                </tr>
+                <tr>
+                    <td>&#129482; Biggest nit</td>
+                    <td><code>b521mhf0g&hellip;85xn</code></td>
+                    <td>Folds <strong>46%</strong> of all decisions &mdash; 88 folds against 71 money-in actions. Net result: &minus;7.00 USDC.</td>
+                </tr>
+                <tr>
+                    <td>&#127906; Loosest player</td>
+                    <td><code>b521c4r8q&hellip;9ecu</code></td>
+                    <td>Puts money in on <strong>62%</strong> of decisions and folds just 13% of the time. Net: &minus;3.00 USDC.</td>
+                </tr>
+                <tr>
+                    <td>&#128293; The maniac</td>
+                    <td><code>b521sjny6&hellip;d07n</code></td>
+                    <td>Aggression factor <strong>2.0</strong> &mdash; 203 bets and raises against only 102 calls.</td>
+                </tr>
+                <tr>
+                    <td>&#128222; Calling station</td>
+                    <td><code>b5210fw5u&hellip;2tgc</code></td>
+                    <td>Aggression factor <strong>0.38</strong> &mdash; <strong>589 calls</strong> against just 224 bets and raises.</td>
+                </tr>
+                <tr>
+                    <td>&#128128; Card dead</td>
+                    <td><code>b521mhf0g&hellip;85xn</code></td>
+                    <td>Won <strong>1 of 35</strong> finished hands. Yes &mdash; the nit again. Folded his way to a 3% win rate.</td>
+                </tr>
+                <tr>
+                    <td>&#128081; Table boss</td>
+                    <td><code>b521sjny6&hellip;d07n</code></td>
+                    <td>Won <strong>77 of 142</strong> hands (54%), took down the biggest recorded pot, and is the only meaningful winner in the dataset: <strong>+3.66 USDC</strong>.</td>
+                </tr>
+                <tr>
+                    <td>&#128201; Biggest loser</td>
+                    <td><code>b5210fw5u&hellip;2tgc</code></td>
+                    <td><strong>&minus;32.00 USDC</strong>. Yes &mdash; the calling station. The classics hold up.</td>
+                </tr>
+                <tr>
+                    <td>&#9935;&#65039; The grinder</td>
+                    <td><code>b521p0tky&hellip;x3j6</code></td>
+                    <td><strong>209 hands</strong> and 2,489 recorded actions &mdash; the most volume at the tables&hellip; for &minus;27.00 USDC.</td>
+                </tr>
+            </table>
+
+            <p>You could not script a better poker morality tale. The aggressive player who wins more than half the hands he plays is the only one in profit. The calling station &mdash; who calls two and a half times more often than he bets or raises &mdash; is the biggest loser by a mile. And the nit folded 46% of his decisions, won one single hand, and <em>still</em> lost money. Fifty years of poker literature, confirmed by a Postgres query.</p>
+
+            <div class="callout">
+                <p><strong>Every one of these numbers is public.</strong> The addresses are on-chain identities, the hands are settled on a public blockchain, and the indexer API that produced this table is open to anyone. Your poker stats aren't our data &mdash; they're everybody's. Play accordingly.</p>
+            </div>
+
+            <h2>The Bug We Found on the Way</h2>
+
+            <p>Here's the part we didn't plan. While pulling these numbers we noticed the table boss's profile endpoint claiming he'd made <strong>24,168 actions</strong>, while the player directory &mdash; computed by a different code path &mdash; said <strong>2,014</strong>. A tidy 12&times; disagreement.</p>
+
+            <p>The cause was a classic SQL mistake: the live stats query joined the sessions table to the actions table on <em>player address alone</em>, so every session row got multiplied by the player's total action count &mdash; a cross join hiding inside an innocent-looking <code>LEFT JOIN</code>. A player with three sessions and five hundred actions would report five hundred times his real buy-in total.</p>
+
+            <p>Because the indexer is open source, the fix is public too: the query now aggregates each table separately and combines the results &mdash; the same shape the database's own refresh function already used. The bug was filed, fixed, reviewed and merged the same morning these awards were computed.</p>
+
+            <div class="callout">
+                <p><strong>Transparency cuts both ways.</strong> The same open data that lets us name the loosest player at the table lets anyone catch our bugs. We think that's a fair trade &mdash; it's the entire premise of the product.</p>
+            </div>
+
+            <h2>Caveats, Because We Keep Receipts</h2>
+
+            <ul>
+                <li>Playing-style numbers are derived from recorded action counts, not a full VPIP/PFR engine &mdash; that's coming to the indexer's aggregate pipeline.</li>
+                <li>Net-profit figures count completed buy-ins and cash-outs; wallets still sitting at a table have buy-ins recorded but no cash-out yet, so individual nets are directional, not final.</li>
+                <li>Three weeks and fifty wallets is a small sample. The nit may yet become a maniac. We'll be watching. So can you.</li>
+            </ul>
+
+            <div class="article-cta">
+                <h3>Want to build a poker platform?</h3>
+                <p>We build provably fair, real-money poker where every hand is shuffled by verifiable randomness, settled on a public blockchain &mdash; and auditable down to who the biggest nit is. We'd love to hear about your project.</p>
+                <a href="contact.html" class="btn btn-primary">Get in Touch</a>
+            </div>
+
+        </div>
+    </article>
+
+    <footer>
+        <div class="footer-logo">9 HIGH <span>STUDIOS</span> &#9830;</div>
+        <ul class="footer-links">
+            <li><a href="index.html#product">Product</a></li>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="index.html#research">Research</a></li>
+            <li><a href="index.html#team">Team</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <span class="copyright">&copy; <span id="year"></span> 9 High Studios. All rights reserved.</span>
+    </footer>
+
+    <script>
+        // Dynamic year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
