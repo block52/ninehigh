@@ -624,7 +624,7 @@
                 <tr>
                     <td>&#128128; Card dead</td>
                     <td><code>b521mhf0g&hellip;85xn</code></td>
-                    <td>Won <strong>1 of 35</strong> finished hands. Yes &mdash; the nit again. Folded his way to a 3% win rate.</td>
+                    <td>Won <strong>1 of 35</strong> finished hands. Yes &mdash; the nit again. Folded their way to a 3% win rate.</td>
                 </tr>
                 <tr>
                     <td>&#128081; Table boss</td>
@@ -643,7 +643,7 @@
                 </tr>
             </table>
 
-            <p>You could not script a better poker morality tale. The aggressive player who wins more than half the hands he plays is the only one in profit. The calling station &mdash; who calls two and a half times more often than he bets or raises &mdash; is the biggest loser by a mile. And the nit folded 46% of his decisions, won one single hand, and <em>still</em> lost money. Fifty years of poker literature, confirmed by a Postgres query.</p>
+            <p>You could not script a better poker morality tale. The aggressive player who wins more than half the hands they play is the only one in profit. The calling station &mdash; who calls two and a half times more often than they bet or raise &mdash; is the biggest loser by a mile. And the nit folded 46% of their decisions, won one single hand, and <em>still</em> lost money. Fifty years of poker literature, confirmed by a Postgres query.</p>
 
             <div class="callout">
                 <p><strong>Every one of these numbers is public.</strong> The addresses are on-chain identities, the hands are settled on a public blockchain, and the indexer API that produced this table is open to anyone. Your poker stats aren't our data &mdash; they're everybody's. Play accordingly.</p>
@@ -651,9 +651,9 @@
 
             <h2>The Bug We Found on the Way</h2>
 
-            <p>Here's the part we didn't plan. While pulling these numbers we noticed the table boss's profile endpoint claiming he'd made <strong>24,168 actions</strong>, while the player directory &mdash; computed by a different code path &mdash; said <strong>2,014</strong>. A tidy 12&times; disagreement.</p>
+            <p>Here's the part we didn't plan. While pulling these numbers we noticed the table boss's profile endpoint claiming they'd made <strong>24,168 actions</strong>, while the player directory &mdash; computed by a different code path &mdash; said <strong>2,014</strong>. A tidy 12&times; disagreement.</p>
 
-            <p>The cause was a classic SQL mistake: the live stats query joined the sessions table to the actions table on <em>player address alone</em>, so every session row got multiplied by the player's total action count &mdash; a cross join hiding inside an innocent-looking <code>LEFT JOIN</code>. A player with three sessions and five hundred actions would report five hundred times his real buy-in total.</p>
+            <p>The cause was a classic SQL mistake: the live stats query joined the sessions table to the actions table on <em>player address alone</em>, so every session row got multiplied by the player's total action count &mdash; a cross join hiding inside an innocent-looking <code>LEFT JOIN</code>. A player with three sessions and five hundred actions would report five hundred times their real buy-in total.</p>
 
             <p>Because the indexer is open source, the fix is public too: the query now aggregates each table separately and combines the results &mdash; the same shape the database's own refresh function already used. The bug was filed, fixed, reviewed and merged the same morning these awards were computed.</p>
 
